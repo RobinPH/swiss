@@ -1,343 +1,158 @@
-import FiniteAutomata, { State } from "../FiniteAutomata";
+import { FiniteAutomata } from "../FiniteAutomata";
+import { Cloneable } from "../types";
 
-export default class RegularExpression<T extends string> {
-  fa: FiniteAutomata<T>;
-  startState: State<T>;
-  endStates = new Array<State<T>>();
+export class RegularExpression<T extends any> implements Cloneable {
+  static readonly EMPTY_SPACE = RegularExpression.atom(
+    FiniteAutomata.EPSILON,
+    "epsilon"
+  );
 
-  constructor(
-    params: {
-      fa?: FiniteAutomata<T>;
-      startState?: State<T>;
-      endStates?: Array<State<T>>;
-    } = {}
-  ) {
-    this.fa = params.fa ?? new FiniteAutomata<T>();
-    this.startState = params.startState
-      ? this.fa.getState(params.startState.id)
-      : new State({
-          value: [],
-          isStart: true,
-          isAcceptState: true,
-        });
-    this.fa.addState(this.startState);
-    this.endStates = (params.endStates ?? [this.startState]).map((s) =>
-      this.fa.getState(s.id)
-    );
+  machine: FiniteAutomata<T>;
+
+  constructor(machine: FiniteAutomata<T>) {
+    this.machine = machine.clone();
   }
 
-  test(word: string) {
-    return this.fa.check(word);
-  }
-
-  clone(newId = false) {
-    const regex = new RegularExpression();
-
-    regex.fa = this.fa.clone(newId);
-
-    if (newId) {
-      regex.startState = regex.fa.getState(
-        regex.fa.newIdMapping.get(this.startState.id)!
-      );
-
-      regex.endStates = this.endStates.map((endState) =>
-        regex.fa.getState(regex.fa.newIdMapping.get(endState.id)!)
-      );
-    } else {
-      regex.startState = regex.fa.getState(this.startState.id);
-      regex.endStates = this.endStates.map((endState) =>
-        regex.fa.getState(endState.id)
-      );
-    }
-
+  clone() {
+    const regex = new RegularExpression(this.machine) as this;
     return regex;
   }
 
-  static CONCAT<U extends string, V extends string>(params: {
-    value: string[];
-    args: [a: RegularExpression<U>, b: RegularExpression<V>];
+  check(input: string, index = 0) {
+    const result = this.machine.check(input, index);
+
+    if (result && result.to === input.length) {
+      return result;
+    }
+
+    return;
+  }
+
+  static concat<U extends RegularExpression<any>[]>(params: {
+    label?: string;
+    value: U extends RegularExpression<infer X>[] ? X : null;
+    args: U;
   }) {
-    const {
-      args: [a, b],
-      value,
-    } = params;
-
-    const regExA = a.clone(true);
-    const regExB = b.clone(true);
-
-    const fa = regExA.fa.merge(regExB.fa);
-
-    const [startState] = fa.addState(
-      new State({
-        isStart: true,
-      })
-    );
-
-    const endStates = fa.addState(
-      new State({
-        isAcceptState: true,
-        value,
-      })
-    );
-
-    fa.getState(regExA.startState.id).isStart = false;
-    fa.getState(regExA.startState.id).isAcceptState = false;
-
-    for (const endStateA of regExA.endStates) {
-      fa.getState(endStateA.id).isStart = false;
-      fa.getState(endStateA.id).isAcceptState = true;
-    }
-
-    fa.getState(regExB.startState.id).isStart = false;
-    fa.getState(regExB.startState.id).isAcceptState = false;
-
-    for (const endStateB of regExB.endStates) {
-      fa.getState(endStateB.id).isStart = false;
-      fa.getState(endStateB.id).isAcceptState = true;
-    }
-
-    const regex = new RegularExpression({
-      fa,
-      startState,
-      endStates,
+    const machine = new FiniteAutomata({
+      label: params.label,
+      value: params.value,
     });
 
-    for (const endState of regExA.endStates) {
-      fa.getState(endState.id).isAcceptState = false;
-    }
-
-    for (const endState of regExB.endStates) {
-      fa.getState(endState.id).isAcceptState = false;
-    }
-
-    fa.addTransition(
+    machine.addTransition(
       FiniteAutomata.EPSILON,
-      startState.id,
-      regExA.startState.id
+      params.args.map((arg) => arg.clone().machine)
     );
 
-    for (const endStateA of regExA.endStates) {
-      fa.addTransition(
-        FiniteAutomata.EPSILON,
-        endStateA.id,
-        regExB.startState.id
-      );
-    }
-
-    for (const endStateB of regExB.endStates) {
-      fa.addTransition(FiniteAutomata.EPSILON, endStateB.id, endStates[0].id);
-    }
-
-    return regex;
+    return new RegularExpression(machine);
   }
 
-  static OR<U extends string, V extends string>(params: {
-    args: [a: RegularExpression<U>, b: RegularExpression<V>];
+  static or<U extends RegularExpression<any>[]>(params: {
+    label?: string;
+    value: U extends RegularExpression<infer X>[] ? X : null;
+    args: U;
   }) {
-    const {
-      args: [a, b],
-    } = params;
-
-    const regExA = a.clone(true);
-    const regExB = b.clone(true);
-
-    const fa = regExA.fa.merge(regExB.fa);
-
-    const [startState] = fa.addState(
-      new State({
-        isStart: true,
-      })
-    );
-
-    fa.getState(regExA.startState.id).isStart = false;
-    fa.getState(regExA.startState.id).isAcceptState = false;
-
-    for (const endStateA of regExA.endStates) {
-      fa.getState(endStateA.id).isStart = false;
-      fa.getState(endStateA.id).isAcceptState = true;
-    }
-
-    fa.getState(regExB.startState.id).isStart = false;
-    fa.getState(regExB.startState.id).isAcceptState = false;
-
-    for (const endStateB of regExB.endStates) {
-      fa.getState(endStateB.id).isStart = false;
-      fa.getState(endStateB.id).isAcceptState = true;
-    }
-
-    const regex = new RegularExpression({
-      fa,
-      startState,
-      endStates: [...regExA.endStates, ...regExB.endStates].map((s) =>
-        fa.getState(s.id)
-      ),
+    const machine = new FiniteAutomata({
+      label: params.label,
+      value: params.value,
     });
 
-    fa.addTransition(
-      FiniteAutomata.EPSILON,
-      startState.id,
-      regExA.startState.id,
-      regExB.startState.id
-    );
-
-    return regex;
-  }
-
-  static STAR<U extends string>(params: {
-    value: string[];
-    args: [RegularExpression<U>];
-  }) {
-    const {
-      args: [a],
-      value,
-    } = params;
-
-    const regExA = a.clone(true);
-    const fa = regExA.fa;
-
-    fa.removeValues();
-
-    const [startState] = fa.addState(
-      new State({
-        isStart: true,
-      })
-    );
-
-    const endStates = fa.addState(
-      new State({
-        isAcceptState: true,
-        value,
-      })
-    );
-
-    fa.getState(regExA.startState.id).isStart = false;
-    fa.getState(regExA.startState.id).isAcceptState = false;
-
-    for (const endStateA of regExA.endStates) {
-      fa.getState(endStateA.id).isStart = false;
-      fa.getState(endStateA.id).isAcceptState = false;
-
-      fa.addTransition(
-        FiniteAutomata.EPSILON,
-        endStateA.id,
-        regExA.startState.id
-      );
-
-      fa.addTransition(FiniteAutomata.EPSILON, endStateA.id, endStates[0].id);
+    for (const regex of params.args) {
+      machine.addTransition(FiniteAutomata.EPSILON, [regex.clone().machine]);
     }
 
-    fa.addTransition(
-      FiniteAutomata.EPSILON,
-      startState.id,
-      regExA.startState.id,
-      endStates[0].id
-    );
-
-    const regex = new RegularExpression({
-      fa,
-      startState,
-      endStates,
-    });
-
-    return regex;
+    return new RegularExpression(machine);
   }
 
-  static PLUS<U extends string>(params: {
-    value: string[];
-    args: [a: RegularExpression<U>];
+  static star<U extends RegularExpression<any>>(params: {
+    label?: string;
+    value: U extends RegularExpression<infer X> ? X : null;
+    args: U;
   }) {
-    const {
-      args: [a],
-      value,
-    } = params;
+    const machine = new FiniteAutomata({
+      label: params.label,
+      value: params.value,
+    });
 
-    return RegularExpression.CONCAT({
+    machine.addTransition(FiniteAutomata.EPSILON, [
+      params.args.clone().machine,
+      machine,
+    ]);
+    machine.addTransition(FiniteAutomata.EPSILON, []);
+
+    return new RegularExpression(machine);
+  }
+
+  static plus<U extends any>(params: {
+    label?: string;
+    value: U;
+    args: RegularExpression<U>;
+  }) {
+    const a = params.args.clone();
+    return RegularExpression.concat({
+      value: params.value,
       args: [
-        a.clone(true),
-        RegularExpression.STAR({
-          args: [a],
-          value,
+        a,
+        RegularExpression.star({
+          value: params.value,
+          args: a,
         }),
       ],
+    });
+  }
+
+  static optional<U extends any>(params: {
+    label?: string;
+    value: U;
+    args: RegularExpression<U>;
+  }) {
+    return RegularExpression.or({
+      value: params.value,
+      args: [params.args.clone(), RegularExpression.EMPTY_SPACE.clone()],
+    });
+  }
+
+  static atom<U extends any>(character: string, value: U) {
+    const symbol =
+      character === FiniteAutomata.EPSILON
+        ? character
+        : character.length >= 1
+        ? character[0]
+        : character;
+
+    const machine = new FiniteAutomata<U>({
+      label: character,
       value,
     });
-  }
 
-  static #makeParts<U extends string, V extends string>(
-    a: RegularExpression<U>,
-    b: RegularExpression<V>,
-    value: string[]
-  ) {
-    const regExA = a.clone(true);
-    const regExB = b.clone(true);
-
-    const fa = regExA.fa.merge(regExB.fa);
-
-    const [startState] = fa.addState(
-      new State({
-        isStart: true,
-      })
-    );
-
-    const endStates = fa.addState(
-      new State({
-        isAcceptState: true,
-        value,
-      })
-    );
-
-    fa.getState(regExA.startState.id).isStart = false;
-    fa.getState(regExA.startState.id).isAcceptState = false;
-
-    for (const endStateA of regExA.endStates) {
-      fa.getState(endStateA.id).isStart = false;
-      fa.getState(endStateA.id).isAcceptState = true;
+    if (!machine.transitions.has(symbol)) {
+      machine.transitions.set(symbol, []);
     }
 
-    fa.getState(regExB.startState.id).isStart = false;
-    fa.getState(regExB.startState.id).isAcceptState = false;
-
-    for (const endStateB of regExB.endStates) {
-      fa.getState(endStateB.id).isStart = false;
-      fa.getState(endStateB.id).isAcceptState = true;
-    }
-
-    const regex = new RegularExpression({
-      fa,
-      startState,
-      endStates,
-    });
-
-    return {
-      startState,
-      endStates,
-      regExA,
-      regExB,
-      regex,
-      fa,
-    };
-  }
-
-  static fromWord<U extends string>(word: string, value: U) {
-    const regex = new RegularExpression<U>();
-
-    const characters = word.split("");
-
-    for (let i = 0; i < characters.length; i++) {
-      regex.endStates[0].isAcceptState = false;
-      const [nextState] = regex.fa.addState(new State());
-
-      regex.fa.addTransition(characters[i], regex.endStates[0], nextState);
-      regex.endStates[0] = nextState;
-      regex.endStates[0].value = [value];
-    }
-
-    regex.endStates[0].isAcceptState = true;
+    const regex = new RegularExpression(machine);
 
     return regex;
   }
 
-  static fromWords<U extends string>(words: Array<string>, value: U) {
-    return words.map((word) => RegularExpression.fromWord(word, value));
+  static fromWord<U extends any>(word: string, value: string) {
+    const characters = word.split("");
+
+    return RegularExpression.concat({
+      args: characters.map((character) => {
+        return RegularExpression.atom(character, character);
+      }),
+      value,
+    });
+  }
+
+  static choices<U extends any>(
+    choices: { word: string; value: string }[],
+    value: string
+  ) {
+    return RegularExpression.or({
+      value,
+      args: choices.map(({ word, value }) =>
+        RegularExpression.fromWord(word, value)
+      ),
+    });
   }
 }

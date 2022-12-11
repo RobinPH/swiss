@@ -4,3 +4,7 @@ export type PartialK<T, K extends PropertyKey = PropertyKey> = Partial<
   Omit<T, K> extends infer O
   ? { [P in keyof O]: O[P] }
   : never;
+
+export interface Cloneable {
+  clone(): this;
+}
