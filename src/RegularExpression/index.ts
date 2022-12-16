@@ -4,9 +4,10 @@ import { Cloneable } from "../types";
 export class RegularExpression<T extends any> implements Cloneable {
   static readonly EMPTY_SPACE = RegularExpression.ATOM(
     FiniteAutomata.EPSILON
-  ).value("EPSILON");
+  ).label("EPSILON");
 
   machine: FiniteAutomata<T>;
+  _label?: T;
 
   constructor(machine: FiniteAutomata<T>) {
     this.machine = machine.clone();
@@ -164,15 +165,18 @@ export class RegularExpression<T extends any> implements Cloneable {
   }
 
   static OPTIONAL<U extends any>(arg: RegularExpression<U>) {
-    return RegularExpression.OR(
+    const regex = RegularExpression.OR(
       arg.clone(),
       RegularExpression.EMPTY_SPACE.clone()
     );
+
+    return regex.label(arg._label);
   }
 
-  value<U extends T>(value: U) {
-    this.machine.start.value = value;
-    this.machine.end.value = value;
+  label<U extends T>(label: U) {
+    this._label = label;
+    this.machine.start.value = this._label;
+    this.machine.end.value = this._label;
 
     return this as RegularExpression<T | U>;
   }

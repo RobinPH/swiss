@@ -101,8 +101,6 @@ export default class FiniteAutomata<T extends any> implements Cloneable {
           last.subValues.push(
             ...children.filter((child) => !child.machine.hide)
           );
-          // @ts-ignore
-          last.fooo = last.machine.hide;
           last.to = to + last.charLength;
           last.from = from;
 
@@ -244,6 +242,23 @@ export default class FiniteAutomata<T extends any> implements Cloneable {
       status: result.status,
       stack,
     };
+  }
+
+  static formatResult<U extends any>(
+    result: Omit<CheckResult<U>, "machine" | "status" | "charLength">,
+    output: string[] = [],
+    depth = 0
+  ) {
+    const prefix = "".padStart(depth, "\t");
+    output.push(prefix + `${result.value} ${result.from}:${result.to}`);
+
+    for (const subValue of result.subValues) {
+      this.formatResult(subValue, output, depth + 1);
+    }
+
+    // output.push(prefix + `${result.value}`);
+
+    return output;
   }
 
   addTransition(params: { symbol?: TransitionSymbol; to: FiniteAutomata<T> }) {
