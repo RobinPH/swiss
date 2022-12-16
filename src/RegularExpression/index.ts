@@ -1,11 +1,10 @@
-import { FiniteAutomata } from "../FiniteAutomata";
+import FiniteAutomata from "../FiniteAutomata";
 import { Cloneable } from "../types";
 
 export class RegularExpression<T extends any> implements Cloneable {
-  static readonly EMPTY_SPACE = RegularExpression.atom(
-    FiniteAutomata.EPSILON,
-    "epsilon"
-  );
+  static readonly EMPTY_SPACE = RegularExpression.ATOM(
+    FiniteAutomata.EPSILON
+  ).value("EPSILON");
 
   machine: FiniteAutomata<T>;
 
@@ -19,7 +18,7 @@ export class RegularExpression<T extends any> implements Cloneable {
   }
 
   check(input: string, index = 0) {
-    const result = this.machine.check(input, index);
+    const result = this.machine.start.check(input, index);
 
     if (result && result.to === input.length) {
       return result;
@@ -28,131 +27,200 @@ export class RegularExpression<T extends any> implements Cloneable {
     return;
   }
 
-  static concat<U extends RegularExpression<any>[]>(params: {
-    label?: string;
-    value: U extends RegularExpression<infer X>[] ? X : null;
-    args: U;
-  }) {
-    const machine = new FiniteAutomata({
-      label: params.label,
-      value: params.value,
+  static OR<U extends RegularExpression<any>[]>(...args: U) {
+    // static or<U extends RegularExpression<any>[]>(params: {
+    //   label?: string;
+    //   value: U extends RegularExpression<infer X>[] ? X : null;
+    //   args: U;
+    // }) {
+    const start = new FiniteAutomata(null);
+    const end = new FiniteAutomata(null);
+
+    start.isFinal = false;
+    end.isFinal = true;
+    start.hide = true;
+
+    for (const regex of args) {
+      const cloned = FiniteAutomata.clone(regex.machine);
+
+      cloned.end.addTransition({
+        to: end.start,
+      });
+      // cloned.end = end.end;
+      start.end.addTransition({
+        to: cloned.start,
+      });
+      // start.end = cloned.end;
+      // cloned.start = start.start;
+    }
+
+    end.start = start.start;
+    start.end = end.end;
+
+    return new RegularExpression(start) as RegularExpression<
+      U extends RegularExpression<infer X>[] ? X : null
+    >;
+  }
+
+  static CONCAT<U extends RegularExpression<any>[]>(...args: U) {
+    const start = new FiniteAutomata(null);
+    const end = new FiniteAutomata(null);
+    start.isFinal = false;
+    end.isFinal = true;
+    start.hide = true;
+
+    let machine = start;
+
+    for (const regex of args) {
+      const cloned = FiniteAutomata.clone(regex.machine);
+
+      machine.end.addTransition({
+        to: cloned.start,
+      });
+
+      // start.end = end.end;
+      // machine.start = start.start;
+
+      machine = cloned;
+    }
+
+    machine.end.addTransition({
+      to: end.start,
     });
 
-    machine.addTransition(
-      FiniteAutomata.EPSILON,
-      params.args.map((arg) => arg.clone().machine)
+    end.start = start.start;
+    start.end = end.end;
+
+    return new RegularExpression(start) as RegularExpression<
+      U extends RegularExpression<infer X>[] ? X : null
+    >;
+  }
+
+  static STAR<U extends any>(arg: RegularExpression<U>) {
+    const start = new FiniteAutomata(null);
+    const end = new FiniteAutomata(null);
+    start.isFinal = false;
+    end.isFinal = true;
+    start.hide = true;
+
+    const cloned = FiniteAutomata.clone(arg.machine);
+
+    cloned.end.addTransition({
+      to: cloned.start,
+    });
+
+    start.end.addTransition({
+      to: cloned.start,
+    });
+
+    start.end.addTransition({
+      to: end.start,
+    });
+
+    cloned.end.addTransition({
+      to: end.start,
+    });
+
+    end.start = start.start;
+    start.end = end.end;
+
+    return new RegularExpression(start) as RegularExpression<U>;
+  }
+
+  static PLUS<U extends any>(arg: RegularExpression<U>) {
+    const start = new FiniteAutomata(null);
+    const end = new FiniteAutomata(null);
+    start.isFinal = false;
+    end.isFinal = true;
+    start.hide = true;
+
+    const a = FiniteAutomata.clone(arg.machine);
+    const b = FiniteAutomata.clone(a);
+
+    b.end.addTransition({
+      to: b.start,
+    });
+
+    a.end.addTransition({
+      to: b.start,
+    });
+
+    a.end.addTransition({
+      to: end.start,
+    });
+
+    start.end.addTransition({
+      to: a.start,
+    });
+
+    b.end.addTransition({
+      to: end.start,
+    });
+
+    end.start = start.start;
+    start.end = end.end;
+
+    return new RegularExpression(start) as RegularExpression<U>;
+  }
+
+  static OPTIONAL<U extends any>(arg: RegularExpression<U>) {
+    return RegularExpression.OR(
+      arg.clone(),
+      RegularExpression.EMPTY_SPACE.clone()
     );
-
-    return new RegularExpression(machine);
   }
 
-  static or<U extends RegularExpression<any>[]>(params: {
-    label?: string;
-    value: U extends RegularExpression<infer X>[] ? X : null;
-    args: U;
-  }) {
-    const machine = new FiniteAutomata({
-      label: params.label,
-      value: params.value,
+  value<U extends T>(value: U) {
+    this.machine.start.value = value;
+    this.machine.end.value = value;
+
+    return this as RegularExpression<T | U>;
+  }
+
+  hide(hide = true) {
+    this.machine.start.hide = hide;
+
+    return this;
+  }
+
+  static ATOM<U extends any>(character: string, hide = true) {
+    const a = new FiniteAutomata(null, hide);
+    const b = new FiniteAutomata(null, hide);
+    a.isFinal = false;
+    b.isFinal = true;
+    a.hide = true;
+    b.hide = true;
+
+    a.end.addTransition({
+      symbol: character,
+      to: b.start,
     });
 
-    for (const regex of params.args) {
-      machine.addTransition(FiniteAutomata.EPSILON, [regex.clone().machine]);
-    }
+    a.end = b.end;
+    b.start = a.start;
 
-    return new RegularExpression(machine);
+    return new RegularExpression(a) as RegularExpression<U>;
   }
 
-  static star<U extends RegularExpression<any>>(params: {
-    label?: string;
-    value: U extends RegularExpression<infer X> ? X : null;
-    args: U;
-  }) {
-    const machine = new FiniteAutomata({
-      label: params.label,
-      value: params.value,
-    });
-
-    machine.addTransition(FiniteAutomata.EPSILON, [
-      params.args.clone().machine,
-      machine,
-    ]);
-    machine.addTransition(FiniteAutomata.EPSILON, []);
-
-    return new RegularExpression(machine);
-  }
-
-  static plus<U extends any>(params: {
-    label?: string;
-    value: U;
-    args: RegularExpression<U>;
-  }) {
-    const a = params.args.clone();
-    return RegularExpression.concat({
-      value: params.value,
-      args: [
-        a,
-        RegularExpression.star({
-          value: params.value,
-          args: a,
-        }),
-      ],
-    });
-  }
-
-  static optional<U extends any>(params: {
-    label?: string;
-    value: U;
-    args: RegularExpression<U>;
-  }) {
-    return RegularExpression.or({
-      value: params.value,
-      args: [params.args.clone(), RegularExpression.EMPTY_SPACE.clone()],
-    });
-  }
-
-  static atom<U extends any>(character: string, value: U) {
-    const symbol =
-      character === FiniteAutomata.EPSILON
-        ? character
-        : character.length >= 1
-        ? character[0]
-        : character;
-
-    const machine = new FiniteAutomata<U>({
-      label: character,
-      value,
-    });
-
-    if (!machine.transitions.has(symbol)) {
-      machine.transitions.set(symbol, []);
-    }
-
-    const regex = new RegularExpression(machine);
-
-    return regex;
-  }
-
-  static fromWord<U extends any>(word: string, value: string) {
+  static fromWord(word: string) {
     const characters = word.split("");
 
-    return RegularExpression.concat({
-      args: characters.map((character) => {
-        return RegularExpression.atom(character, character);
-      }),
-      value,
-    });
+    return RegularExpression.CONCAT(
+      ...characters.map((character) => {
+        return RegularExpression.ATOM(character, true);
+      })
+    );
   }
 
-  static choices<U extends any>(
-    choices: { word: string; value: string }[],
-    value: string
-  ) {
-    return RegularExpression.or({
-      value,
-      args: choices.map(({ word, value }) =>
-        RegularExpression.fromWord(word, value)
-      ),
-    });
+  static choices(...words: string[]) {
+    return RegularExpression.OR(
+      ...words.map((word) => RegularExpression.fromWord(word))
+    ).hide();
+  }
+
+  static choicesHidden(...words: string[]) {
+    return RegularExpression.OR(
+      ...words.map((word) => RegularExpression.fromWord(word).hide())
+    ).hide();
   }
 }

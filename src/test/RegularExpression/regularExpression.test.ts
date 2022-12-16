@@ -1,92 +1,46 @@
 import { RegularExpression as re } from "../../RegularExpression";
+const { OR, CONCAT, STAR, PLUS, OPTIONAL } = re;
 
-const IF = re.fromWord("if", "IF");
-const FOR = re.fromWord("for", "FOR");
-const ELSE = re.fromWord("else", "ELSE");
-const SPACE = re.fromWord(" ", "SPACE");
-const SPACE_STAR = re.star({
-  args: SPACE,
-  value: "SPACE_STAR",
-});
+const IF = re.fromWord("if").value("IF");
+const FOR = re.fromWord("for").value("FOR");
+const ELSE = re.fromWord("else").value("ELSE");
+const SPACE = re.fromWord(" ").value("SPACE");
+const SPACE_STAR = STAR(SPACE).value("SPACE_STAR");
 
-const SPACE_PLUS = re.plus({
-  args: SPACE,
-  value: "SPACE_PLUS",
-});
+const SPACE_PLUS = PLUS(SPACE).value("SPACE_PLUS");
 
-const OR_IF_ELSE = re.or({
-  args: [IF, ELSE],
-  value: "OR_IF_ELSE",
-});
+const OR_IF_ELSE = OR(IF, ELSE).value("OR_IF_ELSE");
 
-const CONCAT_ELSE_SPACE_IF = re.concat({
-  args: [
-    re.concat({
-      args: [ELSE, SPACE],
-      value: "ELSE_SPACE",
-    }),
-    IF,
-  ],
-  value: "ELSE_IF",
-});
+const CONCAT_ELSE_SPACE_IF = CONCAT(
+  CONCAT(ELSE, SPACE).value("ELSE_SPACE"),
+  IF
+).value("ELSE_IF");
 
-const CONCAT_ELSE_SPACE_STAR_IF = re.concat({
-  args: [
-    re.concat({
-      args: [ELSE, SPACE_STAR],
-      value: "ELSE_SPACE_STAR",
-    }),
-    IF,
-  ],
-  value: "ELSE_IF",
-});
+const CONCAT_ELSE_SPACE_STAR_IF = CONCAT(
+  re.CONCAT(ELSE, SPACE_STAR).value("ELSE_SPACE_STAR"),
+  IF
+).value("ELSE_IF");
 
-const CONCAT_ELSE_SPACE_PLUS_IF = re.concat({
-  args: [
-    re.concat({
-      args: [ELSE, SPACE_PLUS],
-      value: "ELSE_SPACE_PLUS",
-    }),
-    IF,
-  ],
-  value: "ELSE_IF",
-});
+const CONCAT_ELSE_SPACE_PLUS_IF = CONCAT(
+  re.CONCAT(ELSE, SPACE_PLUS).value("ELSE_SPACE_PLUS"),
+  IF
+).value("ELSE_IF");
 
-const CONCAT_FOR_IF = re.concat({
-  args: [FOR, IF],
-  value: "FOR_IF",
-});
+const CONCAT_FOR_IF = CONCAT(FOR, IF).value("FOR_IF");
 
-const CONCAT_OR_CONCAT = re.or({
-  args: [CONCAT_ELSE_SPACE_IF, CONCAT_FOR_IF],
-  value: "CONCAT_OR_CONCAT",
-});
+const CONCAT_OR_CONCAT = OR(CONCAT_ELSE_SPACE_IF, CONCAT_FOR_IF).value(
+  "CONCAT_OR_CONCAT"
+);
 
-const OR_OR = re.or({
-  args: [
-    re.or({
-      args: [FOR, IF],
-      value: "FOR_OR_IF",
-    }),
-    OR_IF_ELSE,
-  ],
-  value: "OR_OR",
-});
+const OR_OR = OR(OR(FOR, IF).value("FOR_OR_IF"), OR_IF_ELSE).value("OR_OR");
 
-const OR_PLUS = re.plus({
-  args: OR_IF_ELSE,
-  value: "OR_PLUS",
-});
+const OR_PLUS = PLUS(OR_IF_ELSE).value("OR_PLUS");
 
-const OR_STAR = re.star({
-  args: OR_IF_ELSE,
-  value: "OR_STAR",
-});
+const OR_STAR = re.STAR(OR_IF_ELSE).value("OR_STAR");
 
-const CONCAT_ELSE_SPACE_STAR_IF_STAR = re.star({
-  args: CONCAT_ELSE_SPACE_STAR_IF,
-  value: "CONCAT_ELSE_SPACE_STAR_IF_STAR",
-});
+const CONCAT_ELSE_SPACE_STAR_IF_STAR = STAR(CONCAT_ELSE_SPACE_STAR_IF).value(
+  "CONCAT_ELSE_SPACE_STAR_IF_STAR"
+);
 
 test("Single Word", () => {
   expect(IF.check("if")?.value).toStrictEqual("IF");
