@@ -1,8 +1,8 @@
-import { RegularExpression as re } from "../../RegularExpression";
+import FiniteAutomata from "../../FiniteAutomata";
 import {
   DECLARATION_STATEMENT,
   IDENTIFIER,
-} from "../../RegularExpression/terminal";
+} from "../../FiniteAutomata/terminal";
 
 test("Identifier", () => {
   expect(IDENTIFIER.check("_")?.value).toBe("IDENTIFIER");

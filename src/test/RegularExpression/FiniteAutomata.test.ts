@@ -1,44 +1,47 @@
-import { RegularExpression as re } from "../../RegularExpression";
-const { OR, CONCAT, STAR, PLUS, OPTIONAL } = re;
+import FiniteAutomata from "../../FiniteAutomata";
+const { ATOM, OR, CONCAT, PLUS, STAR, OPTIONAL, CHOICES, EMPTY_SPACE, WORD } =
+  FiniteAutomata;
 
-const IF = re.fromWord("if").label("IF");
-const FOR = re.fromWord("for").label("FOR");
-const ELSE = re.fromWord("else").label("ELSE");
-const SPACE = re.fromWord(" ").label("SPACE");
-const SPACE_STAR = STAR(SPACE).label("SPACE_STAR");
+const IF = WORD("if").setValue("IF");
+const FOR = WORD("for").setValue("FOR");
+const ELSE = WORD("else").setValue("ELSE");
+const SPACE = WORD(" ").setValue("SPACE");
+const SPACE_STAR = STAR(SPACE).setValue("SPACE_STAR");
 
-const SPACE_PLUS = PLUS(SPACE).label("SPACE_PLUS");
+const SPACE_PLUS = PLUS(SPACE).setValue("SPACE_PLUS");
 
-const OR_IF_ELSE = OR(IF, ELSE).label("OR_IF_ELSE");
+const OR_IF_ELSE = OR(IF, ELSE).setValue("OR_IF_ELSE");
 
 const CONCAT_ELSE_SPACE_IF = CONCAT(
-  CONCAT(ELSE, SPACE).label("ELSE_SPACE"),
+  CONCAT(ELSE, SPACE).setValue("ELSE_SPACE"),
   IF
-).label("ELSE_IF");
+).setValue("ELSE_IF");
 
 const CONCAT_ELSE_SPACE_STAR_IF = CONCAT(
-  re.CONCAT(ELSE, SPACE_STAR).label("ELSE_SPACE_STAR"),
+  CONCAT(ELSE, SPACE_STAR).setValue("ELSE_SPACE_STAR"),
   IF
-).label("ELSE_IF");
+).setValue("ELSE_IF");
 
 const CONCAT_ELSE_SPACE_PLUS_IF = CONCAT(
-  re.CONCAT(ELSE, SPACE_PLUS).label("ELSE_SPACE_PLUS"),
+  CONCAT(ELSE, SPACE_PLUS).setValue("ELSE_SPACE_PLUS"),
   IF
-).label("ELSE_IF");
+).setValue("ELSE_IF");
 
-const CONCAT_FOR_IF = CONCAT(FOR, IF).label("FOR_IF");
+const CONCAT_FOR_IF = CONCAT(FOR, IF).setValue("FOR_IF");
 
-const CONCAT_OR_CONCAT = OR(CONCAT_ELSE_SPACE_IF, CONCAT_FOR_IF).label(
+const CONCAT_OR_CONCAT = OR(CONCAT_ELSE_SPACE_IF, CONCAT_FOR_IF).setValue(
   "CONCAT_OR_CONCAT"
 );
 
-const OR_OR = OR(OR(FOR, IF).label("FOR_OR_IF"), OR_IF_ELSE).label("OR_OR");
+const OR_OR = OR(OR(FOR, IF).setValue("FOR_OR_IF"), OR_IF_ELSE).setValue(
+  "OR_OR"
+);
 
-const OR_PLUS = PLUS(OR_IF_ELSE).label("OR_PLUS");
+const OR_PLUS = PLUS(OR_IF_ELSE).setValue("OR_PLUS");
 
-const OR_STAR = re.STAR(OR_IF_ELSE).label("OR_STAR");
+const OR_STAR = STAR(OR_IF_ELSE).setValue("OR_STAR");
 
-const CONCAT_ELSE_SPACE_STAR_IF_STAR = STAR(CONCAT_ELSE_SPACE_STAR_IF).label(
+const CONCAT_ELSE_SPACE_STAR_IF_STAR = STAR(CONCAT_ELSE_SPACE_STAR_IF).setValue(
   "CONCAT_ELSE_SPACE_STAR_IF_STAR"
 );
 
