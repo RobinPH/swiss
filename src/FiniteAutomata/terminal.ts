@@ -111,7 +111,8 @@ export const CONST_DECLARATOR = CONCAT(
 
 export const DECLARATOR = OR(
   WORD("let").setValue("LET_DECLARATOR"),
-  CONST_DECLARATOR
+  WORD("const").setValue("CONST_DECLARATOR")
+  // CONST_DECLARATOR
 ).setValue("DECLARATOR");
 
 export const DECLARATION_STATEMENT = CONCAT(
