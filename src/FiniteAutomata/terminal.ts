@@ -1,5 +1,5 @@
 import FiniteAutomata from ".";
-const { ATOM, OR, CONCAT, PLUS, STAR, OPTIONAL, CHOICES, EMPTY_SPACE, WORD } =
+const { ATOM, OR, CONCAT, PLUS, STAR, OPTIONAL, EMPTY_SPACE, WORD } =
   FiniteAutomata;
 
 const lowercaseAlphabet = [
@@ -85,11 +85,10 @@ export const IDENTIFIER = CONCAT(
   ).setValue("ANY_COMBINATION")
 ).setValue("IDENTIFIER");
 
-export const NON_EMPTY_WHITESPACE_CHARACTER = CHOICES(
-  " ",
-  "\t",
-  "\n",
-  "\r"
+const nonEmptyWhiteSpaceCharacter = [" ", "\t", "\n", "\r"] as const;
+
+export const NON_EMPTY_WHITESPACE_CHARACTER = OR(
+  ...nonEmptyWhiteSpaceCharacter.map((ch) => ATOM(ch).setValue(ch))
 ).setValue("NON_EMPTY_WHITESPACE_CHARACTER");
 
 export const NON_EMPTY_WHITESPACE = PLUS(

@@ -8,3 +8,12 @@ export type PartialK<T, K extends PropertyKey = PropertyKey> = Partial<
 export interface Cloneable {
   clone(): this;
 }
+
+type HeadCharacterOf<T extends string> = T extends `${infer FC}${string}`
+  ? FC
+  : never;
+type TailCharactersOf<T extends string> =
+  T extends `${HeadCharacterOf<T>}${infer RC}` ? Characters<RC> : never;
+export type Characters<T extends string> = T extends ""
+  ? []
+  : [HeadCharacterOf<T>, ...TailCharactersOf<T>];

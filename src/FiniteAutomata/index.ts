@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import { Characters } from "../types";
 
 enum CheckStatus {
   SUCCESS = "SUCCESS",
@@ -225,7 +226,9 @@ export default class FiniteAutomata<
   check(
     input: string,
     index: number = 0
-  ): CheckResult<Value, Children> | undefined {
+  ):
+    | Omit<CheckResult<Value, Children>, "machine" | "status" | "charLength">
+    | undefined {
     const res = this._check(input, index, 0);
 
     const process = (stack: Array<CheckResult<Value, Children>>) => {
@@ -295,8 +298,8 @@ export default class FiniteAutomata<
       return;
     }
 
-    // const result = removeKeys(foo, ["machine", "status", "charLength"]);
-    const result = foo;
+    const result = removeKeys(foo, ["machine", "status", "charLength"]);
+    // const result = foo;
 
     if (result.to !== input.length) {
       return;
@@ -517,8 +520,8 @@ export default class FiniteAutomata<
     return machine;
   }
 
-  static WORD(word: string) {
-    const characters = word.split("");
+  static WORD<U extends string>(word: U) {
+    const characters = word.split("") as Characters<U>;
 
     return FiniteAutomata.CONCAT(
       ...characters.map((character) => {
@@ -527,7 +530,7 @@ export default class FiniteAutomata<
     ).setValue(word);
   }
 
-  static CHOICES(...words: string[]) {
+  static CHOICES<U extends string[]>(...words: U) {
     return FiniteAutomata.OR(...words.map((word) => FiniteAutomata.WORD(word)));
   }
 }
