@@ -271,31 +271,17 @@ export default class FiniteAutomata<
       return starts;
     };
 
-    const removeKeys = <U extends keyof CheckResult<Value, Children>>(
-      obj: CheckResult<Value, Children>,
-      keys: Array<U>
-    ): Omit<CheckResult<Value, Children>, U> => {
-      for (const key of keys) {
-        delete obj[key];
-      }
-
-      // @ts-ignore
-      obj.subValues = obj.subValues.filter(
-        (subValue) => !subValue.machine.#hide
-      );
-
-      for (const subValue of obj.subValues) {
-        removeKeys(subValue, keys);
-      }
-
-      return obj;
-    };
-
     if (!res.stack[0]) {
       return;
     }
 
-    return process(res.stack)[0];
+    const result = process(res.stack)[0];
+
+    if (!result || result.to !== input.length) {
+      return;
+    }
+
+    return result;
   }
 
   _check(
