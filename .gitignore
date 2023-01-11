@@ -4,6 +4,8 @@
 
 /build
 
+/result
+
 .env
 .env*.local
 

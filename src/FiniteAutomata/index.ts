@@ -44,6 +44,8 @@ export type CheckResult<
   machine: FiniteAutomata<Value, Children>;
   status: CheckStatus;
   charLength: number;
+  token: boolean;
+  text: string;
 };
 
 type TransitionSymbol = string;
@@ -54,9 +56,9 @@ export default class FiniteAutomata<
   Parent extends any = any
 > {
   static readonly EPSILON = "/ε";
-  static readonly EMPTY_SPACE = FiniteAutomata.ATOM(
-    FiniteAutomata.EPSILON
-  ).setValue("EPSILON");
+  static readonly EMPTY_SPACE = FiniteAutomata.ATOM(FiniteAutomata.EPSILON)
+    .setValue("EPSILON")
+    .hide();
 
   static clonedCache = new Map<Symbol, FiniteAutomata<any, any>>();
   static cloneInitiator: Symbol | undefined;
@@ -69,16 +71,13 @@ export default class FiniteAutomata<
   end: FiniteAutomata<any, any> = this;
   isFinal = false;
   label = uuidv4();
-  hide: boolean = false;
+  #hide = false;
   #cloneable = true;
+  #token = false;
   parent?: Parent;
 
   constructor(value: Value) {
     this.value = value;
-  }
-
-  testt() {
-    return [] as unknown as Children;
   }
 
   static OR<U extends FiniteAutomata<any, any>[]>(...machines: U) {
@@ -87,7 +86,7 @@ export default class FiniteAutomata<
 
     start.isFinal = false;
     end.isFinal = true;
-    start.hide = true;
+    start.#hide = true;
 
     for (const machine of machines) {
       const cloned = machine.clone();
@@ -114,7 +113,7 @@ export default class FiniteAutomata<
     const end = new FiniteAutomata(null);
     start.isFinal = false;
     end.isFinal = true;
-    start.hide = true;
+    start.#hide = true;
 
     let machine = start as unknown as FiniteAutomata<any, any>;
 
@@ -145,7 +144,7 @@ export default class FiniteAutomata<
     const start = new FiniteAutomata<null, U[]>(null);
     start.isFinal = false;
     end.isFinal = true;
-    start.hide = true;
+    start.#hide = true;
 
     const cloned = machine.clone();
 
@@ -180,7 +179,7 @@ export default class FiniteAutomata<
     const end = new FiniteAutomata(null);
     start.isFinal = false;
     end.isFinal = true;
-    start.hide = true;
+    start.#hide = true;
 
     const a = machine.clone(true);
     const b = a.clone(true);
@@ -226,9 +225,7 @@ export default class FiniteAutomata<
   check(
     input: string,
     index: number = 0
-  ):
-    | Omit<CheckResult<Value, Children>, "machine" | "status" | "charLength">
-    | undefined {
+  ): CheckResult<Value, Children> | undefined {
     const res = this._check(input, index, 0);
 
     const process = (stack: Array<CheckResult<Value, Children>>) => {
@@ -261,10 +258,11 @@ export default class FiniteAutomata<
 
           const last = starts[starts.length - 1];
           last.subValues.push(
-            ...children.filter((child) => !child.machine.hide)
+            ...children.filter((child) => !child.machine.#hide)
           );
           last.to = to + last.charLength;
           last.from = from;
+          last.text = input.slice(last.from, last.to);
 
           freq.set(res.machine, freq.get(res.machine)! - 1);
         }
@@ -281,6 +279,11 @@ export default class FiniteAutomata<
         delete obj[key];
       }
 
+      // @ts-ignore
+      obj.subValues = obj.subValues.filter(
+        (subValue) => !subValue.machine.#hide
+      );
+
       for (const subValue of obj.subValues) {
         removeKeys(subValue, keys);
       }
@@ -292,20 +295,7 @@ export default class FiniteAutomata<
       return;
     }
 
-    const foo = process(res.stack)[0];
-
-    if (!foo) {
-      return;
-    }
-
-    const result = removeKeys(foo, ["machine", "status", "charLength"]);
-    // const result = foo;
-
-    if (result.to !== input.length) {
-      return;
-    }
-
-    return result;
+    return process(res.stack)[0];
   }
 
   _check(
@@ -328,6 +318,8 @@ export default class FiniteAutomata<
       status: CheckStatus.PROCESSING,
       machine: this as FiniteAutomata<any, any>,
       charLength: characterLength,
+      token: this.#token,
+      text: "",
     };
 
     if (this.isFinal) {
@@ -400,21 +392,6 @@ export default class FiniteAutomata<
     return me;
   }
 
-  static formatResult<U extends any, V extends FiniteAutomata<any, any>[]>(
-    result: Omit<CheckResult<U, V>, "machine" | "status" | "charLength">,
-    output: string[] = [],
-    depth = 0
-  ) {
-    const prefix = "".padStart(depth, "\t");
-    output.push(prefix + `${result.value} ${result.from}:${result.to}`);
-
-    for (const subValue of result.subValues) {
-      this.formatResult(subValue, output, depth + 1);
-    }
-
-    return output;
-  }
-
   addTransition<
     U extends TransitionSymbol,
     V extends FiniteAutomata<any, any>
@@ -456,7 +433,8 @@ export default class FiniteAutomata<
     cloned.isFinal = this.isFinal;
     cloned.start = this.start.clone();
     cloned.end = this.end.clone();
-    cloned.hide = this.hide;
+    cloned.#hide = this.#hide;
+    cloned.#token = this.#token;
     cloned.#cloneable = this.#cloneable;
 
     for (const [transitionSymbol, machines] of this.transitions) {
@@ -478,6 +456,23 @@ export default class FiniteAutomata<
     this.#cloneable = cloneable;
 
     return this;
+  }
+
+  hide(hide = true) {
+    this.#hide = hide;
+    return this;
+  }
+
+  token(token = true) {
+    this.#token = token;
+    this.start.#token = token;
+    this.end.#token = token;
+
+    return this;
+  }
+
+  isToken() {
+    return this.#token;
   }
 
   // @ts-ignore
@@ -525,7 +520,9 @@ export default class FiniteAutomata<
 
     return FiniteAutomata.CONCAT(
       ...characters.map((character) => {
-        return FiniteAutomata.ATOM(character).setValue(character);
+        const machine = FiniteAutomata.ATOM(character).setValue(character);
+        machine.#hide = true;
+        return machine;
       })
     ).setValue(word);
   }

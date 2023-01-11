@@ -59,13 +59,14 @@ const uppercaseAlphabet = [
   "Z",
 ] as const;
 const digit = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
+const digit_nonzero = ["1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
 
 export const LOWERCASE_ALPHABET = OR(
-  ...lowercaseAlphabet.map((ch) => ATOM(ch).setValue(ch))
+  ...lowercaseAlphabet.map((ch) => ATOM(ch).setValue(ch).hide())
 ).setValue("LOWERCASE_ALPHABET");
 
 export const UPPERCASE_ALPHABET = OR(
-  ...uppercaseAlphabet.map((ch) => ATOM(ch).setValue(ch))
+  ...uppercaseAlphabet.map((ch) => ATOM(ch).setValue(ch).hide())
 ).setValue("UPPERCASE_ALPHABET");
 
 export const ALPHABET = OR(LOWERCASE_ALPHABET, UPPERCASE_ALPHABET).setValue(
@@ -74,46 +75,86 @@ export const ALPHABET = OR(LOWERCASE_ALPHABET, UPPERCASE_ALPHABET).setValue(
 
 export const UNDERSCORE = ATOM("_").setValue("UNDERSCORE");
 
-export const DIGIT = OR(...digit.map((ch) => ATOM(ch).setValue(ch))).setValue(
-  "DIGIT"
-);
+export const DIGIT = OR(
+  ...digit.map((ch) => ATOM(ch).setValue(ch).hide())
+).setValue("DIGIT");
+
+export const DIGIT_NONZERO = OR(
+  ...digit_nonzero.map((ch) => ATOM(ch).setValue(ch).hide())
+).setValue("DIGIT_NONZERO");
 
 export const IDENTIFIER = CONCAT(
   OR(ALPHABET, UNDERSCORE).setValue("NO_DIGIT_PREFIX"),
   STAR(
     OR(ALPHABET, UNDERSCORE, DIGIT).setValue("NO_PREFIX_RESTRICTION")
   ).setValue("ANY_COMBINATION")
-).setValue("IDENTIFIER");
+)
+  .setValue("IDENTIFIER")
+  .token();
 
 const nonEmptyWhiteSpaceCharacter = [" ", "\t", "\n", "\r"] as const;
 
 export const NON_EMPTY_WHITESPACE_CHARACTER = OR(
-  ...nonEmptyWhiteSpaceCharacter.map((ch) => ATOM(ch).setValue(ch))
+  ...nonEmptyWhiteSpaceCharacter.map((ch) => ATOM(ch).setValue(ch).hide())
 ).setValue("NON_EMPTY_WHITESPACE_CHARACTER");
 
-export const NON_EMPTY_WHITESPACE = PLUS(
-  NON_EMPTY_WHITESPACE_CHARACTER
-).setValue("NON_EMPTY_WHITESPACE");
+export const NON_EMPTY_WHITESPACE = PLUS(NON_EMPTY_WHITESPACE_CHARACTER)
+  .setValue("NON_EMPTY_WHITESPACE")
+  .token();
 
 export const WHITESPACE = CONCAT(
   EMPTY_SPACE,
   STAR(NON_EMPTY_WHITESPACE_CHARACTER).setValue("WHITESPACE")
-).setValue("WHITESPACE");
+)
+  .setValue("WHITESPACE")
+  .token();
 
-export const ASSIGNMENT_OPERATOR = ATOM("=").setValue("ASSIGNMENT_OPERATOR");
+export const ASSIGNMENT_OPERATOR = ATOM("=")
+  .setValue("ASSIGNMENT_OPERATOR")
+  .token();
 
 export const CONST_DECLARATOR = CONCAT(
   WORD("const").setValue("CONST_DECLARATOR"),
   OPTIONAL(WORD("ant").setValue("CONST_NOISE_WORD")).setValue(
     "CONST_NOISE_WORD"
   )
-).setValue("CONST_DECLARATOR");
+)
+  .setValue("CONST_DECLARATOR")
+  .token();
 
-export const DECLARATOR = OR(
-  WORD("let").setValue("LET_DECLARATOR"),
-  WORD("const").setValue("CONST_DECLARATOR")
-  // CONST_DECLARATOR
-).setValue("DECLARATOR");
+export const LET_DECLARATOR = WORD("let").setValue("LET_DECLARATOR").token();
+
+export const DECLARATOR = OR(LET_DECLARATOR, CONST_DECLARATOR).setValue(
+  "DECLARATOR"
+);
+
+export const INTEGER = OR(
+  ATOM("0"),
+  CONCAT(DIGIT_NONZERO, OPTIONAL(STAR(DIGIT)))
+)
+  .setValue("INTEGER_LITERAL")
+  .token();
+
+export const FLOAT = CONCAT(
+  OR(ATOM("0"), CONCAT(DIGIT_NONZERO, OPTIONAL(STAR(DIGIT)))).setValue(
+    "FLOAT_INTEGER_PART"
+  ),
+  ATOM(".").setValue("DECIMAL_POINT"),
+  PLUS(DIGIT).setValue("FLOAT_FRACTIONAL_PART")
+)
+  .setValue("FLOAT_LITERAL")
+  .token();
+
+export const NUMBER = OR(FLOAT, INTEGER).setValue("NUMBER_LITERAL");
+
+export const SEMICOLON = ATOM(";").setValue("SEMICOLON").token();
+export const STRING = CONCAT(
+  ATOM("'").setValue("STRING_OPENING_QUOTE").token(),
+  STAR(ALPHABET).setValue("STRING_LITERAL").token(),
+  ATOM("'").setValue("STRING_CLOSING_QUOTE").token()
+).setValue("STRING");
+
+export const VALUE = OR(INTEGER, STRING).setValue("VALUE");
 
 export const DECLARATION_STATEMENT = CONCAT(
   DECLARATOR,
@@ -122,5 +163,6 @@ export const DECLARATION_STATEMENT = CONCAT(
   WHITESPACE,
   ASSIGNMENT_OPERATOR,
   WHITESPACE,
-  DIGIT
+  VALUE,
+  SEMICOLON
 ).setValue("DECLARATION_STATEMENT");
