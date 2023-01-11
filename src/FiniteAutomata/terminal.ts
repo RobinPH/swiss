@@ -109,10 +109,6 @@ export const WHITESPACE = CONCAT(
   .setValue("WHITESPACE")
   .token();
 
-export const ASSIGNMENT_OPERATOR = ATOM("=")
-  .setValue("ASSIGNMENT_OPERATOR")
-  .token();
-
 export const CONST_DECLARATOR = CONCAT(
   WORD("const").setValue("CONST_DECLARATOR"),
   OPTIONAL(WORD("ant").setValue("CONST_NOISE_WORD")).setValue(
@@ -156,12 +152,200 @@ export const STRING = CONCAT(
 
 export const VALUE = OR(INTEGER, STRING).setValue("VALUE");
 
+
+//Assignment Operators (=, +=, -=, *=, /=, %=, //=, **=)
+export const ASSIGNMENT_OPERATOR = ATOM("=")
+  .setValue("ASSIGNMENT_OPERATOR")
+  .token();
+
+export const ADDITION_ASSIGNMENT_OPERATOR = WORD("+=")
+  .setValue("ADDITION_ASSIGNMENT_OPERATOR")
+  .token();
+
+export const SUBTRACTION_ASSIGNMENT_OPERATOR = WORD("-=")
+  .setValue("SUBTRACTION_ASSIGNMENT_OPERATOR")
+  .token();
+
+export const MULTIPLICATION_ASSIGNMENT_OPERATOR = WORD("*=")
+  .setValue("MULTIPLICATION_ASSIGNMENT_OPERATOR")
+  .token();
+
+export const DIVISION_ASSIGNMENT_OPERATOR = WORD("/=")
+  .setValue("DIVISION_ASSIGNMENT_OPERATOR")
+  .token();
+
+export const MODULO_ASSIGNMENT_OPERATOR = WORD("%=")
+  .setValue("MODULO_ASSIGNMENT_OPERATOR")
+  .token();
+
+export const INTEGER_DIVISION_ASSIGNMENT_OPERATOR = WORD("//=")
+  .setValue("INTEGER_DIVISION_ASSIGNMENT_OPERATOR")
+  .token();
+
+export const EXPONENT_ASSIGNMENT_OPERATOR = WORD("**=")
+  .setValue("EXPONENT_ASSIGNMENT_OPERATOR")
+  .token();
+  
+export const ASSIGNMENT_OPERATORS = 
+  OR(ASSIGNMENT_OPERATOR, ADDITION_ASSIGNMENT_OPERATOR,
+    SUBTRACTION_ASSIGNMENT_OPERATOR, EXPONENT_ASSIGNMENT_OPERATOR,
+    MULTIPLICATION_ASSIGNMENT_OPERATOR, INTEGER_DIVISION_ASSIGNMENT_OPERATOR, 
+    DIVISION_ASSIGNMENT_OPERATOR, MODULO_ASSIGNMENT_OPERATOR
+  ,)
+  .setValue("ASSIGNMENT_OPERATORS");
+
+//Arithmetic Operators (+, -, *, /, %, //, **)
+export const ADDITION_OPERATOR = ATOM("+")
+  .setValue("ADDITION_ASSIGNMENT_OPERATOR")
+  .token();
+
+export const SUBTRACTION_OPERATOR = ATOM("-")
+  .setValue("SUBTRACTION_OPERATOR")
+  .token();
+
+  export const MULTIPLICATION_OPERATOR = ATOM("*")
+  .setValue("MULTIPLICATION_OPERATOR")
+  .token();
+
+export const DIVISION_OPERATOR = ATOM("/")
+  .setValue("DIVISION_OPERATOR")
+  .token();
+
+export const MODULO_OPERATOR = ATOM("%")
+  .setValue("MODULO_OPERATOR")
+  .token();
+
+export const INTEGER_DIVISION_OPERATOR = WORD("//")
+  .setValue("INTEGER_DIVISION_OPERATOR")
+  .token();
+
+export const EXPONENT_OPERATOR = WORD("**")
+  .setValue("EXPONENT_OPERATOR")
+  .token();
+  
+export const ARITHMETIC_OPERATORS = 
+  OR(ASSIGNMENT_OPERATOR, ADDITION_OPERATOR ,SUBTRACTION_OPERATOR, 
+  MULTIPLICATION_OPERATOR, DIVISION_OPERATOR, MODULO_OPERATOR,
+  INTEGER_DIVISION_ASSIGNMENT_OPERATOR,EXPONENT_ASSIGNMENT_OPERATOR)
+  .setValue("ARITHEMTIC_OPERATORS");
+
+//Unary Operator (+, -, ++, --)
+export const UNARY_PLUS_OPERATOR = ATOM("+")
+  .setValue("UNARY_PLUS_OPERATOR")
+  .token();
+
+export const UNARY_MINUS_OPERATOR = ATOM("-")
+  .setValue("UNARY_MINUS_OPERATOR")
+  .token();
+
+//BALIKAN
+export const INCREMENT_OPERATOR = WORD("++")
+  .setValue("INCREMENT_OPERATOR")
+  .token();
+
+//BALIKAN
+export const DECREMENT_OPERATOR = WORD("--")
+  .setValue("DECREMENT_OPERATOR")
+  .token();
+
+export const UNARY_OPERATORS = 
+  OR(UNARY_PLUS_OPERATOR, UNARY_MINUS_OPERATOR, 
+    INCREMENT_OPERATOR,DECREMENT_OPERATOR)
+  .setValue("UNARY_OPERATORS");
+
+//Logical Boolean (NOT, OR, AND)
+export const LOGICAL_NOT_OPERATOR = WORD("NOT")
+  .setValue("LOGICAL_NOT_OPERATOR")
+  .token();
+
+export const LOGICAL_OR_OPERATOR = WORD("OR")
+  .setValue("LOGICAL_OR_OPERATOR")
+  .token();
+
+export const LOGICAL_AND_OPERATOR = WORD("AND")
+  .setValue("LOGICAL_AND_OPERATOR")
+  .token();
+
+export const LOGICAL_BOOLEAN_OPERATORS = 
+  OR(LOGICAL_NOT_OPERATOR, LOGICAL_OR_OPERATOR, 
+    LOGICAL_AND_OPERATOR)
+  .setValue("LOGICAL_BOOLEAN_OPERATORS");
+
+//RELATIONAL BOOLEAN (==, !=, >, <, >=, <=)
+export const EQUAL_TO_OPERATOR = ATOM("==")
+  .setValue("EQUAL_TO_OPERATOR")
+  .token();
+
+export const NOT_EQUAL_TO_OPERATOR = WORD("!=")
+  .setValue("NOT_EQUAL_TO_OPERATOR")
+  .token();
+
+export const GREATER_THAN_OPERATOR = ATOM(">")
+  .setValue("GREATER_THAN_OPERATOR")
+  .token();
+
+//BALIKAN
+export const GREATER_THAN_OR_EQUAL_TO_OPERATOR = WORD(">=")
+  .setValue("GREATER_THAN_OR_EQUAL_TO_OPERATOR")
+  .token();
+
+export const LESS_THAN_OPERATOR = ATOM("<")
+  .setValue("LESS_THAN_OPERATOR")
+  .token();
+
+//BALIKAN
+export const LESS_THAN_OR_EQUAL_TO_OPERATOR = WORD("<=")
+  .setValue("LESS_THAN_OR_EQUAL_TO_OPERATOR")
+  .token();
+
+export const RELATIONAL_BOOLEAN_OPERATORS = 
+  OR(EQUAL_TO_OPERATOR, NOT_EQUAL_TO_OPERATOR, 
+  GREATER_THAN_OPERATOR, GREATER_THAN_OR_EQUAL_TO_OPERATOR,
+  LESS_THAN_OPERATOR, LESS_THAN_OR_EQUAL_TO_OPERATOR)
+  .setValue("RELATIONAL_BOOLEAN_OPERATORS");
+
+//Bitwise Operators (&, |, ~, ^, <<, >>)
+export const AND_BITWISE_OPERATOR = ATOM("&")
+  .setValue("AND_BITWISE_OPERATOR")
+  .token();
+
+export const OR_BITWISE_OPERATOR = WORD("|")
+  .setValue("OR_BITWISE_OPERATOR")
+  .token();
+
+export const NOT_BITWISE_OPERATOR = WORD("~")
+  .setValue("NOT_BITWISE_OPERATOR")
+  .token();
+
+export const XOR_BITWISE_OPERATOR = WORD("^")
+  .setValue("XOR_BITWISE_OPERATOR")
+  .token();
+
+export const LEFT_SHIFT_BITWISE_OPERATOR = WORD("<<")
+  .setValue("LEFT_SHIFT_BITWISE_OPERATOR")
+  .token();
+
+export const RIGHT_SHIFT_BITWISE_OPERATOR = WORD(">>")
+  .setValue("RIGHT_SHIFT_BITWISE_OPERATOR")
+  .token();
+
+export const BITWISE_OPERATORS = 
+  OR(AND_BITWISE_OPERATOR, OR_BITWISE_OPERATOR, 
+    NOT_BITWISE_OPERATOR, XOR_BITWISE_OPERATOR, 
+    LEFT_SHIFT_BITWISE_OPERATOR, RIGHT_SHIFT_BITWISE_OPERATOR)
+  .setValue("BITWISE_OPERATORS");
+
+
 export const DECLARATION_STATEMENT = CONCAT(
   DECLARATOR,
   NON_EMPTY_WHITESPACE,
   IDENTIFIER,
   WHITESPACE,
   ASSIGNMENT_OPERATOR,
+  WHITESPACE,
+  VALUE,
+  WHITESPACE,
+  RELATIONAL_BOOLEAN_OPERATORS,
   WHITESPACE,
   VALUE,
   SEMICOLON
