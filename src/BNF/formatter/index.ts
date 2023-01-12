@@ -1,49 +1,58 @@
-import { CheckResult } from ".";
 import fs from "node:fs";
 import path from "node:path";
+import BaseBNF, { TestResult, TestResultStatus } from "../BaseBNF";
 
 const PATH = "./result";
 
-export const toText = (filepath: string, result?: CheckResult<any, any>) => {
+type Result = TestResult<any, any> & { input: string };
+
+const getTextFromInput = (
+  input: string,
+  range: { from: number; to: number }
+) => {
+  return input.slice(range.from, range.to);
+};
+
+export const toText = (filepath: string, result?: Result) => {
   const output = new Array<string>();
 
-  const makeOutput = (result: CheckResult<any, any>, depth = 0) => {
+  const makeOutput = (result: TestResult<any, any>, depth = 0) => {
     const prefix = "".padStart(depth, "\t");
 
     output.push(
-      `${prefix}"${result.value}" ${result.from}:${result.to}${
-        result.token ? " TOKEN" : ""
+      `${prefix}"${result.name}" ${result.range.from}:${result.range.to}${
+        result.isToken ? " TOKEN" : ""
       }`
     );
 
-    for (const subValue of result.subValues) {
+    for (const subValue of result.children) {
       makeOutput(subValue, depth + 1);
     }
   };
 
-  if (result) {
+  if (result && result.status === TestResultStatus.SUCCESS) {
     makeOutput(result);
   }
 
   save(filepath, output.join("\n"));
 };
 
-export const toJson = (filepath: string, result?: CheckResult<any, any>) => {
-  if (!result) {
+export const toJson = (filepath: string, result?: Result) => {
+  if (!result || result.status === TestResultStatus.FAILED) {
     save(filepath, JSON.stringify({}, null, 2));
     return;
   }
 
   const removeKeys = <U extends string>(
-    obj: CheckResult<any, any>,
+    obj: TestResult<any, any>,
     keys: Array<U>
-  ): Omit<CheckResult<any, any>, U> => {
+  ): Omit<TestResult<any, any>, U> => {
     for (const key of keys) {
       // @ts-ignore
       delete obj[key];
     }
 
-    for (const subValue of obj.subValues) {
+    for (const subValue of obj.children) {
       removeKeys(subValue, keys);
     }
 
@@ -60,7 +69,7 @@ export const toJson = (filepath: string, result?: CheckResult<any, any>) => {
   );
 };
 
-export const toCsv = (filepath: string, result?: CheckResult<any, any>) => {
+export const toCsv = (filepath: string, result?: Result) => {
   const rows = new Array<{
     token: string;
     lexeme: string;
@@ -70,24 +79,21 @@ export const toCsv = (filepath: string, result?: CheckResult<any, any>) => {
     };
   }>();
 
-  const process = (res: CheckResult<any, any>) => {
-    if (res.subValues.length === 0 || res.machine.isToken()) {
+  const process = (res: TestResult<any, any>) => {
+    if (res.children.length === 0 || res.isToken) {
       rows.push({
-        lexeme: res.text,
-        token: res.value,
-        range: {
-          from: res.from,
-          to: res.to,
-        },
+        lexeme: "TEXT",
+        token: res.name,
+        range: res.range,
       });
     } else {
-      for (const subValue of res.subValues) {
+      for (const subValue of res.children) {
         process(subValue);
       }
     }
   };
 
-  if (result) {
+  if (result && result.status === TestResultStatus.SUCCESS) {
     process(result);
   }
 
@@ -98,7 +104,7 @@ export const toCsv = (filepath: string, result?: CheckResult<any, any>) => {
     ...rows.map((row, index) => {
       const cells = [
         `${index}`,
-        `"${row.lexeme}"`,
+        `"${getTextFromInput(result!.input, row.range)}"`,
         `"${row.token}"`,
         `${row.range.from}:${row.range.to}`,
       ];
