@@ -43,12 +43,17 @@ export default class StarBNF<
     };
   }
 
-  toDefinition(): string {
-    return this.toVariable();
+  toVariable(): string {
+    return `${this.#bnf.toTerminal()}*`;
   }
 
-  toVariable(): string {
-    return `${super.toVariable()}*`;
+  toDefinition(): string {
+    const definition =
+      this.#bnf.children.length > 1
+        ? `(${this.#bnf.toDefinition()})`
+        : this.#bnf.toDefinition();
+
+    return `${definition}*`;
   }
 
   clone(): ThisType<BaseBNF<Name>> {

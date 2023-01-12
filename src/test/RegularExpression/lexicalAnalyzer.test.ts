@@ -1,6 +1,7 @@
 import { TestResultStatus } from "../../BNF/BaseBNF";
 import { IDENTIFIER } from "../../BNF/terminal/identifier";
 import { DECLARATION_STATEMENT } from "../../BNF/terminal/statement";
+import { ARRAY } from "../../BNF/terminal/value";
 
 test("Identifier", () => {
   expect(IDENTIFIER.test("_")?.status).toBe(TestResultStatus.SUCCESS);
@@ -55,4 +56,24 @@ test("Declaration Statement", () => {
   expect(DECLARATION_STATEMENT.test("constant  _a00b_    2;")?.status).toBe(
     TestResultStatus.FAILED
   );
+});
+
+test("Cyclical Reference ", () => {
+  expect(ARRAY.test("[]")?.status).toBe(TestResultStatus.SUCCESS);
+
+  expect(ARRAY.test("[1]")?.status).toBe(TestResultStatus.SUCCESS);
+
+  expect(ARRAY.test("['str', 1.0]")?.status).toBe(TestResultStatus.SUCCESS);
+
+  expect(ARRAY.test("[[], [], []]")?.status).toBe(TestResultStatus.SUCCESS);
+
+  expect(ARRAY.test("[[1], 'str', [[1.0, 2, []]]]")?.status).toBe(
+    TestResultStatus.SUCCESS
+  );
+
+  expect(ARRAY.test("[[1], 'str', [[1.0, 2]]")?.status).toBe(
+    TestResultStatus.FAILED
+  );
+
+  expect(ARRAY.test("[[]], [, []]")?.status).toBe(TestResultStatus.FAILED);
 });

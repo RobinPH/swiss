@@ -1,14 +1,11 @@
 import BNF from "../../BNF";
 import { DECLARATOR } from "./declarator";
 import { IDENTIFIER } from "./identifier";
-import { NUMBER } from "./literal";
-import { STRING } from "./literal/string";
 import { ASSIGNMENT_OPERATOR } from "./operator/assignment";
 import { SEMICOLON } from "./specialCharacter";
+import { VALUE } from "./value";
 import { NON_EMPTY_WHITESPACE, WHITESPACE } from "./whitespace";
-const { CONCAT, OR } = BNF;
-
-export const VALUE = OR(NUMBER, STRING).name("VALUE");
+const { CONCAT } = BNF;
 
 export const DECLARATION_STATEMENT = CONCAT(
   DECLARATOR,

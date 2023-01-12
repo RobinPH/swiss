@@ -1,3 +1,5 @@
+import ManagerBNF from "./ManagerBNF";
+
 export enum BNFType {
   ATOM = "ATOM",
   OR = "OR",
@@ -61,6 +63,8 @@ abstract class BaseBNF<
   }
 
   test(input: string, index: number = 0) {
+    ManagerBNF.clear();
+
     const result = this._test(input, index);
 
     if (result.range.to !== input.length) {

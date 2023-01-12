@@ -23,7 +23,7 @@ export const vizualize = (name: string, machine: BaseBNF<any>) => {
 
     const groupColor = new Map<BaseBNF<any>, string>();
 
-    const done = new Set<BaseBNF<any>>();
+    const done = new Map<BaseBNF<any>, { start: string; end: string }>();
 
     const nodes = new Array<string>();
     const transitions = new Array<string>();
@@ -45,12 +45,19 @@ export const vizualize = (name: string, machine: BaseBNF<any>) => {
       m: BaseBNF<any>,
       use: { start?: string; end?: string } = {}
     ) => {
-      done.add(m);
+      if (done.has(m)) {
+        return done.get(m)!;
+      }
 
       const start = use.start ?? newNode();
 
       const isFinal = m instanceof ConcatBNF || m instanceof OrBNF;
       const end = use.end ?? newNode(isFinal ? ["shape = doublecircle"] : []);
+
+      done.set(m, {
+        start,
+        end,
+      });
 
       if (m instanceof AtomBNF) {
         newTransition(start, end, m.character);

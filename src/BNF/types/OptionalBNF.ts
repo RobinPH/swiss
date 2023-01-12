@@ -17,12 +17,17 @@ export default class OptionalBNF<
     this.#bnf = bnf;
   }
 
-  toDefinition(): string {
-    return this.toVariable();
+  toVariable(): string {
+    return `${this.#bnf.toTerminal()}?`;
   }
 
-  toVariable(): string {
-    return `${this.#bnf.toVariable()}?`;
+  toDefinition(): string {
+    const definition =
+      this.#bnf.children.length > 1
+        ? `(${this.#bnf.toDefinition()})`
+        : this.#bnf.toDefinition();
+
+    return `${definition}?`;
   }
 
   bnf() {
