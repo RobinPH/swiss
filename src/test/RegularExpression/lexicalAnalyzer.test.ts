@@ -1,5 +1,6 @@
 import { TestResultStatus } from "../../BNF/BaseBNF";
-import { DECLARATION_STATEMENT, IDENTIFIER } from "../../BNF/terminal";
+import { IDENTIFIER } from "../../BNF/terminal/identifier";
+import { DECLARATION_STATEMENT } from "../../BNF/terminal/statement";
 
 test("Identifier", () => {
   expect(IDENTIFIER.test("_")?.status).toBe(TestResultStatus.SUCCESS);

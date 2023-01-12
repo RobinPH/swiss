@@ -13,7 +13,6 @@ export default class ConcatBNF<
 
     for (const bnf of this.children) {
       const result = bnf._test(input, currentIndex);
-      // console.log(bnf.toTerminal(), currentIndex, result.status);
 
       currentIndex = result.range.to;
 
