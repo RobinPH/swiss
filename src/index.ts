@@ -1,12 +1,15 @@
 import BNF from "./BNF";
 import { TestResultStatus } from "./BNF/BaseBNF";
 import { toTable } from "./BNF/formatter";
+import { ASSIGNMENT_OPERATORS } from "./BNF/terminal/operator/assignment";
+import { BITWISE_OPERATORS } from "./BNF/terminal/operator/bitwise";
+import { DECLARATION_STATEMENT } from "./BNF/terminal/statement";
 import { ARRAY, ARRAY_ADDITIONAL_VALUE, VALUE } from "./BNF/terminal/value";
 import { vizualize } from "./BNF/viz";
 const { ATOM, CONCAT, OPTIONAL, STAR, OR } = BNF;
 
-const bnf = ARRAY;
-const input = `[[[[32]]], 1.01, 'string']`;
+const bnf = DECLARATION_STATEMENT;
+const input = `const a_0 = [1];`;
 
 const res = bnf.test(input);
 
