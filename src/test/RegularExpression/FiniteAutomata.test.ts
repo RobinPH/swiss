@@ -1,141 +1,161 @@
-import FiniteAutomata from "../../FiniteAutomata";
-const { ATOM, OR, CONCAT, PLUS, STAR, OPTIONAL, CHOICES, EMPTY_SPACE, WORD } =
-  FiniteAutomata;
+import BNF from "../../BNF";
+import { TestResultStatus } from "../../BNF/BaseBNF";
+const { ATOM, OR, CONCAT, STAR, PLUS, OPTIONAL, WORD } = BNF;
 
-const IF = WORD("if").setValue("IF");
-const FOR = WORD("for").setValue("FOR");
-const ELSE = WORD("else").setValue("ELSE");
-const SPACE = WORD(" ").setValue("SPACE");
-const SPACE_STAR = STAR(SPACE).setValue("SPACE_STAR");
+const IF = WORD("if").name("IF");
+const FOR = WORD("for").name("FOR");
+const ELSE = WORD("else").name("ELSE");
+const SPACE = WORD(" ").name("SPACE");
+const SPACE_STAR = STAR(SPACE).name("SPACE_STAR");
 
-const SPACE_PLUS = PLUS(SPACE).setValue("SPACE_PLUS");
+const SPACE_PLUS = PLUS(SPACE).name("SPACE_PLUS");
 
-const OR_IF_ELSE = OR(IF, ELSE).setValue("OR_IF_ELSE");
+const OR_IF_ELSE = OR(IF, ELSE).name("OR_IF_ELSE");
 
 const CONCAT_ELSE_SPACE_IF = CONCAT(
-  CONCAT(ELSE, SPACE).setValue("ELSE_SPACE"),
+  CONCAT(ELSE, SPACE).name("ELSE_SPACE"),
   IF
-).setValue("ELSE_IF");
+).name("ELSE_IF");
 
 const CONCAT_ELSE_SPACE_STAR_IF = CONCAT(
-  CONCAT(ELSE, SPACE_STAR).setValue("ELSE_SPACE_STAR"),
+  CONCAT(ELSE, SPACE_STAR).name("ELSE_SPACE_STAR"),
   IF
-).setValue("ELSE_IF");
+).name("ELSE_IF");
 
 const CONCAT_ELSE_SPACE_PLUS_IF = CONCAT(
-  CONCAT(ELSE, SPACE_PLUS).setValue("ELSE_SPACE_PLUS"),
+  CONCAT(ELSE, SPACE_PLUS).name("ELSE_SPACE_PLUS"),
   IF
-).setValue("ELSE_IF");
+).name("ELSE_IF");
 
-const CONCAT_FOR_IF = CONCAT(FOR, IF).setValue("FOR_IF");
+const CONCAT_FOR_IF = CONCAT(FOR, IF).name("FOR_IF");
 
-const CONCAT_OR_CONCAT = OR(CONCAT_ELSE_SPACE_IF, CONCAT_FOR_IF).setValue(
+const CONCAT_OR_CONCAT = OR(CONCAT_ELSE_SPACE_IF, CONCAT_FOR_IF).name(
   "CONCAT_OR_CONCAT"
 );
 
-const OR_OR = OR(OR(FOR, IF).setValue("FOR_OR_IF"), OR_IF_ELSE).setValue(
-  "OR_OR"
-);
+const OR_OR = OR(OR(FOR, IF).name("FOR_OR_IF"), OR_IF_ELSE).name("OR_OR");
 
-const OR_PLUS = PLUS(OR_IF_ELSE).setValue("OR_PLUS");
+const OR_PLUS = PLUS(OR_IF_ELSE).name("OR_PLUS");
 
-const OR_STAR = STAR(OR_IF_ELSE).setValue("OR_STAR");
+const OR_STAR = STAR(OR_IF_ELSE).name("OR_STAR");
 
-const CONCAT_ELSE_SPACE_STAR_IF_STAR = STAR(CONCAT_ELSE_SPACE_STAR_IF).setValue(
+const CONCAT_ELSE_SPACE_STAR_IF_STAR = STAR(CONCAT_ELSE_SPACE_STAR_IF).name(
   "CONCAT_ELSE_SPACE_STAR_IF_STAR"
 );
 
 test("Single Word", () => {
-  expect(IF.check("if")?.value).toStrictEqual("IF");
-  expect(FOR.check("for")?.value).toStrictEqual("FOR");
-  expect(ELSE.check("else")?.value).toStrictEqual("ELSE");
-  expect(IF.check("ifx")?.value).toStrictEqual(undefined);
+  expect(IF.test("if")?.status).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(FOR.test("for")?.status).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(ELSE.test("else")?.status).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(IF.test("ifx")?.status).toStrictEqual(TestResultStatus.FAILED);
 });
 
 test("Concat", () => {
-  expect(CONCAT_ELSE_SPACE_IF.check("else if")?.value).toStrictEqual("ELSE_IF");
+  expect(CONCAT_ELSE_SPACE_IF.test("else if")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
 });
 
 test("Or", () => {
-  expect(OR_IF_ELSE.check("else")?.value).toStrictEqual("OR_IF_ELSE");
-  expect(OR_IF_ELSE.check("if")?.value).toStrictEqual("OR_IF_ELSE");
-  expect(OR_IF_ELSE.check("for")?.value).toStrictEqual(undefined);
-  expect(OR_IF_ELSE.check("else ifx")?.value).toStrictEqual(undefined);
-
-  expect(CONCAT_OR_CONCAT.check("else if")?.value).toStrictEqual(
-    "CONCAT_OR_CONCAT"
+  expect(OR_IF_ELSE.test("else")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
   );
-  expect(CONCAT_OR_CONCAT.check("forif")?.value).toStrictEqual(
-    "CONCAT_OR_CONCAT"
+  expect(OR_IF_ELSE.test("if")?.status).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(OR_IF_ELSE.test("for")?.status).toStrictEqual(TestResultStatus.FAILED);
+  expect(OR_IF_ELSE.test("else ifx")?.status).toStrictEqual(
+    TestResultStatus.FAILED
   );
 
-  expect(OR_OR.check("for")?.value).toStrictEqual("OR_OR");
-  expect(OR_OR.check("else")?.value).toStrictEqual("OR_OR");
-  expect(OR_OR.check("if")?.value).toStrictEqual("OR_OR");
+  expect(CONCAT_OR_CONCAT.test("else if")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect(CONCAT_OR_CONCAT.test("forif")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+
+  expect(OR_OR.test("for")?.status).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(OR_OR.test("else")?.status).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(OR_OR.test("if")?.status).toStrictEqual(TestResultStatus.SUCCESS);
 });
 
 test("Kleene Star", () => {
-  expect(CONCAT_ELSE_SPACE_STAR_IF.check("elseif")?.value).toStrictEqual(
-    "ELSE_IF"
+  expect(CONCAT_ELSE_SPACE_STAR_IF.test("elseif")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
   );
-  expect(CONCAT_ELSE_SPACE_STAR_IF.check("else if")?.value).toStrictEqual(
-    "ELSE_IF"
+  expect(CONCAT_ELSE_SPACE_STAR_IF.test("else if")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
   );
-  expect(CONCAT_ELSE_SPACE_STAR_IF.check("else  if")?.value).toStrictEqual(
-    "ELSE_IF"
+  expect(CONCAT_ELSE_SPACE_STAR_IF.test("else  if")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
   );
-  expect(CONCAT_ELSE_SPACE_STAR_IF.check("else ifx")?.value).toStrictEqual(
-    undefined
+  expect(CONCAT_ELSE_SPACE_STAR_IF.test("else ifx")?.status).toStrictEqual(
+    TestResultStatus.FAILED
   );
-  expect(CONCAT_ELSE_SPACE_STAR_IF.check("else")?.value).toStrictEqual(
-    undefined
+  expect(CONCAT_ELSE_SPACE_STAR_IF.test("else")?.status).toStrictEqual(
+    TestResultStatus.FAILED
   );
-  expect(CONCAT_ELSE_SPACE_STAR_IF.check("if")?.value).toStrictEqual(undefined);
+  expect(CONCAT_ELSE_SPACE_STAR_IF.test("if")?.status).toStrictEqual(
+    TestResultStatus.FAILED
+  );
 
-  expect(OR_STAR.check("if")?.value).toStrictEqual("OR_STAR");
-  expect(OR_STAR.check("ifif")?.value).toStrictEqual("OR_STAR");
-  expect(OR_STAR.check("elseifif")?.value).toStrictEqual("OR_STAR");
-  expect(OR_STAR.check("ifelseif")?.value).toStrictEqual("OR_STAR");
-  expect(OR_STAR.check("ifififelseelse")?.value).toStrictEqual("OR_STAR");
-
-  expect(OR_STAR.check("")?.value).toStrictEqual("OR_STAR");
-
-  expect(CONCAT_ELSE_SPACE_STAR_IF_STAR.check("")?.value).toStrictEqual(
-    "CONCAT_ELSE_SPACE_STAR_IF_STAR"
+  expect(OR_STAR.test("if")?.status).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(OR_STAR.test("ifif")?.status).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(OR_STAR.test("elseifif")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
   );
-  expect(CONCAT_ELSE_SPACE_STAR_IF_STAR.check("else if")?.value).toStrictEqual(
-    "CONCAT_ELSE_SPACE_STAR_IF_STAR"
+  expect(OR_STAR.test("ifelseif")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect(OR_STAR.test("ifififelseelse")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+
+  expect(OR_STAR.test("")?.status).toStrictEqual(TestResultStatus.SUCCESS);
+
+  expect(CONCAT_ELSE_SPACE_STAR_IF_STAR.test("")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect(CONCAT_ELSE_SPACE_STAR_IF_STAR.test("else if")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
   );
   expect(
-    CONCAT_ELSE_SPACE_STAR_IF_STAR.check("else  ifelseif")?.value
-  ).toStrictEqual("CONCAT_ELSE_SPACE_STAR_IF_STAR");
+    CONCAT_ELSE_SPACE_STAR_IF_STAR.test("else  ifelseif")?.status
+  ).toStrictEqual(TestResultStatus.SUCCESS);
   expect(
-    CONCAT_ELSE_SPACE_STAR_IF_STAR.check("elseifelse      if")?.value
-  ).toStrictEqual("CONCAT_ELSE_SPACE_STAR_IF_STAR");
+    CONCAT_ELSE_SPACE_STAR_IF_STAR.test("elseifelse      if")?.status
+  ).toStrictEqual(TestResultStatus.SUCCESS);
 });
 
 test("Kleene Plus", () => {
-  expect(CONCAT_ELSE_SPACE_PLUS_IF.check("elseif")?.value).toStrictEqual(
-    undefined
+  expect(CONCAT_ELSE_SPACE_PLUS_IF.test("elseif")?.status).toStrictEqual(
+    TestResultStatus.FAILED
   );
-  expect(CONCAT_ELSE_SPACE_PLUS_IF.check("else if")?.value).toStrictEqual(
-    "ELSE_IF"
+  expect(CONCAT_ELSE_SPACE_PLUS_IF.test("else if")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
   );
-  expect(CONCAT_ELSE_SPACE_PLUS_IF.check("else  if")?.value).toStrictEqual(
-    "ELSE_IF"
+  expect(CONCAT_ELSE_SPACE_PLUS_IF.test("else  if")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
   );
-  expect(CONCAT_ELSE_SPACE_PLUS_IF.check("else ifx")?.value).toStrictEqual(
-    undefined
+  expect(CONCAT_ELSE_SPACE_PLUS_IF.test("else ifx")?.status).toStrictEqual(
+    TestResultStatus.FAILED
   );
-  expect(CONCAT_ELSE_SPACE_PLUS_IF.check("else")?.value).toStrictEqual(
-    undefined
+  expect(CONCAT_ELSE_SPACE_PLUS_IF.test("else")?.status).toStrictEqual(
+    TestResultStatus.FAILED
   );
-  expect(CONCAT_ELSE_SPACE_PLUS_IF.check("if")?.value).toStrictEqual(undefined);
+  expect(CONCAT_ELSE_SPACE_PLUS_IF.test("if")?.status).toStrictEqual(
+    TestResultStatus.FAILED
+  );
 
-  expect(OR_PLUS.check("")?.value).toStrictEqual(undefined);
-  expect(OR_PLUS.check("if")?.value).toStrictEqual("OR_PLUS");
-  expect(OR_PLUS.check("ifif")?.value).toStrictEqual("OR_PLUS");
-  expect(OR_PLUS.check("elseifif")?.value).toStrictEqual("OR_PLUS");
-  expect(OR_PLUS.check("ifelseif")?.value).toStrictEqual("OR_PLUS");
-  expect(OR_PLUS.check("ifififelseelse")?.value).toStrictEqual("OR_PLUS");
+  expect(OR_PLUS.test("")?.status).toStrictEqual(TestResultStatus.FAILED);
+  expect(OR_PLUS.test("if")?.status).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(OR_PLUS.test("ifif")?.status).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(OR_PLUS.test("elseifif")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect(OR_PLUS.test("ifelseif")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect(OR_PLUS.test("ifififelseelse")?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
 });

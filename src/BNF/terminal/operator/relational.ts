@@ -1,0 +1,31 @@
+import { ATOM, OR, WORD } from "../..";
+
+//RELATIONAL BOOLEAN (==, !=, >, <, >=, <=)
+export const EQUAL_TO_OPERATOR = ATOM("==").name("EQUAL_TO_OPERATOR").token();
+
+export const NOT_EQUAL_TO_OPERATOR = WORD("!=")
+  .name("NOT_EQUAL_TO_OPERATOR")
+  .token();
+
+export const GREATER_THAN_OPERATOR = ATOM(">")
+  .name("GREATER_THAN_OPERATOR")
+  .token();
+
+export const GREATER_THAN_OR_EQUAL_TO_OPERATOR = WORD(">=")
+  .name("GREATER_THAN_OR_EQUAL_TO_OPERATOR")
+  .token();
+
+export const LESS_THAN_OPERATOR = ATOM("<").name("LESS_THAN_OPERATOR").token();
+
+export const LESS_THAN_OR_EQUAL_TO_OPERATOR = WORD("<=")
+  .name("LESS_THAN_OR_EQUAL_TO_OPERATOR")
+  .token();
+
+export const RELATIONAL_BOOLEAN_OPERATORS = OR(
+  EQUAL_TO_OPERATOR,
+  NOT_EQUAL_TO_OPERATOR,
+  GREATER_THAN_OPERATOR,
+  GREATER_THAN_OR_EQUAL_TO_OPERATOR,
+  LESS_THAN_OPERATOR,
+  LESS_THAN_OR_EQUAL_TO_OPERATOR
+).name("RELATIONAL_BOOLEAN_OPERATORS");
