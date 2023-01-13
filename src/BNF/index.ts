@@ -51,3 +51,11 @@ export default class BNF {
     return uuidv4();
   }
 }
+
+export const ATOM = BNF.ATOM;
+export const OR = BNF.OR;
+export const CONCAT = BNF.CONCAT;
+export const STAR = BNF.STAR;
+export const PLUS = BNF.PLUS;
+export const OPTIONAL = BNF.OPTIONAL;
+export const WORD = BNF.WORD;
