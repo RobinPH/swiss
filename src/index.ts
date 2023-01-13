@@ -1,6 +1,6 @@
 import BNF from "./BNF";
 import { TestResultStatus } from "./BNF/BaseBNF";
-import { toCsv } from "./BNF/formatter";
+import { toTable } from "./BNF/formatter";
 import { ARRAY, ARRAY_ADDITIONAL_VALUE, VALUE } from "./BNF/terminal/value";
 import { vizualize } from "./BNF/viz";
 const { ATOM, CONCAT, OPTIONAL, STAR, OR } = BNF;
@@ -16,7 +16,7 @@ if (res.status === TestResultStatus.SUCCESS) {
   console.log(`[!] Failed`);
 }
 
-toCsv("res.csv", res);
+toTable("symbol_table.txt", res);
 
 for (const b of [bnf]) {
   console.log(b.toDeclaration());
