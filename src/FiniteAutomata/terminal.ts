@@ -350,3 +350,72 @@ export const DECLARATION_STATEMENT = CONCAT(
   VALUE,
   SEMICOLON
 ).setValue("DECLARATION_STATEMENT");
+
+// ---- KEYWORDS ---- //
+
+const LOOPING_KEYWORD_FOR = WORD("for").setValue("LOOPING_KEYWORD_FOR").token();
+const LOOPING_KEYWORD_WHILE = WORD("while").setValue("LOOPING_KEYWORD_WHILE").token();
+const LOOPING_KEYWORD_DO = WORD("do").setValue("LOOPING_KEYWORD_DO").token();
+
+export const LOOPING_KEYWORD = OR(
+  LOOPING_KEYWORD_FOR,
+  LOOPING_KEYWORD_WHILE,
+  LOOPING_KEYWORD_DO,
+)
+  .setValue("LOOPING_KEYWORD");
+
+/* 
+export const FOR_LOOP_STATEMENT = CONCAT(
+  LOOPING_KEYWORD_FOR,
+  NON_EMPTY_WHITESPACE,
+  // initialization
+  ATOM("("), 
+  LET_DECLARATOR, 
+  NON_EMPTY_WHITESPACE, 
+  IDENTIFIER, 
+  WHITESPACE, 
+  ASSIGNMENT_OPERATOR, 
+  WHITESPACE, 
+  VALUE,
+  SEMICOLON,
+  // test
+  OR(
+    // either an explicit condition...
+    CONCAT(IDENTIFIER, WHITESPACE, RELATIONAL_BOOLEAN_OPERATORS, WHITESPACE, VALUE),
+    // an explicit boolean (which will make this like a while loop)...
+    // -- insert BOOLEAN_KEYWORD here --
+    // or a boolean identifier
+    IDENTIFIER,
+  ),
+  SEMICOLON,
+  // update
+  WHITESPACE,
+  OR(
+    DECLARATION_STATEMENT,
+    CONCAT(IDENTIFIER, OR(INCREMENT_OPERATOR, DECREMENT_OPERATOR)),
+  ),
+  ATOM(")"),
+  ATOM(":")
+)
+  .setValue("FOR_LOOP_STATEMENT"); 
+*/
+
+export const LOOPING_CONTROL_KEYWORD = OR(
+  WORD("break").setValue("LOOPING_CONTROL_KEYWORD_BREAK").token(),
+  WORD("continue").setValue("LOOPING_CONTROL_KEYWORD_CONTINUE").token()
+)
+  .setValue("LOOPING_CONTROL_KEYWORD");
+
+export const SWITCH_KEYWORD = OR(
+  WORD("switch").setValue("SWITCH_KEYWORD_SWITCH").token(),
+  WORD("case").setValue("SWITCH_KEYWORD_CASE").token(),
+  WORD("default").setValue("SWITCH_KEYWORD_DEFAULT").token(),
+)
+  .setValue("SWITCH_KEYWORD");
+
+export const IF_STATEMENT_KEYWORD = OR(
+  WORD("if").setValue("IF_STATEMENT_KEYWORD_IF").token(),
+  WORD("else").setValue("IF_STATEMENT_KEYWORD_ELSE").token(),
+)
+  .setValue("IF_STATEMENT_KEYWORD");
+
