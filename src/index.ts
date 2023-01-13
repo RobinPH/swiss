@@ -1,12 +1,7 @@
 import BNF from "./BNF";
 import { TestResultStatus } from "./BNF/BaseBNF";
 import { toCsv } from "./BNF/formatter";
-import {
-  ARRAY,
-  ARRAY_ADDITIONAL_VALUE,
-  ARRAY_VALUE,
-  VALUE,
-} from "./BNF/terminal/value";
+import { ARRAY, ARRAY_ADDITIONAL_VALUE, VALUE } from "./BNF/terminal/value";
 import { vizualize } from "./BNF/viz";
 const { ATOM, CONCAT, OPTIONAL, STAR, OR } = BNF;
 
@@ -23,7 +18,7 @@ if (res.status === TestResultStatus.SUCCESS) {
 
 toCsv("res.csv", res);
 
-for (const b of [VALUE, ARRAY_ADDITIONAL_VALUE, ARRAY_VALUE, ARRAY]) {
+for (const b of [bnf]) {
   console.log(b.toDeclaration());
 }
 vizualize("res", bnf);
