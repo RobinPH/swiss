@@ -154,7 +154,54 @@ export const STRING = CONCAT(
   ATOM("'").setValue("STRING_CLOSING_QUOTE").token()
 ).setValue("STRING");
 
-export const VALUE = OR(INTEGER, STRING).setValue("VALUE");
+//Boolean Value Keyword (true, false)
+export const TRUE_VALUE_KEYWORD = WORD("true")
+  .setValue("TRUE_VALUE_KEYWORD")
+  .token()
+  
+export const FALSE_VALUE_KEYWORD = WORD("false")
+  .setValue("FALSE_VALUE_KEYWORD")
+  .token()
+
+export const BOOLEAN_VALUE_KEYWORD = 
+  OR(TRUE_VALUE_KEYWORD, FALSE_VALUE_KEYWORD)
+  .setValue("BOOLEAN_VALUE_KEYWORD");
+
+//For value in Declaration Statement
+export const VALUE = 
+  OR(INTEGER, STRING, BOOLEAN_VALUE_KEYWORD)
+  .setValue("VALUE");
+
+// Null Keyword
+export const NULL_KEYWORD = WORD("null")
+  .setValue("NULL_KEYWORD")
+  .token()
+
+//Exception Keyword
+export const TRY_KEYWORD = WORD("try")
+  .setValue("TRY_KEYWORD")
+  .token()
+
+export const CATCH_KEYWORD = WORD("catch")
+  .setValue("CATCH_KEYWORD")
+  .token()
+
+export const FINALLY_KEYWORD = WORD("finally")
+  .setValue("FINALLY_KEYWORD")
+  .token()
+
+export const RAISE_KEYWORD = WORD("raise")
+  .setValue("RAISE_KEYWORD")
+  .token()
+
+export const EXCEPTION_KEYWORD = 
+  OR(TRY_KEYWORD, CATCH_KEYWORD, FINALLY_KEYWORD, RAISE_KEYWORD)
+  .setValue("EXCEPTION_KEYWORD");
+
+//Return Keyword
+export const RETURN_KEYWORD = WORD("return")
+  .setValue("RETURN_KEYWORD")
+  .token()
 
 export const DECLARATION_STATEMENT = CONCAT(
   DECLARATOR,
@@ -163,6 +210,6 @@ export const DECLARATION_STATEMENT = CONCAT(
   WHITESPACE,
   ASSIGNMENT_OPERATOR,
   WHITESPACE,
-  VALUE,
+  EXCEPTION_KEYWORD,
   SEMICOLON
 ).setValue("DECLARATION_STATEMENT");

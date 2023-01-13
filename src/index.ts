@@ -4,7 +4,7 @@ import { DECLARATION_STATEMENT, VALUE } from "./FiniteAutomata/terminal";
 import { vizualize } from "./FiniteAutomata/viz";
 const { ATOM, OR, WORD } = FiniteAutomata;
 
-const res = DECLARATION_STATEMENT.check(`const a = 'str';`);
+const res = DECLARATION_STATEMENT.check(`const a = raise;`);
 
 toCsv("res.csv", res);
 // vizualize("res", DECLARATION_STATEMENT);
