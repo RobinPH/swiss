@@ -6,11 +6,26 @@ const PATH = "./result";
 
 type Result = TestResult<any, any> & { input: string };
 
+const CHARACTER_MAPPING = {
+  "\n": "\\n",
+  "\r": "\\r",
+} as const;
+
 const getTextFromInput = (
   input: string,
   range: { from: number; to: number }
 ) => {
-  return input.slice(range.from, range.to);
+  return input
+    .slice(range.from, range.to)
+    .split("")
+    .map((c) => {
+      if (c in CHARACTER_MAPPING) {
+        // @ts-ignore
+        return CHARACTER_MAPPING[c];
+      }
+      return c;
+    })
+    .join("");
 };
 
 export const toText = (filepath: string, result?: Result) => {
