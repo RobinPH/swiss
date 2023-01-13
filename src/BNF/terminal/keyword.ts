@@ -1,4 +1,4 @@
-import { OR, WORD } from "..";
+import { CONCAT, OPTIONAL, OR, WORD } from "..";
 
 // Null Keyword
 export const NULL_KEYWORD = WORD("null").name("NULL_KEYWORD").token();
@@ -49,3 +49,27 @@ export const IF_STATEMENT_KEYWORD = OR(
   WORD("if").name("IF_STATEMENT_KEYWORD_IF").token(),
   WORD("else").name("IF_STATEMENT_KEYWORD_ELSE").token()
 ).name("IF_STATEMENT_KEYWORD");
+
+//CHARACTER KEYWORD
+export const CHARACTER_KEYWORD = WORD("char").name("CHARACTER_KEYWORD").token();
+//STRING KEYWORD
+export const STRING_KEYWORD = WORD("string").name("STRING_KEYWORD").token();
+//BOOLEAN KEYWORD
+export const BOOLEAN_KEYWORD = CONCAT(
+  WORD("bool").name("BOOLEAN_KEYWORD"),
+  OPTIONAL(WORD("ean").name("BOOLEAN_NOISE_WORD")).name("BOOLEAN_NOISE_WORD")
+)
+  .name("BOOLEAN_KEYWORD")
+  .token();
+
+//DATATYPE SPECIFIER
+export const DATATYPE_SPECIFIER = OR(
+  CHARACTER_KEYWORD,
+  STRING_KEYWORD,
+  BOOLEAN_KEYWORD
+).name("DATATYPE_SPECIFIER");
+
+//FUNCTION_KEYWORD
+export const FUNCTION_KEYWORD = WORD("function")
+  .name("FUNCTION_KEYWORD")
+  .token();
