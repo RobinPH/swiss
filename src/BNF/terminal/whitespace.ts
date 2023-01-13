@@ -19,3 +19,9 @@ export const WHITESPACE = CONCAT(
 )
   .name("WHITESPACE")
   .token();
+
+const whitespaceWithoutNewline = [" ", "\r", "\t",] as const;
+
+export const WHITESPACE_WITHOUT_NEWLINE = OR(
+  ...whitespaceWithoutNewline.map((ch) => ATOM(ch).name(ch).hide())
+).name("WHITESPACE_WITHOUT_NEWLINE").token();
