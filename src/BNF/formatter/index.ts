@@ -69,7 +69,7 @@ export const toJson = (filepath: string, result?: Result) => {
   );
 };
 
-export const toCsv = (filepath: string, result?: Result) => {
+export const toTable = (filepath: string, result?: Result) => {
   const rows = new Array<{
     token: string;
     lexeme: string;
@@ -99,21 +99,42 @@ export const toCsv = (filepath: string, result?: Result) => {
 
   const headers = ["ID", "Lexeme", "Token", "Range"];
 
-  const csv = [
-    headers.join(","),
+  const table = [
+    headers,
     ...rows.map((row, index) => {
-      const cells = [
+      return [
         `${index}`,
         `"${getTextFromInput(result!.input, row.range)}"`,
-        `"${row.token}"`,
+        row.token,
         `${row.range.from}:${row.range.to}`,
       ];
-
-      return cells.map((cell) => cell.replace(",", `","`));
     }),
-  ].join("\n");
+  ];
 
-  save(filepath, csv);
+  const mxLength = new Array<number>();
+
+  for (let i = 0; i < headers.length; i++) {
+    let len = 0;
+    for (let j = 0; j < table.length; j++) {
+      len = Math.max(len, table[j][i].length);
+    }
+    mxLength.push(len);
+  }
+
+  const GAP = 4;
+
+  save(
+    filepath,
+    table
+      .map((row) => {
+        return row
+          .map((cell, index) => {
+            return cell.padEnd(mxLength[index], " ");
+          })
+          .join("".padStart(GAP, " "));
+      })
+      .join("\n")
+  );
 };
 
 const save = (filepath: string, data: string) => {
