@@ -1,4 +1,4 @@
-import { ATOM, WORD } from "../..";
+import { ATOM, OR, WORD } from "../..";
 
 //Assignment Operators (=, +=, -=, *=, /=, %=, //=, **=)
 export const ASSIGNMENT_OPERATOR = ATOM("=")
