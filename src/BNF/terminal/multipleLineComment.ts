@@ -1,4 +1,4 @@
-import { ATOM, CONCAT, MINUS, OR, STAR } from "..";
+import { ATOM, CONCAT, MINUS, STAR } from "..";
 import { CHARACTER } from "./character";
 
 const POUND = ATOM("#").name("POUND");
