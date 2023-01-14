@@ -1,6 +1,5 @@
-import BNF from "../../BNF";
+import { ATOM, CONCAT, MINUS, OR, STAR } from "..";
 import { CHARACTER } from "./character";
-const { CONCAT, ATOM, STAR, MINUS, OR } = BNF;
 
 const POUND = ATOM("#").name("POUND");
 const THREE_POUND_BURGER = CONCAT(POUND, POUND, POUND);

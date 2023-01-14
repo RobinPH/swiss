@@ -1,6 +1,5 @@
-import BNF from "../..";
+import { ATOM, CONCAT, OPTIONAL, OR, PLUS, STAR } from "../..";
 import { DIGIT, DIGIT_NONZERO } from "../digit";
-const { ATOM, CONCAT, STAR, OPTIONAL, OR, PLUS } = BNF;
 
 export const FLOAT = CONCAT(
   OR(ATOM("0"), CONCAT(DIGIT_NONZERO, OPTIONAL(STAR(DIGIT)))).name(

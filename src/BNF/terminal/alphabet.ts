@@ -1,5 +1,4 @@
-import BNF from "../../BNF";
-const { ATOM, OR } = BNF;
+import { ATOM, OR } from "..";
 
 const lowercaseAlphabet = [
   "a",

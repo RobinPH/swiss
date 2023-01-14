@@ -1,11 +1,10 @@
-import BNF from "../../BNF";
+import { CONCAT } from "..";
 import { DECLARATOR } from "./declarator";
 import { IDENTIFIER } from "./identifier";
 import { ASSIGNMENT_OPERATOR } from "./operator/assignment";
 import { SEMICOLON } from "./specialCharacter";
 import { VALUE } from "./value";
 import { NON_EMPTY_WHITESPACE, WHITESPACE } from "./whitespace";
-const { CONCAT } = BNF;
 
 export const DECLARATION_STATEMENT = CONCAT(
   DECLARATOR,

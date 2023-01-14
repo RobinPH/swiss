@@ -1,6 +1,5 @@
-import BNF from "../../BNF";
+import { ATOM, OR, CONCAT, STAR, PLUS, OPTIONAL, WORD } from "../../BNF";
 import { TestResultStatus } from "../../BNF/BaseBNF";
-const { ATOM, OR, CONCAT, STAR, PLUS, OPTIONAL, WORD } = BNF;
 
 const IF = WORD("if").name("IF");
 const FOR = WORD("for").name("FOR");

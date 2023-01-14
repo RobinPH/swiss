@@ -1,6 +1,5 @@
-import BNF from "../../BNF";
+import { ATOM, CONCAT, STAR } from "..";
 import { CHARACTER_WITHOUT_NEWLINE } from "./character";
-const { CONCAT, ATOM, STAR } = BNF;
 
 export const SINGLE_LINE_COMMENT = CONCAT(
   ATOM("#"),

@@ -1,8 +1,7 @@
-import BNF from "../../BNF";
+import { CONCAT, OR, STAR } from "..";
 import { ALPHABET } from "./alphabet";
 import { DIGIT } from "./digit";
 import { UNDERSCORE } from "./specialCharacter";
-const { CONCAT, STAR, OR } = BNF;
 
 export const IDENTIFIER = CONCAT(
   OR(ALPHABET, UNDERSCORE).name("NO_DIGIT_PREFIX"),

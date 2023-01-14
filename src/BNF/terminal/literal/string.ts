@@ -1,6 +1,5 @@
-import BNF from "../../../BNF";
+import { ATOM, CONCAT, STAR } from "../..";
 import { ALPHABET } from "../alphabet";
-const { ATOM, CONCAT, STAR } = BNF;
 
 export const STRING = CONCAT(
   ATOM("'").name("STRING_OPENING_QUOTE").token(),

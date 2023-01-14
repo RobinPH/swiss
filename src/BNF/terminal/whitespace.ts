@@ -1,5 +1,4 @@
-import BNF from "../../BNF";
-const { CONCAT, ATOM, PLUS, STAR, OR } = BNF;
+import { ATOM, CONCAT, OR, PLUS, STAR } from "..";
 
 const nonEmptyWhiteSpaceCharacter = [" ", "\t", "\n", "\r"] as const;
 
@@ -20,8 +19,10 @@ export const WHITESPACE = CONCAT(
   .name("WHITESPACE")
   .token();
 
-const whitespaceWithoutNewline = [" ", "\r", "\t",] as const;
+const whitespaceWithoutNewline = [" ", "\r", "\t"] as const;
 
 export const WHITESPACE_WITHOUT_NEWLINE = OR(
   ...whitespaceWithoutNewline.map((ch) => ATOM(ch).name(ch).hide())
-).name("WHITESPACE_WITHOUT_NEWLINE").token();
+)
+  .name("WHITESPACE_WITHOUT_NEWLINE")
+  .token();

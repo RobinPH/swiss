@@ -1,5 +1,4 @@
-import BNF from "../../BNF";
-const { CONCAT, WORD, OPTIONAL, OR } = BNF;
+import { CONCAT, OPTIONAL, OR, WORD } from "..";
 
 export const CONST_DECLARATOR = CONCAT(
   WORD("const").name("CONST_DECLARATOR"),

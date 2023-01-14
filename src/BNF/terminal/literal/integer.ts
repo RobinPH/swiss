@@ -1,6 +1,5 @@
-import BNF from "../../../BNF";
+import { ATOM, CONCAT, OPTIONAL, OR, STAR } from "../..";
 import { DIGIT, DIGIT_NONZERO } from "../digit";
-const { ATOM, CONCAT, STAR, OPTIONAL, OR } = BNF;
 
 export const INTEGER = OR(
   ATOM("0"),

@@ -1,9 +1,7 @@
-import BNF from "..";
+import { ATOM, CONCAT, OPTIONAL, OR, STAR } from "..";
 import { NUMBER } from "./literal";
 import { STRING } from "./literal/string";
 import { WHITESPACE } from "./whitespace";
-
-const { CONCAT, OR, ATOM, OPTIONAL, STAR } = BNF;
 
 export let VALUE = OR(NUMBER, STRING).name("VALUE");
 
