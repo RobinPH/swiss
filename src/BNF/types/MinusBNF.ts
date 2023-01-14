@@ -1,4 +1,5 @@
 import BaseBNF, { BNFType, TestResult, TestResultStatus } from "../BaseBNF";
+import OrBNF from "./OrBNF";
 
 export default class MinusBNF<
   Name extends string,
@@ -15,22 +16,16 @@ export default class MinusBNF<
     super(name, bnf);
 
     this.#bnf = bnf;
-    this.#excluding = excluding;
+    this.#excluding = new OrBNF("", ...excluding);
   }
 
   _test(input: string, index: number = 0): TestResult<Name, [BNF]> {
     const result = this.#bnf._test(input, index);
 
     if (result.status === TestResultStatus.SUCCESS) {
-      let excludedMatched = false;
-
-      for (let i = 0; i < this.#excluding.length && !excludedMatched; i++) {
-        const res = this.#excluding[i]._test(input, index);
-
-        excludedMatched ||= res.status === TestResultStatus.SUCCESS;
-      }
-
-      if (!excludedMatched) {
+      if (
+        this.#excluding._test(input, index).status !== TestResultStatus.SUCCESS
+      ) {
         return {
           // @ts-ignore
           children: [result],
@@ -59,7 +54,16 @@ export default class MinusBNF<
   }
 
   toDefinition(): string {
-    return this.children.map((child) => child.toVariable()).join(" | ");
+    const excluding = this.#excluding.children;
+    if (excluding.length > 0) {
+      const excludingVariable =
+        excluding.length > 1
+          ? `(${this.#excluding.toDefinition()})`
+          : this.#excluding.toDefinition();
+      return `(${this.#bnf.toVariable()} - ${excludingVariable})`;
+    } else {
+      return this.#bnf.toVariable();
+    }
   }
 
   clone(): this {
