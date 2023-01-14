@@ -1,5 +1,6 @@
 import { TestResultStatus } from "../../BNF/BaseBNF";
 import { IDENTIFIER } from "../../BNF/terminal/identifier";
+import { MULTI_LINE_COMMENT } from "../../BNF/terminal/multipleLineComment";
 import { DECLARATION_STATEMENT } from "../../BNF/terminal/statement";
 import { ARRAY } from "../../BNF/terminal/value";
 
@@ -76,4 +77,28 @@ test("Cyclical Reference ", () => {
   );
 
   expect(ARRAY.test("[[]], [, []]")?.status).toBe(TestResultStatus.FAILED);
+});
+
+test("Comment", () => {
+  expect(MULTI_LINE_COMMENT.test("###d###")?.status).toBe(
+    TestResultStatus.SUCCESS
+  );
+  expect(MULTI_LINE_COMMENT.test("###dd###")?.status).toBe(
+    TestResultStatus.SUCCESS
+  );
+  expect(MULTI_LINE_COMMENT.test("###ddd###")?.status).toBe(
+    TestResultStatus.SUCCESS
+  );
+  expect(MULTI_LINE_COMMENT.test("###d#dd###")?.status).toBe(
+    TestResultStatus.SUCCESS
+  );
+  expect(MULTI_LINE_COMMENT.test("###d#d##d###")?.status).toBe(
+    TestResultStatus.SUCCESS
+  );
+  expect(MULTI_LINE_COMMENT.test("###d#d###d###")?.status).toBe(
+    TestResultStatus.FAILED
+  );
+  expect(MULTI_LINE_COMMENT.test("###d#d##")?.status).toBe(
+    TestResultStatus.FAILED
+  );
 });
