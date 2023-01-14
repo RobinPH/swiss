@@ -41,6 +41,8 @@ export const SEMICOLON = ATOM(";").name("SEMICOLON");
 
 export const COLON = ATOM(":").name("COLON");
 
+export const COMMA = ATOM(",").name("COMMA");
+
 export const SPECIAL_CHARACTER = OR(
   ...specialCharacter.map((ch) => ATOM(ch).name(ch).hide())
 )
