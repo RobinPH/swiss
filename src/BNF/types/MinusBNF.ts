@@ -43,7 +43,6 @@ export default class MinusBNF<
 
         const callback1 = (result: TestResult<Name, any[]>) => {
           const success = result.status !== TestResultStatus.SUCCESS;
-          // console.log("foo", result, this.#bnf.toDefinition(), success);
 
           const res = {
             // @ts-ignore
@@ -66,7 +65,6 @@ export default class MinusBNF<
         };
 
         const callback0 = (result: TestResult<Name, any[]>) => {
-          // console.log(result, this.#bnf.toDefinition());
           if (result.status === TestResultStatus.SUCCESS) {
             results.push(result);
             childInput.index = result.range.to;
@@ -92,7 +90,7 @@ export default class MinusBNF<
 
         this.#bnf.evaluate(childInput, queue, task, callback0);
       },
-      callback: (result) => {},
+      callback: () => {},
       cancelled: false,
       ran: false,
     });

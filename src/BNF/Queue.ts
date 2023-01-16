@@ -48,7 +48,6 @@ export class Task<T> {
 export class Queue<Result> {
   #queue = new Array<Task<Result>>();
   #running = false;
-  #cnt = 0;
 
   registerTask(task: Task<Result>) {
     this.#queue.push(task);
@@ -60,34 +59,17 @@ export class Queue<Result> {
     return task;
   }
 
-  async run() {
-    const total = new Map<string, number>();
+  run() {
     this.#running = true;
     while (this.#queue.length > 0) {
       const task = this.#queue.shift()!;
-
-      if (task.cancelled) {
-        // console.log("Cancelled");
-      }
 
       if (task.cancelled || task.ran) {
         continue;
       }
 
-      if (task.label) {
-        total.set(task.label, (total.get(task.label) ?? 0) + 1);
-      }
       task.ran = true;
-      // console.log("Running", task.label);
-
       task.run();
-      this.#cnt++;
-
-      // if (cnt % 1000 === 0) {
-      //   console.log(Array.from(total.entries()).sort((a, b) => b[1] - a[1]));
-      // }
-
-      // await new Promise((resolve) => setTimeout(resolve, 1000));
     }
     this.#running = false;
   }

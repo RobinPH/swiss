@@ -1,4 +1,3 @@
-import AtomBNF from "./AtomBNF";
 import BaseBNF, { BNFType, TestResult, TestResultStatus } from "../BaseBNF";
 import { Queue, Task } from "../Queue";
 
@@ -39,7 +38,6 @@ export default class PlusBNF<
         const results = [];
 
         const newTask = () => {
-          // console.log(childInput);
           const childTask = this.#bnf.evaluate(
             childInput,
             queue,
@@ -93,7 +91,7 @@ export default class PlusBNF<
 
         newTask();
       },
-      callback: (result) => {},
+      callback: () => {},
       cancelled: false,
       ran: false,
     });

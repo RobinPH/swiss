@@ -1,4 +1,3 @@
-import ManagerBNF from "./ManagerBNF";
 import { Queue, Task } from "./Queue";
 
 export enum BNFType {
@@ -110,8 +109,6 @@ abstract class BaseBNF<
       );
 
       queue.run();
-
-      // console.log(task);
     });
   }
 

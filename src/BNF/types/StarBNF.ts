@@ -1,4 +1,3 @@
-import AtomBNF from "./AtomBNF";
 import BaseBNF, { BNFType, TestResult, TestResultStatus } from "../BaseBNF";
 import { Queue, Task } from "../Queue";
 
@@ -95,7 +94,7 @@ export default class StarBNF<
 
         newTask();
       },
-      callback: (result) => {},
+      callback: () => {},
       cancelled: false,
       ran: false,
     });

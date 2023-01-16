@@ -1,4 +1,4 @@
-import BaseBNF, { BNFType, TestResult, TestResultStatus } from "../BaseBNF";
+import BaseBNF, { BNFType } from "../BaseBNF";
 import AtomBNF from "./AtomBNF";
 import OrBNF from "./OrBNF";
 import { v4 as uuidv4 } from "uuid";

@@ -29,16 +29,6 @@ export default class AtomBNF<Name extends string> extends BaseBNF<Name> {
       run: async () => {
         const characterLength = this.character.length;
 
-        // console.log(
-        //   this.toTerminal(),
-        //   "x",
-        //   this.#isEpsilon || this.character === input.text[input.index],
-        //   {
-        //     from: input.index,
-        //     to: input.index + characterLength,
-        //   }
-        // );
-
         const res = {
           children: [],
           range: {
