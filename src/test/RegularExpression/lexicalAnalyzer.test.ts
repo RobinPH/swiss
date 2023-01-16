@@ -1,6 +1,9 @@
 import { TestResultStatus } from "../../BNF/BaseBNF";
+import {
+  MULTI_LINE_COMMENT,
+  SINGLE_LINE_COMMENT,
+} from "../../BNF/terminal/comment";
 import { IDENTIFIER } from "../../BNF/terminal/identifier";
-import { MULTI_LINE_COMMENT } from "../../BNF/terminal/multipleLineComment";
 import {
   CODE_BLOCK,
   DECLARATION_STATEMENT,
@@ -95,6 +98,23 @@ test("Cyclical Reference ", () => {
 });
 
 test("Comment", () => {
+  expect(SINGLE_LINE_COMMENT.test("#")?.status).toBe(TestResultStatus.SUCCESS);
+
+  expect(SINGLE_LINE_COMMENT.test("##")?.status).toBe(TestResultStatus.SUCCESS);
+
+  expect(SINGLE_LINE_COMMENT.test("#dasda")?.status).toBe(
+    TestResultStatus.SUCCESS
+  );
+
+  expect(SINGLE_LINE_COMMENT.test("dasda")?.status).toBe(
+    TestResultStatus.FAILED
+  );
+
+  expect(
+    SINGLE_LINE_COMMENT.test(`#dasda
+  dsad`)?.status
+  ).toBe(TestResultStatus.FAILED);
+
   expect(MULTI_LINE_COMMENT.test("###d###")?.status).toBe(
     TestResultStatus.SUCCESS
   );

@@ -96,11 +96,13 @@ export const toTable = (filepath: string, result?: Result) => {
 
   const process = (res: TestResult<any, any>) => {
     if (res.children.length === 0 || res.isToken) {
-      rows.push({
-        lexeme: "TEXT",
-        token: res.name,
-        range: res.range,
-      });
+      if (res.range.from !== res.range.to) {
+        rows.push({
+          lexeme: "TEXT",
+          token: res.name,
+          range: res.range,
+        });
+      }
     } else {
       for (const subValue of res.children) {
         process(subValue);

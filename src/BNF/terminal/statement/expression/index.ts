@@ -9,8 +9,8 @@ import { WHITESPACE } from "../../whitespace";
 
 export const EXPRESSION = OR().name("EXPRESSION");
 
-const OPENING_PARENTHESIS = ATOM("(").name("OPENING_PARENTHESIS");
-const CLOSING_PARENTHESIS = ATOM(")").name("CLOSING_PARENTHESIS");
+export const OPENING_PARENTHESIS = ATOM("(").name("OPENING_PARENTHESIS");
+export const CLOSING_PARENTHESIS = ATOM(")").name("CLOSING_PARENTHESIS");
 
 export let VALUE2 = OR(VALUE).name("VALUE");
 
