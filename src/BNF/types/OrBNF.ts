@@ -52,8 +52,8 @@ export default class OrBNF<
     };
   }
 
-  OR(bnf: BaseBNF<any>) {
-    this.children.push(bnf);
+  OR(...bnfs: BaseBNF<any>[]) {
+    this.children.push(...bnfs);
 
     return this;
   }
