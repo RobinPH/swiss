@@ -1,29 +1,24 @@
 import { TestResultStatus } from "./BNF/BaseBNF";
-import { toTable, toText } from "./BNF/formatter";
-import {
-  EXPRESSION,
-  UNARY_EXPRESSION,
-  VALUE2,
-} from "./BNF/terminal/statement/expression";
-import { MULTI_LINE_COMMENT } from "./BNF/terminal/multipleLineComment";
-import { UNARY_OPERATORS } from "./BNF/terminal/operator/unary";
-import { vizualize } from "./BNF/viz";
-import {
-  ASSIGNMENT_STATEMENT,
-  CODE_BLOCK,
-  DECLARATION_STATEMENT,
-  FOR_STATEMENT,
-  IF_STATEMENT,
-} from "./BNF/terminal/statement";
-import { IDENTIFIER } from "./BNF/terminal/identifier";
-import { ATOM, CONCAT, OR } from "./BNF";
+import { toTable } from "./BNF/formatter";
+import { SWISS } from "./BNF/terminal/statement";
 
-const bnf = CODE_BLOCK;
-const input = `{
-  const a = 1;
+const bnf = SWISS;
+const input = `
+const GLOBAL_VARIABLE = 1;
+const SOMETHING = 1;
+const foo = 'str';
+let arr1 = [];
+let arr2 = [[1], 2, 3, 'str', [[[[]]]]];
+
+function main() {
+  const int a = 1;
   let b = 3.141519;
   constant cint = "HELLO WORLD!";
-  constant intc = "HELLO WORLD!";
+  const intc = "HELLO WORLD!";
+
+  function functiona(a, b) {
+    a++;
+  }
 
   ++a;
 
@@ -38,7 +33,8 @@ const input = `{
   for(let i = 0; i < 5; i++) {
     const a = 1;
   }
-}`;
+}
+`;
 
 const res = bnf.test(input);
 
