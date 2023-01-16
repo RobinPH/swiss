@@ -1,4 +1,5 @@
 import BaseBNF, { BNFType, TestResult, TestResultStatus } from "../BaseBNF";
+import { Queue, Task } from "../Queue";
 
 export default class AtomBNF<Name extends string> extends BaseBNF<Name> {
   type = BNFType.ATOM;
@@ -12,22 +13,58 @@ export default class AtomBNF<Name extends string> extends BaseBNF<Name> {
     this.#isEpsilon = this.#character.length === 0;
   }
 
-  _test(input: string, index: number = 0): TestResult<Name, []> {
-    const characterLength = this.character.length;
+  evaluate(
+    input: {
+      text: string;
+      index: number;
+    },
+    queue: Queue<TestResult<Name, any[]>>,
+    parent: Task<TestResult<Name, any[]>>,
+    parentCallback: (result: TestResult<Name, any[]>, id: Symbol) => void,
+    id: Symbol = Symbol()
+  ) {
+    const task = new Task({
+      label: this.toTerminal(),
+      parent,
+      run: async () => {
+        const characterLength = this.character.length;
 
-    return {
-      children: [],
-      range: {
-        from: index,
-        to: index + characterLength,
+        // console.log(
+        //   this.toTerminal(),
+        //   "x",
+        //   this.#isEpsilon || this.character === input.text[input.index],
+        //   {
+        //     from: input.index,
+        //     to: input.index + characterLength,
+        //   }
+        // );
+
+        const res = {
+          children: [],
+          range: {
+            from: input.index,
+            to: input.index + characterLength,
+          },
+          status:
+            this.#isEpsilon || this.character === input.text[input.index]
+              ? TestResultStatus.SUCCESS
+              : TestResultStatus.FAILED,
+          name: this.getName(),
+          isToken: this.isToken(),
+        };
+
+        task.result = res;
+
+        parentCallback(res, id);
       },
-      status:
-        this.#isEpsilon || this.character === input[index]
-          ? TestResultStatus.SUCCESS
-          : TestResultStatus.FAILED,
-      name: this.getName(),
-      isToken: this.isToken(),
-    };
+      callback: parent.callback,
+      cancelled: false,
+      ran: false,
+    });
+
+    queue.registerTask(task);
+
+    return task;
   }
 
   get character() {

@@ -42,119 +42,145 @@ const CONCAT_ELSE_SPACE_STAR_IF_STAR = STAR(CONCAT_ELSE_SPACE_STAR_IF).name(
   "CONCAT_ELSE_SPACE_STAR_IF_STAR"
 );
 
-test("Single Word", () => {
-  expect(IF.test("if")?.status).toStrictEqual(TestResultStatus.SUCCESS);
-  expect(FOR.test("for")?.status).toStrictEqual(TestResultStatus.SUCCESS);
-  expect(ELSE.test("else")?.status).toStrictEqual(TestResultStatus.SUCCESS);
-  expect(IF.test("ifx")?.status).toStrictEqual(TestResultStatus.FAILED);
+test("Single Word", async () => {
+  expect((await IF.test("if"))?.status).toStrictEqual(TestResultStatus.SUCCESS);
+  expect((await FOR.test("for"))?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect((await ELSE.test("else"))?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect((await IF.test("ifx"))?.status).toStrictEqual(TestResultStatus.FAILED);
 });
 
-test("Concat", () => {
-  expect(CONCAT_ELSE_SPACE_IF.test("else if")?.status).toStrictEqual(
+test("Concat", async () => {
+  expect((await CONCAT_ELSE_SPACE_IF.test("else if"))?.status).toStrictEqual(
     TestResultStatus.SUCCESS
   );
 });
 
-test("Or", () => {
-  expect(OR_IF_ELSE.test("else")?.status).toStrictEqual(
+test("Or", async () => {
+  expect((await OR_IF_ELSE.test("else"))?.status).toStrictEqual(
     TestResultStatus.SUCCESS
   );
-  expect(OR_IF_ELSE.test("if")?.status).toStrictEqual(TestResultStatus.SUCCESS);
-  expect(OR_IF_ELSE.test("for")?.status).toStrictEqual(TestResultStatus.FAILED);
-  expect(OR_IF_ELSE.test("else ifx")?.status).toStrictEqual(
+  expect((await OR_IF_ELSE.test("if"))?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect((await OR_IF_ELSE.test("for"))?.status).toStrictEqual(
+    TestResultStatus.FAILED
+  );
+  expect((await OR_IF_ELSE.test("else ifx"))?.status).toStrictEqual(
     TestResultStatus.FAILED
   );
 
-  expect(CONCAT_OR_CONCAT.test("else if")?.status).toStrictEqual(
+  expect((await CONCAT_OR_CONCAT.test("else if"))?.status).toStrictEqual(
     TestResultStatus.SUCCESS
   );
-  expect(CONCAT_OR_CONCAT.test("forif")?.status).toStrictEqual(
+  expect((await CONCAT_OR_CONCAT.test("forif"))?.status).toStrictEqual(
     TestResultStatus.SUCCESS
   );
 
-  expect(OR_OR.test("for")?.status).toStrictEqual(TestResultStatus.SUCCESS);
-  expect(OR_OR.test("else")?.status).toStrictEqual(TestResultStatus.SUCCESS);
-  expect(OR_OR.test("if")?.status).toStrictEqual(TestResultStatus.SUCCESS);
+  expect((await OR_OR.test("for"))?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect((await OR_OR.test("else"))?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect((await OR_OR.test("if"))?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
 });
 
-test("Kleene Star", () => {
-  expect(CONCAT_ELSE_SPACE_STAR_IF.test("elseif")?.status).toStrictEqual(
-    TestResultStatus.SUCCESS
-  );
-  expect(CONCAT_ELSE_SPACE_STAR_IF.test("else if")?.status).toStrictEqual(
-    TestResultStatus.SUCCESS
-  );
-  expect(CONCAT_ELSE_SPACE_STAR_IF.test("else  if")?.status).toStrictEqual(
-    TestResultStatus.SUCCESS
-  );
-  expect(CONCAT_ELSE_SPACE_STAR_IF.test("else ifx")?.status).toStrictEqual(
+test("Kleene Star", async () => {
+  expect(
+    (await CONCAT_ELSE_SPACE_STAR_IF.test("elseif"))?.status
+  ).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(
+    (await CONCAT_ELSE_SPACE_STAR_IF.test("else if"))?.status
+  ).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(
+    (await CONCAT_ELSE_SPACE_STAR_IF.test("else  if"))?.status
+  ).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(
+    (await CONCAT_ELSE_SPACE_STAR_IF.test("else ifx"))?.status
+  ).toStrictEqual(TestResultStatus.FAILED);
+  expect((await CONCAT_ELSE_SPACE_STAR_IF.test("else"))?.status).toStrictEqual(
     TestResultStatus.FAILED
   );
-  expect(CONCAT_ELSE_SPACE_STAR_IF.test("else")?.status).toStrictEqual(
-    TestResultStatus.FAILED
-  );
-  expect(CONCAT_ELSE_SPACE_STAR_IF.test("if")?.status).toStrictEqual(
+  expect((await CONCAT_ELSE_SPACE_STAR_IF.test("if"))?.status).toStrictEqual(
     TestResultStatus.FAILED
   );
 
-  expect(OR_STAR.test("if")?.status).toStrictEqual(TestResultStatus.SUCCESS);
-  expect(OR_STAR.test("ifif")?.status).toStrictEqual(TestResultStatus.SUCCESS);
-  expect(OR_STAR.test("elseifif")?.status).toStrictEqual(
+  expect((await OR_STAR.test("if"))?.status).toStrictEqual(
     TestResultStatus.SUCCESS
   );
-  expect(OR_STAR.test("ifelseif")?.status).toStrictEqual(
+  expect((await OR_STAR.test("ifif"))?.status).toStrictEqual(
     TestResultStatus.SUCCESS
   );
-  expect(OR_STAR.test("ifififelseelse")?.status).toStrictEqual(
+  expect((await OR_STAR.test("elseifif"))?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect((await OR_STAR.test("ifelseif"))?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect((await OR_STAR.test("ifififelseelse"))?.status).toStrictEqual(
     TestResultStatus.SUCCESS
   );
 
-  expect(OR_STAR.test("")?.status).toStrictEqual(TestResultStatus.SUCCESS);
-
-  expect(CONCAT_ELSE_SPACE_STAR_IF_STAR.test("")?.status).toStrictEqual(
+  expect((await OR_STAR.test(""))?.status).toStrictEqual(
     TestResultStatus.SUCCESS
   );
-  expect(CONCAT_ELSE_SPACE_STAR_IF_STAR.test("else if")?.status).toStrictEqual(
+
+  expect((await CONCAT_ELSE_SPACE_STAR_IF_STAR.test(""))?.status).toStrictEqual(
     TestResultStatus.SUCCESS
   );
   expect(
-    CONCAT_ELSE_SPACE_STAR_IF_STAR.test("else  ifelseif")?.status
+    (await CONCAT_ELSE_SPACE_STAR_IF_STAR.test("else if"))?.status
   ).toStrictEqual(TestResultStatus.SUCCESS);
   expect(
-    CONCAT_ELSE_SPACE_STAR_IF_STAR.test("elseifelse      if")?.status
+    (await CONCAT_ELSE_SPACE_STAR_IF_STAR.test("else  ifelseif"))?.status
+  ).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(
+    (await CONCAT_ELSE_SPACE_STAR_IF_STAR.test("elseifelse      if"))?.status
   ).toStrictEqual(TestResultStatus.SUCCESS);
 });
 
-test("Kleene Plus", () => {
-  expect(CONCAT_ELSE_SPACE_PLUS_IF.test("elseif")?.status).toStrictEqual(
+test("Kleene Plus", async () => {
+  expect(
+    (await CONCAT_ELSE_SPACE_PLUS_IF.test("elseif"))?.status
+  ).toStrictEqual(TestResultStatus.FAILED);
+  expect(
+    (await CONCAT_ELSE_SPACE_PLUS_IF.test("else if"))?.status
+  ).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(
+    (await CONCAT_ELSE_SPACE_PLUS_IF.test("else  if"))?.status
+  ).toStrictEqual(TestResultStatus.SUCCESS);
+  expect(
+    (await CONCAT_ELSE_SPACE_PLUS_IF.test("else ifx"))?.status
+  ).toStrictEqual(TestResultStatus.FAILED);
+  expect((await CONCAT_ELSE_SPACE_PLUS_IF.test("else"))?.status).toStrictEqual(
     TestResultStatus.FAILED
   );
-  expect(CONCAT_ELSE_SPACE_PLUS_IF.test("else if")?.status).toStrictEqual(
-    TestResultStatus.SUCCESS
-  );
-  expect(CONCAT_ELSE_SPACE_PLUS_IF.test("else  if")?.status).toStrictEqual(
-    TestResultStatus.SUCCESS
-  );
-  expect(CONCAT_ELSE_SPACE_PLUS_IF.test("else ifx")?.status).toStrictEqual(
-    TestResultStatus.FAILED
-  );
-  expect(CONCAT_ELSE_SPACE_PLUS_IF.test("else")?.status).toStrictEqual(
-    TestResultStatus.FAILED
-  );
-  expect(CONCAT_ELSE_SPACE_PLUS_IF.test("if")?.status).toStrictEqual(
+  expect((await CONCAT_ELSE_SPACE_PLUS_IF.test("if"))?.status).toStrictEqual(
     TestResultStatus.FAILED
   );
 
-  expect(OR_PLUS.test("")?.status).toStrictEqual(TestResultStatus.FAILED);
-  expect(OR_PLUS.test("if")?.status).toStrictEqual(TestResultStatus.SUCCESS);
-  expect(OR_PLUS.test("ifif")?.status).toStrictEqual(TestResultStatus.SUCCESS);
-  expect(OR_PLUS.test("elseifif")?.status).toStrictEqual(
+  expect((await OR_PLUS.test(""))?.status).toStrictEqual(
+    TestResultStatus.FAILED
+  );
+  expect((await OR_PLUS.test("if"))?.status).toStrictEqual(
     TestResultStatus.SUCCESS
   );
-  expect(OR_PLUS.test("ifelseif")?.status).toStrictEqual(
+  expect((await OR_PLUS.test("ifif"))?.status).toStrictEqual(
     TestResultStatus.SUCCESS
   );
-  expect(OR_PLUS.test("ifififelseelse")?.status).toStrictEqual(
+  expect((await OR_PLUS.test("elseifif"))?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect((await OR_PLUS.test("ifelseif"))?.status).toStrictEqual(
+    TestResultStatus.SUCCESS
+  );
+  expect((await OR_PLUS.test("ifififelseelse"))?.status).toStrictEqual(
     TestResultStatus.SUCCESS
   );
 });

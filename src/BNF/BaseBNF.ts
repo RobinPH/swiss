@@ -1,4 +1,5 @@
 import ManagerBNF from "./ManagerBNF";
+import { Queue, Task } from "./Queue";
 
 export enum BNFType {
   ATOM = "ATOM",
@@ -46,7 +47,16 @@ abstract class BaseBNF<
   Children extends BaseBNF<any, any[], any>[] = [],
   Parent extends string = ""
 > {
-  abstract _test(input: string, index?: number): TestResult<Name, Children>;
+  abstract evaluate(
+    input: {
+      text: string;
+      index: number;
+    },
+    queue: Queue<TestResult<Name, any[]>>,
+    parent: Task<TestResult<Name, any[]>>,
+    parentCallback: (result: TestResult<Name, any[]>, id: Symbol) => void,
+    id?: Symbol
+  ): Task<TestResult<Name, any[]>>;
   abstract clone(): ThisType<BaseBNF<Name>>;
   abstract toDefinition(): string;
   abstract type: BNFType;
@@ -62,19 +72,47 @@ abstract class BaseBNF<
     this.#children = children;
   }
 
-  test(input: string, index: number = 0) {
-    ManagerBNF.clear();
+  async test(input: string) {
+    return new Promise<
+      TestResult<Name, any[]> & {
+        input: string;
+        task: Task<TestResult<Name, any[]>>;
+      }
+    >(async (resolve) => {
+      const queue = new Queue<TestResult<Name, any[]>>();
+      const task = new Task({
+        // @ts-ignore
+        run: async () => {},
+        callback: () => {},
+        depth: -1,
+        cancelled: false,
+        ran: false,
+      }) as any;
 
-    const result = this._test(input, index);
+      this.evaluate(
+        {
+          text: input,
+          index: 0,
+        },
+        queue,
+        task,
+        (result) => {
+          if (result.range.to !== input.length) {
+            result.status = TestResultStatus.FAILED;
+          }
 
-    if (result.range.to !== input.length) {
-      result.status = TestResultStatus.FAILED;
-    }
+          resolve({
+            ...result,
+            input,
+            task,
+          });
+        }
+      );
 
-    return {
-      ...result,
-      input,
-    };
+      queue.run();
+
+      // console.log(task);
+    });
   }
 
   token() {
