@@ -1,7 +1,10 @@
 import { TestResultStatus } from "../../BNF/BaseBNF";
 import { IDENTIFIER } from "../../BNF/terminal/identifier";
 import { MULTI_LINE_COMMENT } from "../../BNF/terminal/multipleLineComment";
-import { DECLARATION_STATEMENT } from "../../BNF/terminal/statement";
+import {
+  CODE_BLOCK,
+  DECLARATION_STATEMENT,
+} from "../../BNF/terminal/statement";
 import { ARRAY } from "../../BNF/terminal/value";
 
 test("Identifier", () => {
@@ -17,45 +20,57 @@ test("Identifier", () => {
 });
 
 test("Declaration Statement", () => {
-  expect(DECLARATION_STATEMENT.test("const a = 1;")?.status).toBe(
+  expect(DECLARATION_STATEMENT.test("const a = 1")?.status).toBe(
     TestResultStatus.SUCCESS
   );
-  expect(DECLARATION_STATEMENT.test("let a= 1;")?.status).toBe(
+  expect(DECLARATION_STATEMENT.test("let a= 1")?.status).toBe(
     TestResultStatus.SUCCESS
   );
-  expect(DECLARATION_STATEMENT.test("constant bas=1;")?.status).toBe(
+  expect(DECLARATION_STATEMENT.test("constant bas=1")?.status).toBe(
     TestResultStatus.SUCCESS
   );
-  expect(DECLARATION_STATEMENT.test("const _a=1;")?.status).toBe(
+  expect(DECLARATION_STATEMENT.test("const _a=1")?.status).toBe(
     TestResultStatus.SUCCESS
   );
-  expect(DECLARATION_STATEMENT.test("const 0aa =1;")?.status).toBe(
+  expect(DECLARATION_STATEMENT.test("const 0aa =1")?.status).toBe(
     TestResultStatus.FAILED
   );
-  expect(DECLARATION_STATEMENT.test("cons a = 1;")?.status).toBe(
+  expect(DECLARATION_STATEMENT.test("cons a = 1")?.status).toBe(
     TestResultStatus.FAILED
   );
   expect(DECLARATION_STATEMENT.test("conxst a =")?.status).toBe(
     TestResultStatus.FAILED
   );
-  expect(DECLARATION_STATEMENT.test("let  _ab_   =  1;")?.status).toBe(
+  expect(DECLARATION_STATEMENT.test("let  _ab_   =  1")?.status).toBe(
     TestResultStatus.SUCCESS
   );
-  expect(DECLARATION_STATEMENT.test("let  _a00b_   =  1;")?.status).toBe(
+  expect(DECLARATION_STATEMENT.test("let  _a00b_   =  1")?.status).toBe(
     TestResultStatus.SUCCESS
   );
 
-  expect(DECLARATION_STATEMENT.test("let  _a00b_   =  'string';")?.status).toBe(
+  expect(DECLARATION_STATEMENT.test("let  _a00b_   =  'string'")?.status).toBe(
     TestResultStatus.SUCCESS
   );
   expect(DECLARATION_STATEMENT.test("const a = 1")?.status).toBe(
+    TestResultStatus.SUCCESS
+  );
+  expect(DECLARATION_STATEMENT.test("xlet  _a00b_   =  2")?.status).toBe(
     TestResultStatus.FAILED
   );
-  expect(DECLARATION_STATEMENT.test("xlet  _a00b_   =  2;")?.status).toBe(
+  expect(DECLARATION_STATEMENT.test("constant  _a00b_    2")?.status).toBe(
     TestResultStatus.FAILED
   );
-  expect(DECLARATION_STATEMENT.test("constant  _a00b_    2;")?.status).toBe(
+
+  expect(DECLARATION_STATEMENT.test("let int = 1").status).toBe(
     TestResultStatus.FAILED
+  );
+
+  expect(DECLARATION_STATEMENT.test("let intsomething = 1").status).toBe(
+    TestResultStatus.SUCCESS
+  );
+
+  expect(DECLARATION_STATEMENT.test("let somethingint = 1").status).toBe(
+    TestResultStatus.SUCCESS
   );
 });
 
@@ -101,4 +116,51 @@ test("Comment", () => {
   expect(MULTI_LINE_COMMENT.test("###d#d##")?.status).toBe(
     TestResultStatus.FAILED
   );
+});
+
+test("Code Block", () => {
+  const input0 = `{
+    const a = 1;
+    let b = 3.141519;
+    constant cint = "HELLO WORLD!";
+    constant intd = "HELLO WORLD!";
+  
+    ++a;
+  
+    b += 1;
+    const e = 2 * (1 + 2);
+    b **= e;
+  
+    if (a < 1) {
+      const d = 1;
+    }
+  
+    for(let i = 0; i < 5; i++) {
+      const a = 1;
+    }
+  }`;
+
+  const input1 = `{
+    const a = 1;
+    let b = 3.141519;
+    constant cint = "HELLO WORLD!";
+    constant int = "HELLO WORLD!";
+  
+    ++a;
+  
+    b += 1;
+    const e = 2 * (1 + 2);
+    b **= e;
+  
+    if (a < 1) {
+      const d = 1;
+    }
+  
+    for(let i = 0; i < 5; i++) {
+      const a = 1;
+    }
+  }`;
+
+  expect(CODE_BLOCK.test(input0).status).toBe(TestResultStatus.SUCCESS);
+  expect(CODE_BLOCK.test(input1).status).toBe(TestResultStatus.FAILED);
 });

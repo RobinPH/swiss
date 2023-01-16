@@ -11,6 +11,7 @@ import { vizualize } from "./BNF/viz";
 import {
   ASSIGNMENT_STATEMENT,
   CODE_BLOCK,
+  DECLARATION_STATEMENT,
   FOR_STATEMENT,
   IF_STATEMENT,
 } from "./BNF/terminal/statement";
@@ -21,13 +22,14 @@ const bnf = CODE_BLOCK;
 const input = `{
   const a = 1;
   let b = 3.141519;
-  constant c = "HELLO WORLD!";
+  constant cint = "HELLO WORLD!";
+  constant intc = "HELLO WORLD!";
 
   ++a;
 
   b += 1;
-  const e = 2 * (1 + 2);
-  b **= e;
+  const exponent = 2 * (1 + 2);
+  b **= exponent;
 
   if (a < 1) {
     const d = 1;

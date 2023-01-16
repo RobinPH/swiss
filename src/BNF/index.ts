@@ -8,6 +8,7 @@ import OptionalBNF from "./types/OptionalBNF";
 import { v4 as uuidv4 } from "uuid";
 import { Characters } from "../types";
 import MinusBNF from "./types/MinusBNF";
+import ExactMinusBNF from "./types/ExactMinusBNF";
 
 export default class BNF {
   static ATOM<Character extends string>(character: Character) {
@@ -43,6 +44,13 @@ export default class BNF {
     return new MinusBNF(BNF.randomToken(), bnf, ...excluding);
   }
 
+  static EXACT_MINUS<
+    BNF extends BaseBNF<any, any[], any>,
+    Excluding extends BaseBNF<any, any[], any>[]
+  >(bnf: BNF, ...excluding: Excluding) {
+    return new ExactMinusBNF(BNF.randomToken(), bnf, ...excluding);
+  }
+
   static WORD<U extends string>(word: U) {
     const characters = word.split("") as Characters<U>;
 
@@ -68,3 +76,4 @@ export const PLUS = BNF.PLUS;
 export const OPTIONAL = BNF.OPTIONAL;
 export const WORD = BNF.WORD;
 export const MINUS = BNF.MINUS;
+export const EXACT_MINUS = BNF.EXACT_MINUS;
