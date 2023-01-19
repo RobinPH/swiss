@@ -26,7 +26,9 @@ function isPrime(n) {
       break;
     }
 
-    return false;
+    if (n % i == 0) {
+      return false;
+    }
   }
 
   return true;
@@ -57,7 +59,7 @@ function fastExponent(base, exponent) {
 # Gets Integer number from user, retries until the given input is Integer,
 # and raises an error if the integer is not within the given range
 function getIntegerFromUser(minimum, maximum) {
-  let int result = 1;
+  let int result;
 
   do {
     const string userInput = input();
@@ -115,7 +117,7 @@ function main() {
   let i = 0;
   let isFalse = false;
   for (; i < 10; i++) {
-    accumulator += numbers[i];
+    accumulator += numbers[i] % 3;
     numbers[i] = 0;
     isFalse = isFalse ^ true;
   }
