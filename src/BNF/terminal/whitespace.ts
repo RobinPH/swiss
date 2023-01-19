@@ -8,16 +8,18 @@ export const NON_EMPTY_WHITESPACE_CHARACTER = OR(
 
 export const NON_EMPTY_WHITESPACE = PLUS(NON_EMPTY_WHITESPACE_CHARACTER)
   .name("NON_EMPTY_WHITESPACE")
-  .token();
+  .token()
+  .hide();
 
-const EMPTY_SPACE = ATOM("").name("EPSILON").hide();
+export const EMPTY_SPACE = ATOM("").name("EPSILON").hide();
 
 export const WHITESPACE = CONCAT(
   EMPTY_SPACE,
   STAR(NON_EMPTY_WHITESPACE_CHARACTER).name("WHITESPACE")
 )
   .name("WHITESPACE")
-  .token();
+  .token()
+  .hide();
 
 const whitespaceWithoutNewline = [" ", "\r", "\t"] as const;
 

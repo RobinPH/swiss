@@ -1,13 +1,13 @@
 import BaseBNF from "./BaseBNF";
 import AtomBNF from "./types/AtomBNF";
-import ConcatBNF from "./types/ConcatBNF";
 import OrBNF from "./types/OrBNF";
+import ConcatBNF from "./types/ConcatBNF";
 import StarBNF from "./types/StarBNF";
 import PlusBNF from "./types/PlusBNF";
 import OptionalBNF from "./types/OptionalBNF";
+import MinusBNF from "./types/MinusBNF";
 import { v4 as uuidv4 } from "uuid";
 import { Characters } from "../types";
-import MinusBNF from "./types/MinusBNF";
 import ExactMinusBNF from "./types/ExactMinusBNF";
 
 export default class BNF {

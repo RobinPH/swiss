@@ -5,15 +5,15 @@ export const AND_BITWISE_OPERATOR = ATOM("&")
   .name("AND_BITWISE_OPERATOR")
   .token();
 
-export const OR_BITWISE_OPERATOR = WORD("|")
+export const OR_BITWISE_OPERATOR = ATOM("|")
   .name("OR_BITWISE_OPERATOR")
   .token();
 
-export const NOT_BITWISE_OPERATOR = WORD("~")
+export const NOT_BITWISE_OPERATOR = ATOM("~")
   .name("NOT_BITWISE_OPERATOR")
   .token();
 
-export const XOR_BITWISE_OPERATOR = WORD("^")
+export const XOR_BITWISE_OPERATOR = ATOM("^")
   .name("XOR_BITWISE_OPERATOR")
   .token();
 

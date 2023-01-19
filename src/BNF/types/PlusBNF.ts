@@ -1,5 +1,5 @@
-import AtomBNF from "./AtomBNF";
 import BaseBNF, { BNFType, TestResult, TestResultStatus } from "../BaseBNF";
+import { Queue, Task } from "../Queue";
 
 export default class PlusBNF<
   Name extends string,
@@ -14,34 +14,92 @@ export default class PlusBNF<
     this.#bnf = bnf;
   }
 
-  _test(input: string, index: number = 0): TestResult<Name, BNF[]> {
-    let currentIndex = index;
-    const results = [];
+  evaluate(
+    input: {
+      text: string;
+      index: number;
+    },
+    queue: Queue<TestResult<Name, any[]>>,
+    parent: Task<TestResult<Name, any[]>>,
+    parentCallback: (result: TestResult<Name, any[]>, id: Symbol) => void,
+    id: Symbol = Symbol()
+  ) {
+    const task = new Task({
+      label: this.toTerminal(),
+      parent,
+      run: () => {
+        const childInput = {
+          ...input,
+        };
 
-    while (true) {
-      const result = this.#bnf._test(input, currentIndex);
+        const tasks = new Array<Task<TestResult<Name, any[]>>>();
 
-      if (result.status === TestResultStatus.SUCCESS) {
-        currentIndex = result.range.to;
-        results.push(result);
-      } else {
-        break;
-      }
-    }
+        // @ts-ignore
+        const results = [];
 
-    const success = results.length > 0;
+        const newTask = () => {
+          const childTask = this.#bnf.evaluate(
+            childInput,
+            queue,
+            task,
+            callback
+          );
 
-    return {
-      // @ts-ignore
-      children: success ? results : [],
-      range: {
-        from: index,
-        to: currentIndex,
+          tasks.push(childTask);
+        };
+
+        const previousIndex = new Map<number, number>();
+        const getIndex = (index: number) => {
+          return previousIndex.get(index) ?? 0;
+        };
+
+        const addIndex = (index: number) => {
+          previousIndex.set(index, getIndex(index) + 1);
+        };
+
+        const callback = (result: TestResult<Name, any[]>) => {
+          const isLoop = getIndex(childInput.index) > 2;
+
+          addIndex(childInput.index);
+
+          if (result.status === TestResultStatus.SUCCESS && !isLoop) {
+            results.push(result);
+            childInput.index = result.range.to;
+            newTask();
+          } else {
+            const success = results.length > 0;
+
+            const res = {
+              // @ts-ignore
+              children: success ? results : [],
+              range: {
+                from: input.index,
+                to: childInput.index,
+              },
+              status: success
+                ? TestResultStatus.SUCCESS
+                : TestResultStatus.FAILED,
+              name: this.getName(),
+              isToken: this.isToken(),
+              isHidden: this.isHidden(),
+            };
+
+            task.result = res;
+
+            parentCallback(res, id);
+          }
+        };
+
+        newTask();
       },
-      status: success ? TestResultStatus.SUCCESS : TestResultStatus.FAILED,
-      name: this.getName(),
-      isToken: this.isToken(),
-    };
+      callback: () => {},
+      cancelled: false,
+      ran: false,
+    });
+
+    queue.registerTask(task);
+
+    return task;
   }
 
   toVariable(): string {

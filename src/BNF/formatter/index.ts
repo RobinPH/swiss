@@ -7,15 +7,17 @@ const PATH = "./result";
 type Result = TestResult<any, any> & { input: string };
 
 const CHARACTER_MAPPING = {
-  "\n": "\\n",
-  "\r": "\\r",
+  // "\n": "\\n",
+  // "\r": "\\r",
+  "\n": "",
+  "\r": "",
 } as const;
 
 const getTextFromInput = (
   input: string,
   range: { from: number; to: number }
 ) => {
-  return input
+  const mapped = input
     .slice(range.from, range.to)
     .split("")
     .map((c) => {
@@ -26,6 +28,14 @@ const getTextFromInput = (
       return c;
     })
     .join("");
+
+  const MAX_LENGTH = 20;
+
+  if (mapped.length > MAX_LENGTH) {
+    return mapped.slice(0, MAX_LENGTH) + "...";
+  }
+
+  return mapped;
 };
 
 export const toText = (filepath: string, result?: Result) => {
@@ -96,13 +106,15 @@ export const toTable = (filepath: string, result?: Result) => {
 
   const process = (res: TestResult<any, any>) => {
     if (res.children.length === 0 || res.isToken) {
-      if (res.range.from !== res.range.to) {
-        rows.push({
-          lexeme: "TEXT",
-          token: res.name,
-          range: res.range,
-        });
+      if (res.isHidden || res.range.from === res.range.to) {
+        return;
       }
+
+      rows.push({
+        lexeme: "TEXT",
+        token: res.name,
+        range: res.range,
+      });
     } else {
       for (const subValue of res.children) {
         process(subValue);
@@ -121,7 +133,7 @@ export const toTable = (filepath: string, result?: Result) => {
     ...rows.map((row, index) => {
       return [
         `${index}`,
-        `"${getTextFromInput(result!.input, row.range)}"`,
+        `${getTextFromInput(result!.input, row.range)}`,
         row.token,
         `${row.range.from}:${row.range.to}`,
       ];

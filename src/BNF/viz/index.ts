@@ -1,17 +1,106 @@
 import fs from "node:fs";
 import Viz from "viz.js";
 import { Module, render } from "viz.js/full.render.js";
-import BaseBNF, { BNFType } from "../../BNF/BaseBNF";
+import BaseBNF, {
+  BNFType,
+  TestResult,
+  TestResultStatus,
+} from "../../BNF/BaseBNF";
 import AtomBNF from "../../BNF/types/AtomBNF";
 import ConcatBNF from "../../BNF/types/ConcatBNF";
 import OrBNF from "../../BNF/types/OrBNF";
+import { Task } from "../Queue";
 import OptionalBNF from "../types/OptionalBNF";
 import PlusBNF from "../types/PlusBNF";
 import StarBNF from "../types/StarBNF";
 
-export const vizualize = (name: string, machine: BaseBNF<any>) => {
-  let viz = new Viz({ Module, render });
+let viz = new Viz({ Module, render });
 
+export const vizRender = (filepath: string, input: string) => {
+  viz
+    .renderString(input)
+    .then((result) => {
+      fs.writeFileSync(`${filepath}.svg`, result);
+      console.log(`FSM Drawing saved at ${filepath}`);
+    })
+    .catch((error) => {
+      viz = new Viz({ Module, render });
+
+      console.error(error);
+    });
+};
+
+export const vizualizeParseTree = (task: Task<TestResult<any, any[]>>) => {
+  let nodeCount = 0;
+  let cnt = 0;
+  const data = new Array<string>();
+  const newNode = (attributes: { label?: string; color?: string }) => {
+    const id = `n${nodeCount++}`;
+    cnt++;
+
+    const attr = Object.entries(attributes)
+      .map(([key, value]) => `${key}="${value}"`)
+      .join(" ");
+    data.push(`${id} [${attr}];`);
+
+    return id;
+  };
+
+  const connectNodes = (n0: string, n1: string) => {
+    data.push(`${n0} -- ${n1} ;`);
+    cnt++;
+  };
+
+  const process = (
+    task: Task<TestResult<any, any[]>>,
+    parent?: string,
+    depth = 0
+  ) => {
+    if (depth > 5) {
+      return;
+    }
+
+    const node = newNode({
+      label: task.label,
+      color:
+        task.result &&
+        (task.result.status === TestResultStatus.SUCCESS ? "green" : "red"),
+    });
+
+    if (parent) {
+      connectNodes(parent, node);
+    }
+
+    if (task.result?.isToken) {
+      return;
+    }
+
+    for (const child of task.children) {
+      // if (child.cancelled) {
+      //   continue;
+      // }
+      // if (child.ran) {
+      process(child, node, depth + 1);
+      // }
+    }
+  };
+
+  console.log("fooo");
+
+  process(task);
+
+  const input = `graph "" {
+    ${data.join("\n")}
+  }`;
+
+  console.log(cnt);
+
+  // console.log(input);
+
+  vizRender("./result/parseTree", input);
+};
+
+export const vizualize = (name: string, machine: BaseBNF<any>) => {
   let index = 0;
 
   const generateVizString = (machine: BaseBNF<any>) => {
@@ -118,16 +207,5 @@ export const vizualize = (name: string, machine: BaseBNF<any>) => {
     return `digraph { ${data.join("\n")} }`;
   };
 
-  viz
-    .renderString(generateVizString(machine))
-    .then((result) => {
-      const filepath = `./result/${name}.svg`;
-      fs.writeFileSync(filepath, result);
-      console.log(`FSM Drawing saved at ${filepath}`);
-    })
-    .catch((error) => {
-      viz = new Viz({ Module, render });
-
-      console.error(error);
-    });
+  vizRender(`./result/${name}`, generateVizString(machine));
 };

@@ -1,4 +1,5 @@
 import { CONCAT, OPTIONAL, OR, WORD } from "..";
+import { NON_EMPTY_WHITESPACE } from "./whitespace";
 
 // Null Keyword
 export const NULL_KEYWORD = WORD("null").name("NULL_KEYWORD").token();
@@ -22,11 +23,13 @@ export const EXCEPTION_KEYWORD = OR(
 //Return Keyword
 export const RETURN_KEYWORD = WORD("return").name("RETURN_KEYWORD").token();
 
-const LOOPING_KEYWORD_FOR = WORD("for").name("LOOPING_KEYWORD_FOR").token();
-const LOOPING_KEYWORD_WHILE = WORD("while")
+export const LOOPING_KEYWORD_FOR = WORD("for")
+  .name("LOOPING_KEYWORD_FOR")
+  .token();
+export const LOOPING_KEYWORD_WHILE = WORD("while")
   .name("LOOPING_KEYWORD_WHILE")
   .token();
-const LOOPING_KEYWORD_DO = WORD("do").name("LOOPING_KEYWORD_DO").token();
+export const LOOPING_KEYWORD_DO = WORD("do").name("LOOPING_KEYWORD_DO").token();
 
 export const LOOPING_KEYWORD = OR(
   LOOPING_KEYWORD_FOR,
@@ -39,15 +42,41 @@ export const LOOPING_CONTROL_KEYWORD = OR(
   WORD("continue").name("LOOPING_CONTROL_KEYWORD_CONTINUE").token()
 ).name("LOOPING_CONTROL_KEYWORD");
 
+export const SWITCH_KEYWORD_SWITCH = WORD("switch")
+  .name("SWITCH_KEYWORD_SWITCH")
+  .token();
+export const SWITCH_KEYWORD_CASE = WORD("case")
+  .name("SWITCH_KEYWORD_CASE")
+  .token();
+export const SWITCH_KEYWORD_DEFAULT = WORD("default")
+  .name("SWITCH_KEYWORD_DEFAULT")
+  .token();
+
 export const SWITCH_KEYWORD = OR(
-  WORD("switch").name("SWITCH_KEYWORD_SWITCH").token(),
-  WORD("case").name("SWITCH_KEYWORD_CASE").token(),
-  WORD("default").name("SWITCH_KEYWORD_DEFAULT").token()
+  SWITCH_KEYWORD_SWITCH,
+  SWITCH_KEYWORD_CASE,
+  SWITCH_KEYWORD_DEFAULT
 ).name("SWITCH_KEYWORD");
 
+export const IF_STATEMENT_KEYWORD_ELSE = WORD("else")
+  .name("IF_STATEMENT_KEYWORD_ELSE")
+  .token();
+export const IF_STATEMENT_KEYWORD_IF = WORD("if")
+  .name("IF_STATEMENT_KEYWORD_IF")
+  .token();
+
+export const IF_STATEMENT_KEYWORD_ELSE_IF = CONCAT(
+  IF_STATEMENT_KEYWORD_ELSE,
+  NON_EMPTY_WHITESPACE,
+  IF_STATEMENT_KEYWORD_IF
+)
+  .name("IF_STATEMENT_KEYWORD_ELSE_IF")
+  .token();
+
 export const IF_STATEMENT_KEYWORD = OR(
-  WORD("if").name("IF_STATEMENT_KEYWORD_IF").token(),
-  WORD("else").name("IF_STATEMENT_KEYWORD_ELSE").token()
+  IF_STATEMENT_KEYWORD_IF,
+  IF_STATEMENT_KEYWORD_ELSE_IF,
+  IF_STATEMENT_KEYWORD_ELSE_IF
 ).name("IF_STATEMENT_KEYWORD");
 
 export const INTEGER_KEYWORD = WORD("int").name("INTEGER_KEYWORD").token();
