@@ -1,5 +1,12 @@
 import { ATOM, CONCAT, MINUS, OR, STAR } from "..";
-import { CHARACTER } from "./character";
+import { CHARACTER, CHARACTER_WITHOUT_NEWLINE } from "./character";
+
+export const SINGLE_LINE_COMMENT = CONCAT(
+  ATOM("#"),
+  STAR(CHARACTER_WITHOUT_NEWLINE)
+)
+  .name("SINGLE_LINE_COMMENT")
+  .token();
 
 const POUND = ATOM("#").name("POUND");
 const THREE_POUND_BURGER = CONCAT(POUND, POUND, POUND);
@@ -11,3 +18,7 @@ export const MULTI_LINE_COMMENT = CONCAT(
 )
   .name("MULTI_LINE_COMMENT")
   .token();
+
+export const COMMENT = OR(MULTI_LINE_COMMENT, SINGLE_LINE_COMMENT).name(
+  "COMMENT"
+);

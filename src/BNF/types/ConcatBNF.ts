@@ -68,6 +68,7 @@ export default class ConcatBNF<
               status: TestResultStatus.FAILED,
               name: this.getName(),
               isToken: this.isToken(),
+              isHidden: this.isHidden(),
             };
             task.result = res;
             parentCallback(res, id);
@@ -89,6 +90,7 @@ export default class ConcatBNF<
                 : TestResultStatus.FAILED,
               name: this.getName(),
               isToken: this.isToken(),
+              isHidden: this.isHidden(),
             };
 
             task.result = res;

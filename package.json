@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "./build/src/index.js",
   "scripts": {
+    "swiss": "ts-node ./src/cli/index.ts",
     "start": "node ./build/src/index.js",
     "build": "npx tsc",
     "run": "ts-node ./src/index.ts",

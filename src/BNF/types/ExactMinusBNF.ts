@@ -2,7 +2,7 @@ import BaseBNF, { BNFType, TestResult, TestResultStatus } from "../BaseBNF";
 import { Queue, Task } from "../Queue";
 import OrBNF from "./OrBNF";
 
-export default class MinusBNF<
+export default class ExactMinusBNF<
   Name extends string,
   BNF extends BaseBNF<any, any[], any>,
   Excluding extends BaseBNF<any, any[], any>[]
@@ -42,7 +42,10 @@ export default class MinusBNF<
         const results = [];
 
         const callback1 = (result: TestResult<Name, any[]>) => {
-          const success = result.status !== TestResultStatus.SUCCESS;
+          const success =
+            result.status !== TestResultStatus.SUCCESS ||
+            // @ts-ignore
+            results[0].range.to !== result.range.to;
 
           const res = {
             // @ts-ignore

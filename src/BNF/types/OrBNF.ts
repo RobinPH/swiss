@@ -59,6 +59,7 @@ export default class OrBNF<
                   status: TestResultStatus.SUCCESS,
                   name: this.getName(),
                   isToken: this.isToken(),
+                  isHidden: this.isHidden(),
                 } as unknown as TestResult<Name, any[]>;
                 task.result = res;
                 parentCallback(res, id);
@@ -74,6 +75,7 @@ export default class OrBNF<
                   status: TestResultStatus.FAILED,
                   name: this.getName(),
                   isToken: this.isToken(),
+                  isHidden: this.isHidden(),
                 };
                 task.result = res;
                 parentCallback(res, id);
@@ -107,8 +109,8 @@ export default class OrBNF<
     return task;
   }
 
-  OR(bnf: BaseBNF<any>) {
-    this.children.push(bnf);
+  OR(...bnf: BaseBNF<any, any[], any>[]) {
+    this.children.push(...bnf);
 
     return this;
   }

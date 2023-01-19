@@ -41,6 +41,7 @@ export default class AtomBNF<Name extends string> extends BaseBNF<Name> {
               : TestResultStatus.FAILED,
           name: this.getName(),
           isToken: this.isToken(),
+          isHidden: this.isHidden(),
         };
 
         task.result = res;

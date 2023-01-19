@@ -2,9 +2,7 @@ import { ATOM, OR, WORD } from "../..";
 import { ASSIGNMENT_OPERATOR } from "./assignment";
 
 //Arithmetic Operators (+, -, *, /, %, //, **)
-export const ADDITION_OPERATOR = ATOM("+")
-  .name("ADDITION_ASSIGNMENT_OPERATOR")
-  .token();
+export const ADDITION_OPERATOR = ATOM("+").name("ADDITION_OPERATOR").token();
 
 export const SUBTRACTION_OPERATOR = ATOM("-")
   .name("SUBTRACTION_OPERATOR")
@@ -28,7 +26,9 @@ export const ARITHMETIC_OPERATORS = OR(
   ASSIGNMENT_OPERATOR,
   ADDITION_OPERATOR,
   SUBTRACTION_OPERATOR,
+  EXPONENT_OPERATOR,
   MULTIPLICATION_OPERATOR,
+  INTEGER_DIVISION_OPERATOR,
   DIVISION_OPERATOR,
   MODULO_OPERATOR
 ).name("ARITHEMTIC_OPERATORS");

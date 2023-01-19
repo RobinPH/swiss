@@ -85,6 +85,7 @@ export default class StarBNF<
               status: TestResultStatus.SUCCESS,
               name: this.getName(),
               isToken: this.isToken(),
+              isHidden: this.isHidden(),
             };
             task.result = res;
 

@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import Viz from "viz.js";
 import { Module, render } from "viz.js/full.render.js";
-import BaseBNF, { BNFType, TestResult } from "../../BNF/BaseBNF";
+import BaseBNF, {
+  BNFType,
+  TestResult,
+  TestResultStatus,
+} from "../../BNF/BaseBNF";
 import AtomBNF from "../../BNF/types/AtomBNF";
 import ConcatBNF from "../../BNF/types/ConcatBNF";
 import OrBNF from "../../BNF/types/OrBNF";
@@ -30,15 +34,15 @@ export const vizualizeParseTree = (task: Task<TestResult<any, any[]>>) => {
   let nodeCount = 0;
   let cnt = 0;
   const data = new Array<string>();
-  const newNode = (label?: string) => {
+  const newNode = (attributes: { label?: string; color?: string }) => {
     const id = `n${nodeCount++}`;
-    data.push(`${id} ;`);
     cnt++;
 
-    if (label) {
-      data.push(`${id} [label="${label.replace(/[^a-z0-9_ ]+/gi, "")}"];`);
-      cnt++;
-    }
+    const attr = Object.entries(attributes)
+      .map(([key, value]) => `${key}="${value}"`)
+      .join(" ");
+    data.push(`${id} [${attr}];`);
+
     return id;
   };
 
@@ -47,20 +51,37 @@ export const vizualizeParseTree = (task: Task<TestResult<any, any[]>>) => {
     cnt++;
   };
 
-  const process = (task: Task<TestResult<any, any[]>>, parent?: string) => {
-    const node = newNode(task.label);
+  const process = (
+    task: Task<TestResult<any, any[]>>,
+    parent?: string,
+    depth = 0
+  ) => {
+    if (depth > 5) {
+      return;
+    }
+
+    const node = newNode({
+      label: task.label,
+      color:
+        task.result &&
+        (task.result.status === TestResultStatus.SUCCESS ? "green" : "red"),
+    });
 
     if (parent) {
       connectNodes(parent, node);
     }
 
+    if (task.result?.isToken) {
+      return;
+    }
+
     for (const child of task.children) {
-      if (child.cancelled) {
-        continue;
-      }
-      if (child.ran) {
-        process(child, node);
-      }
+      // if (child.cancelled) {
+      //   continue;
+      // }
+      // if (child.ran) {
+      process(child, node, depth + 1);
+      // }
     }
   };
 

@@ -2,11 +2,15 @@ import { ATOM, CONCAT, MINUS, OPTIONAL, OR, PLUS, STAR, WORD } from "../../BNF";
 import { TestResultStatus } from "../../BNF/BaseBNF";
 import { ALPHABET } from "../../BNF/terminal/alphabet";
 import { CHARACTER } from "../../BNF/terminal/character";
+import { MULTI_LINE_COMMENT } from "../../BNF/terminal/comment";
 import { DIGIT } from "../../BNF/terminal/digit";
 import { IDENTIFIER } from "../../BNF/terminal/identifier";
-import { MULTI_LINE_COMMENT } from "../../BNF/terminal/multipleLineComment";
 import { UNDERSCORE } from "../../BNF/terminal/specialCharacter";
-import { DECLARATION_STATEMENT } from "../../BNF/terminal/statement";
+import {
+  CODE_BLOCK,
+  DECLARATION_STATEMENT,
+} from "../../BNF/terminal/statement";
+import { EXPRESSION } from "../../BNF/terminal/statement/expression";
 import { ARRAY } from "../../BNF/terminal/value";
 import { WHITESPACE } from "../../BNF/terminal/whitespace";
 
@@ -213,46 +217,49 @@ test("Identifier", async () => {
 });
 
 test("Declaration Statement", async () => {
-  expect((await DECLARATION_STATEMENT.test("const a = 1;"))?.status).toBe(
+  expect((await DECLARATION_STATEMENT.test("const a = 1"))?.status).toBe(
     TestResultStatus.SUCCESS
   );
-  expect((await DECLARATION_STATEMENT.test("let a= 1;"))?.status).toBe(
+  expect((await DECLARATION_STATEMENT.test("let a= 1"))?.status).toBe(
     TestResultStatus.SUCCESS
   );
-  expect((await DECLARATION_STATEMENT.test("constant bas=1;"))?.status).toBe(
+  expect((await DECLARATION_STATEMENT.test("constant bas=1"))?.status).toBe(
     TestResultStatus.SUCCESS
   );
-  expect((await DECLARATION_STATEMENT.test("const _a=1;"))?.status).toBe(
+  expect((await DECLARATION_STATEMENT.test("const _a=1"))?.status).toBe(
     TestResultStatus.SUCCESS
   );
-  expect((await DECLARATION_STATEMENT.test("const 0aa =1;"))?.status).toBe(
+  expect((await DECLARATION_STATEMENT.test("const 0aa =1"))?.status).toBe(
     TestResultStatus.FAILED
   );
-  expect((await DECLARATION_STATEMENT.test("cons a = 1;"))?.status).toBe(
-    TestResultStatus.FAILED
-  );
+
   expect((await DECLARATION_STATEMENT.test("conxst a ="))?.status).toBe(
     TestResultStatus.FAILED
   );
-  expect((await DECLARATION_STATEMENT.test("let  _ab_   =  1;"))?.status).toBe(
+  expect((await DECLARATION_STATEMENT.test("let  _ab_   =  1"))?.status).toBe(
     TestResultStatus.SUCCESS
   );
+  expect((await DECLARATION_STATEMENT.test("let  _a00b_   =  1"))?.status).toBe(
+    TestResultStatus.SUCCESS
+  );
+
   expect(
-    (await DECLARATION_STATEMENT.test("let  _a00b_   =  1;"))?.status
+    (await DECLARATION_STATEMENT.test("let  _a00b_   =  'string'"))?.status
+  ).toBe(TestResultStatus.SUCCESS);
+  expect(
+    (await DECLARATION_STATEMENT.test("xlet  _a00b_   =  2"))?.status
+  ).toBe(TestResultStatus.FAILED);
+  expect(
+    (await DECLARATION_STATEMENT.test("constant  _a00b_    2"))?.status
+  ).toBe(TestResultStatus.FAILED);
+
+  expect(
+    (await DECLARATION_STATEMENT.test("let intsomething = 1")).status
   ).toBe(TestResultStatus.SUCCESS);
 
   expect(
-    (await DECLARATION_STATEMENT.test("let  _a00b_   =  'string';"))?.status
+    (await DECLARATION_STATEMENT.test("let somethingint = 1")).status
   ).toBe(TestResultStatus.SUCCESS);
-  expect((await DECLARATION_STATEMENT.test("const a = 1"))?.status).toBe(
-    TestResultStatus.FAILED
-  );
-  expect(
-    (await DECLARATION_STATEMENT.test("xlet  _a00b_   =  2;"))?.status
-  ).toBe(TestResultStatus.FAILED);
-  expect(
-    (await DECLARATION_STATEMENT.test("constant  _a00b_    2;"))?.status
-  ).toBe(TestResultStatus.FAILED);
 });
 
 test("Cyclical Reference ", async () => {
@@ -303,4 +310,65 @@ test("Comment", async () => {
   expect((await MULTI_LINE_COMMENT.test("###d#d##"))?.status).toBe(
     TestResultStatus.FAILED
   );
+});
+
+test("Code Block", async () => {
+  const input0 = `{
+    const a = 1;
+    let b = 3.141519;
+    constant cint = "HELLO WORLD!";
+    constant intd = "HELLO WORLD!";
+  
+    ++a;
+  
+    b += 1;
+    const e = 2 * (1 + 2);
+    b **= e;
+  
+    if (a < 1) {
+      const d = 1;
+    }
+  
+    for(let i = 0; i < 5; i++) {
+      const a = 1;
+    }
+  }`;
+
+  const input1 = `{
+    const a = 1;
+    let b = 3.141519;
+    constant cint = "HELLO WORLD!";
+    constant int = "HELLO WORLD!";
+  
+    ++a;
+  
+    b += 1;
+    const e = 2 * (1 + 2);
+    b **= e;
+  
+    if (a < 1) {
+      const d = 1;
+    }
+  
+    for(let i = 0; i < 5; i++) {
+      const a = 1;
+    }
+  }`;
+
+  expect((await CODE_BLOCK.test(input0)).status).toBe(TestResultStatus.SUCCESS);
+  expect((await CODE_BLOCK.test(input1)).status).toBe(TestResultStatus.FAILED);
+});
+
+test("Expression", async () => {
+  // expect(
+  //   (await EXPRESSION.test(`0+1-2*3/4%5**6//7++8--9+++10---11`))?.status
+  // ).toBe(TestResultStatus.SUCCESS);
+
+  expect(
+    (
+      await EXPRESSION.test(
+        `a+(a+b)+a+(((asd)))+test(1)+((test()*((a+ b) + 12)))+arr[123*2/2]`
+      )
+    )?.status
+  ).toBe(TestResultStatus.SUCCESS);
 });

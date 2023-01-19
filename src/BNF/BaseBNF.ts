@@ -39,6 +39,7 @@ export type TestResult<
   name: Name;
   status: TestResultStatus;
   isToken: boolean;
+  isHidden: boolean;
 };
 
 abstract class BaseBNF<

@@ -81,6 +81,7 @@ export default class PlusBNF<
                 : TestResultStatus.FAILED,
               name: this.getName(),
               isToken: this.isToken(),
+              isHidden: this.isHidden(),
             };
 
             task.result = res;
