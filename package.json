@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "main": "./build/src/index.js",
   "scripts": {
-    "swiss": "ts-node ./src/cli/index.ts",
+    "swiss": "npx ts-node ./src/cli/index.ts",
     "start": "node ./build/src/index.js",
     "build": "npx tsc",
     "run": "ts-node ./src/index.ts",
-    "dev": "npx ts-node-dev --respawn ./src/index.ts --rs",
-    "test": "jest"
+    "dev": "npx ts-node-dev --respawn --rs --watch ./code/**/*.sw ./src/index.ts",
+    "test": "npx jest"
   },
   "keywords": [],
   "author": "",
