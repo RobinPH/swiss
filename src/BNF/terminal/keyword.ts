@@ -1,4 +1,6 @@
 import { CONCAT, OPTIONAL, OR, WORD } from "..";
+import { CONST_DECLARATOR, LET_DECLARATOR } from "./declarator";
+import { ARRAY } from "./value";
 import { NON_EMPTY_WHITESPACE } from "./whitespace";
 
 // Null Keyword
@@ -75,7 +77,7 @@ export const IF_STATEMENT_KEYWORD_ELSE_IF = CONCAT(
 
 export const IF_STATEMENT_KEYWORD = OR(
   IF_STATEMENT_KEYWORD_IF,
-  IF_STATEMENT_KEYWORD_ELSE_IF,
+  IF_STATEMENT_KEYWORD_ELSE,
   IF_STATEMENT_KEYWORD_ELSE_IF
 ).name("IF_STATEMENT_KEYWORD");
 
@@ -108,11 +110,25 @@ export const FUNCTION_KEYWORD = WORD("function")
   .name("FUNCTION_KEYWORD")
   .token();
 
+//ARRAY_KEYWORD
+export const ARRAY_KEYWORD = WORD("array")
+  .name("ARRAY_KEYWORD")
+  .token();
+
+//OBJECT_KEYWORD
+export const OBJECT_KEYWORD = WORD("object")
+  .name("OBJECT_KEYWORD")
+  .token();
+
 export const KEYWORDS = OR(
   DATATYPE_SPECIFIER,
   LOOPING_CONTROL_KEYWORD,
   RETURN_KEYWORD,
-  NULL_KEYWORD
+  NULL_KEYWORD,
+  LET_DECLARATOR,
+  CONST_DECLARATOR,
+  ARRAY_KEYWORD,
+  OBJECT_KEYWORD
 );
 
 export const RESERVED_WORDS = OR(
