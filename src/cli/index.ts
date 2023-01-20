@@ -3,6 +3,7 @@ import path from "node:path";
 import { TestResultStatus } from "../BNF/BaseBNF";
 import { toTable } from "../BNF/formatter";
 import { SWISS } from "../BNF/terminal/statement";
+import { getCode } from "./utility";
 
 const main = async () => {
   if (process.argv.length < 3) {
@@ -17,7 +18,7 @@ const main = async () => {
     return;
   }
 
-  const code = fs.readFileSync(filepath, "utf-8").replaceAll("\r", "");
+  const code = getCode(filepath);
 
   const bnf = SWISS;
   console.log("Processing...");
