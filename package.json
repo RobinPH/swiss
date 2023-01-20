@@ -6,7 +6,7 @@
     "swiss": "npx ts-node ./src/cli/index.ts",
     "start": "node ./build/src/index.js",
     "build": "npx tsc",
-    "run": "ts-node ./src/index.ts",
+    "run": "npx ts-node ./src/index.ts",
     "dev": "npx ts-node-dev --respawn --rs --watch ./code/**/*.sw ./src/index.ts",
     "test": "npx jest"
   },
