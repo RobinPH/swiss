@@ -5,12 +5,18 @@ import { vizualize, vizualizeParseTree } from "./BNF/viz";
 import { getCode } from "./cli/utility";
 
 const main = async () => {
+  try {
+    var code = getCode("./code/index.sw");
+  } catch (e: any) {
+    console.log(e.message);
+    return;
+  }
+
   const bnf = SWISS;
-  const input = getCode("./code/index.sw");
 
-  console.log("start");
+  console.log("Processing...");
 
-  const res = await bnf.test(input);
+  const res = await bnf.test(code);
   // vizualizeParseTree(res.task.children[0]);
 
   if (res.status === TestResultStatus.SUCCESS) {
@@ -19,13 +25,13 @@ const main = async () => {
     console.log(`[!] Failed`);
   }
 
-  console.log(res.range);
+  // console.log(res.range);
 
   toTable("symbol_table.txt", res);
 
-  for (const b of [bnf]) {
-    console.log(b.toDeclaration());
-  }
+  // for (const b of [bnf]) {
+  //   console.log(b.toDeclaration());
+  // }
   // vizualize("res", bnf);
 };
 

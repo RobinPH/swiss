@@ -18,7 +18,12 @@ const main = async () => {
     return;
   }
 
-  const code = getCode(filepath);
+  try {
+    var code = getCode(filepath);
+  } catch (e: any) {
+    console.log(e.message);
+    return;
+  }
 
   const bnf = SWISS;
   console.log("Processing...");
