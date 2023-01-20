@@ -122,7 +122,7 @@ export const toTable = (filepath: string, result?: Result) => {
     }
   };
 
-  if (result && result.status === TestResultStatus.SUCCESS) {
+  if (result) {
     process(result);
   }
 

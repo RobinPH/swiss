@@ -80,7 +80,7 @@ export default class ConcatBNF<
             done = true;
             const res = {
               // @ts-ignore
-              children: success ? results : [],
+              children: results,
               range: {
                 from: input.index,
                 to: childInput.index,

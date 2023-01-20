@@ -99,6 +99,19 @@ abstract class BaseBNF<
         (result) => {
           if (result.range.to !== input.length) {
             result.status = TestResultStatus.FAILED;
+
+            result.children.push({
+              // @ts-ignore
+              children: [],
+              range: {
+                from: result.range.to,
+                to: input.length,
+              },
+              status: TestResultStatus.FAILED,
+              name: "INVALID_LEXEME",
+              isToken: true,
+              isHidden: false,
+            });
           }
 
           resolve({
