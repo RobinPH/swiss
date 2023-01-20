@@ -1,6 +1,10 @@
 const int GLOBAL_VARIABLE = 42;
 const float PI = 3.1415926535;
-const HELLO_WORLD1 = 'Hello World!';
+const string HELLO_WORLD1 = 'Hello World!';
+constant bool IS_PRORDUCTION = false;
+let OPERATORS = 1 + 2 - 3 * 4 / 5 % 6 // 7 ** 8;
+const boolean BOOLEAN_OPERATORS = NOT a > b AND c < d OR e >= f AND g <= h OR i == j AND k != l;
+let ARRAY = [1, 2, 3, 'str', [10, [["x", 'y'], GLOBAL_VARIABLE], 3]];
 
 # Fibonacci Function
 function fibonacci(n) {
