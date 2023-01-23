@@ -4,10 +4,7 @@ import { DIGIT } from "./digit";
 import { KEYWORDS, RESERVED_WORDS } from "./keyword";
 import { UNDERSCORE } from "./specialCharacter";
 
-export const INVALID_IDENTIFIERS = OR(
-  KEYWORDS,
-  RESERVED_WORDS
-);
+export const INVALID_IDENTIFIERS = OR(KEYWORDS, RESERVED_WORDS);
 
 export const IDENTIFIER = EXACT_MINUS(
   CONCAT(

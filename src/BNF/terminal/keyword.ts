@@ -111,13 +111,22 @@ export const FUNCTION_KEYWORD = WORD("function")
   .token();
 
 //ARRAY_KEYWORD
-export const ARRAY_KEYWORD = WORD("array")
-  .name("ARRAY_KEYWORD")
-  .token();
+export const ARRAY_KEYWORD = WORD("array").name("ARRAY_KEYWORD").token();
 
 //OBJECT_KEYWORD
-export const OBJECT_KEYWORD = WORD("object")
-  .name("OBJECT_KEYWORD")
+export const OBJECT_KEYWORD = WORD("object").name("OBJECT_KEYWORD").token();
+
+export const CLASS_KEYWORD = WORD("class").name("CLASS_KEYWORD").token();
+export const CLASS_EXTENDS_KEYWORD = WORD("extends")
+  .name("CLASS_EXTENDS_KEYWORD")
+  .token();
+
+export const CLASS_KEYWORDS = OR(CLASS_KEYWORD, CLASS_EXTENDS_KEYWORD).name(
+  "CLASS_KEYWORDS"
+);
+
+export const NEW_OBJECT_KEYWORD = WORD("new")
+  .name("NEW_OBJECT_KEYWORD")
   .token();
 
 export const KEYWORDS = OR(
@@ -128,7 +137,9 @@ export const KEYWORDS = OR(
   LET_DECLARATOR,
   CONST_DECLARATOR,
   ARRAY_KEYWORD,
-  OBJECT_KEYWORD
+  OBJECT_KEYWORD,
+  CLASS_KEYWORDS,
+  NEW_OBJECT_KEYWORD
 );
 
 export const RESERVED_WORDS = OR(
