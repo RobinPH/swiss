@@ -1,26 +1,35 @@
 class Animal {
   string name;
 
-  constructor(animalName) {
-    name = animalName;
+  constructor(name) {
+    this.name = name;
   }
+
+  greet() { }
 }
 
 class Cat extends Animal {
-  constructor() {
-    super("Mingming");
+  constructor(name) {
+    super(name + "-cat");
+  }
+
+  greet() {
+    print("My name is ", this.name, ", I am a cat");
   }
 }
 
 class Dog extends Animal {
-  constructor() {
-    super("Blacky");
+  greet() {
+    print("My name is ", this.name, ", I am a dog");
   }
 }
 
 function main() {
-  const Cat cat = new Cat();
-  const dog = new Dog();
+  const Cat cat = new Cat("Mingming");
+  const dog = new Dog("Blacky");
+
+  cat.greet(); # My name is Mingming-cat, I am a cat
+  dog.greet(); # My name is Blacky, I am a dog
 }
 
 main();

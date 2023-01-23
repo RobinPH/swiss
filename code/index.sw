@@ -6,6 +6,20 @@ let OPERATORS = 1 + 2 - 3 * 4 / 5 % 6 // 7 ** 8;
 const boolean BOOLEAN_OPERATORS = NOT a > b AND c < d OR e >= f AND g <= h OR i == j AND k != l;
 let ARRAY = [1, 2, 3, 'str', [10, [["x", 'y'], GLOBAL_VARIABLE], 3]];
 
+class Entity {
+  int variable1 = 1;
+  string variable2;
+
+  constructor(variable1, variable2) {
+    this.variable1 = variable1;
+    this.variable2 = variable2;
+  }
+
+  example_method() {
+    raise "Not implemented";
+  }
+}
+
 # Fibonacci Function
 function fibonacci(n) {
   if (n == 0 OR n == 1) {
@@ -107,6 +121,9 @@ function main() {
   const b = -2;
   const e = 31;
   const bigNumber = fastExponent(b, e);
+
+  const Entity entity = new Entity("Monster", bigNumber);
+  entity.example_method();
 
   const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   let accumulator = 0;

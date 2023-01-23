@@ -1,11 +1,21 @@
 import { ATOM, CONCAT, OPTIONAL, OR, STAR } from "..";
 import { IDENTIFIER } from "./identifier";
-import { NULL_KEYWORD } from "./keyword";
+import { BOOLEAN_LITERAL, NULL_KEYWORD } from "./keyword";
 import { NUMBER } from "./literal";
 import { STRING } from "./literal/string";
 import { WHITESPACE } from "./whitespace";
 
-export let VALUE = OR(NUMBER, STRING, IDENTIFIER, NULL_KEYWORD).name("VALUE");
+export let VALUE = OR(
+  NUMBER,
+  STRING,
+  CONCAT(
+    IDENTIFIER,
+    STAR(CONCAT(ATOM(".").name("DOT_OPERATOR").token(), IDENTIFIER))
+  ),
+  IDENTIFIER,
+  BOOLEAN_LITERAL,
+  NULL_KEYWORD
+).name("VALUE");
 
 export const ARRAY_OPENING_BRACKET = ATOM("[").name("ARRAY_OPENING_BRACKET");
 export const ARRAY_CLOSING_BRACKET = ATOM("]").name("ARRAY_CLOSING_BRACKET");
