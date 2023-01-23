@@ -13,7 +13,7 @@ import {
   ASSIGNMENT_OPERATOR,
   ASSIGNMENT_OPERATORS,
 } from "../operator/assignment";
-import { SEMICOLON } from "../specialCharacter";
+import { SEMICOLON, UNDERSCORE } from "../specialCharacter";
 import { VALUE } from "../value";
 import { NON_EMPTY_WHITESPACE, WHITESPACE } from "../whitespace";
 import {
@@ -39,6 +39,8 @@ import {
   TRY_KEYWORD,
 } from "../keyword";
 import { COMMENT } from "../comment";
+import { ALPHABET } from "../alphabet";
+import { DIGIT } from "../digit";
 
 let _STATEMENTS = OR().name("STATEMENTS");
 
@@ -50,11 +52,20 @@ export const CODE_BLOCK = CONCAT(
   CLOSING_CURLY
 ).name("CODE_BLOCK");
 
+export const DATA_TYPE = CONCAT(
+  OR(ALPHABET, UNDERSCORE).name("NO_DIGIT_PREFIX"),
+  STAR(OR(ALPHABET, UNDERSCORE, DIGIT).name("NO_PREFIX_RESTRICTION")).name(
+    "ANY_COMBINATION"
+  )
+)
+  .name("DATA_TYPE")
+  .token();
+
 export const DECLARATION_STATEMENT = CONCAT(
   DECLARATOR,
   NON_EMPTY_WHITESPACE,
   OR(
-    CONCAT(IDENTIFIER, NON_EMPTY_WHITESPACE, IDENTIFIER),
+    CONCAT(DATA_TYPE, NON_EMPTY_WHITESPACE, IDENTIFIER),
     CONCAT(DATATYPE_SPECIFIER, NON_EMPTY_WHITESPACE, IDENTIFIER),
     IDENTIFIER
   ),
