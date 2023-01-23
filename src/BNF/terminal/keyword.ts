@@ -3,6 +3,19 @@ import { CONST_DECLARATOR, LET_DECLARATOR } from "./declarator";
 import { ARRAY } from "./value";
 import { NON_EMPTY_WHITESPACE } from "./whitespace";
 
+export const TRUE_VALUE_KEYWORD = WORD("true")
+  .name("TRUE_VALUE_KEYWORD")
+  .token();
+
+export const FALSE_VALUE_KEYWORD = WORD("false")
+  .name("FALSE_VALUE_KEYWORD")
+  .token();
+
+export const BOOLEAN_VALUE_KEYWORD = OR(
+  TRUE_VALUE_KEYWORD,
+  FALSE_VALUE_KEYWORD
+).name("BOOLEAN_VALUE_KEYWORD");
+
 // Null Keyword
 export const NULL_KEYWORD = WORD("null").name("NULL_KEYWORD").token();
 
