@@ -17,3 +17,15 @@ export const IDENTIFIER = EXACT_MINUS(
 )
   .name("IDENTIFIER")
   .token();
+
+export const CONST_IDENTIFIER = EXACT_MINUS(
+  CONCAT(
+    OR(ALPHABET, UNDERSCORE).name("NO_DIGIT_PREFIX"),
+    STAR(OR(ALPHABET, UNDERSCORE, DIGIT).name("NO_PREFIX_RESTRICTION")).name(
+      "ANY_COMBINATION"
+    )
+  ),
+  INVALID_IDENTIFIERS
+)
+  .name("CONST_IDENTIFIER")
+  .token();
