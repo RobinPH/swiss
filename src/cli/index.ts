@@ -25,7 +25,7 @@ const main = async () => {
   const result = await bnf.test(code);
 
   const filename = path.parse(path.basename(filepath)).name;
-  const symbolTableFileName = `${filename}.symbol`;
+  const symbolTableFileName = `symbolTable.txt`;
 
   if (result.status === TestResultStatus.SUCCESS) {
     console.log("[?] SUCCESS");
