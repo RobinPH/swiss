@@ -6,7 +6,7 @@ import { getCode } from "./cli/utility";
 
 const main = async () => {
   try {
-    var code = getCode("./code/class.sw");
+    var code = getCode("./code/testFile.sw");
   } catch (e: any) {
     console.log(e.message);
     return;
