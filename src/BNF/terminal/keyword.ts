@@ -3,6 +3,18 @@ import { CONST_DECLARATOR, LET_DECLARATOR } from "./declarator";
 import { ARRAY } from "./value";
 import { NON_EMPTY_WHITESPACE } from "./whitespace";
 
+export const TRUE_VALUE_KEYWORD = WORD("true")
+  .name("BOOLEAN_TRUE_KEYWORD")
+  .token();
+
+export const FALSE_VALUE_KEYWORD = WORD("false")
+  .name("BOOLEAN_FALSE_KEYWORD")
+  .token();
+
+export const BOOLEAN_LITERAL = OR(TRUE_VALUE_KEYWORD, FALSE_VALUE_KEYWORD).name(
+  "BOOLEAN_LITERAL"
+);
+
 // Null Keyword
 export const NULL_KEYWORD = WORD("null").name("NULL_KEYWORD").token();
 
@@ -111,16 +123,26 @@ export const FUNCTION_KEYWORD = WORD("function")
   .token();
 
 //ARRAY_KEYWORD
-export const ARRAY_KEYWORD = WORD("array")
-  .name("ARRAY_KEYWORD")
-  .token();
+export const ARRAY_KEYWORD = WORD("array").name("ARRAY_KEYWORD").token();
 
 //OBJECT_KEYWORD
-export const OBJECT_KEYWORD = WORD("object")
-  .name("OBJECT_KEYWORD")
+export const OBJECT_KEYWORD = WORD("object").name("OBJECT_KEYWORD").token();
+
+export const CLASS_KEYWORD = WORD("class").name("CLASS_KEYWORD").token();
+export const CLASS_EXTENDS_KEYWORD = WORD("extends")
+  .name("CLASS_EXTENDS_KEYWORD")
+  .token();
+
+export const CLASS_KEYWORDS = OR(CLASS_KEYWORD, CLASS_EXTENDS_KEYWORD).name(
+  "CLASS_KEYWORDS"
+);
+
+export const NEW_OBJECT_KEYWORD = WORD("new")
+  .name("NEW_OBJECT_KEYWORD")
   .token();
 
 export const KEYWORDS = OR(
+  BOOLEAN_LITERAL,
   DATATYPE_SPECIFIER,
   LOOPING_CONTROL_KEYWORD,
   RETURN_KEYWORD,
@@ -128,7 +150,9 @@ export const KEYWORDS = OR(
   LET_DECLARATOR,
   CONST_DECLARATOR,
   ARRAY_KEYWORD,
-  OBJECT_KEYWORD
+  OBJECT_KEYWORD,
+  CLASS_KEYWORDS,
+  NEW_OBJECT_KEYWORD
 );
 
 export const RESERVED_WORDS = OR(

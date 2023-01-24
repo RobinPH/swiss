@@ -1,5 +1,6 @@
 import { ATOM, CONCAT, OPTIONAL, OR, STAR } from "../../..";
 import { IDENTIFIER } from "../../identifier";
+import { NEW_OBJECT_KEYWORD } from "../../keyword";
 import { ARITHMETIC_OPERATORS } from "../../operator/arithmetic";
 import { BITWISE_OPERATORS } from "../../operator/bitwise";
 import {
@@ -12,7 +13,11 @@ import {
   UNARY_SUFFIX_OPERATOR,
 } from "../../operator/unary";
 import { VALUE } from "../../value";
-import { EMPTY_SPACE, WHITESPACE } from "../../whitespace";
+import {
+  EMPTY_SPACE,
+  NON_EMPTY_WHITESPACE,
+  WHITESPACE,
+} from "../../whitespace";
 
 export const EXPRESSION3 = OR().name("EXPRESSION");
 export let EXPRESSION = OR();
@@ -102,6 +107,23 @@ export const ARRAY_ACCESS_EXPRESSION = CONCAT(
   CLOSING_SQUARE_BRACKET
 );
 
+export const OBJECT_INSTANTIATION = CONCAT(
+  NEW_OBJECT_KEYWORD,
+  NON_EMPTY_WHITESPACE,
+  IDENTIFIER,
+  OPENING_PARENTHESIS,
+  STAR(
+    CONCAT(
+      EXPRESSION,
+      WHITESPACE,
+      ATOM(",").name("ARGUMENT_SEPARATOR"),
+      WHITESPACE
+    )
+  ).name("REST_ARGUMENT"),
+  OPTIONAL(EXPRESSION).name("PARAMETER"),
+  CLOSING_PARENTHESIS
+);
+
 const OPERATORS = OR(
   RELATIONAL_BOOLEAN_OPERATORS,
   ARITHMETIC_OPERATORS,
@@ -114,6 +136,7 @@ VALUE3 = VALUE3.OR(
   ARRAY_ACCESS_EXPRESSION,
   UNARY_SUFFIX_EXPRESSION,
   UNARY_PREFIX_EXPRESSION,
+  OBJECT_INSTANTIATION,
   VALUE2
 );
 
