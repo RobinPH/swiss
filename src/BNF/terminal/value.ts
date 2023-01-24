@@ -1,7 +1,7 @@
 import { ATOM, CONCAT, OPTIONAL, OR, STAR } from "..";
 import { IDENTIFIER } from "./identifier";
 import { BOOLEAN_LITERAL, NULL_KEYWORD } from "./keyword";
-import { NUMBER } from "./literal";
+import { NUMBER } from "./literal/number";
 import { STRING } from "./literal/string";
 import { WHITESPACE } from "./whitespace";
 

@@ -1,0 +1,28 @@
+import { ATOM, CONCAT, OPTIONAL, OR, PLUS, STAR } from "../..";
+import { DIGIT, DIGIT_NONZERO } from "../digit";
+
+export const NO_ZERO_PREFIX_INTEGER = OR(
+  ATOM("0"),
+  CONCAT(DIGIT_NONZERO, OPTIONAL(STAR(DIGIT)))
+);
+
+export const EXPONENT_PART = CONCAT(
+  OR(ATOM("e"), ATOM("E")).name("SCIENTIFIC_EXPONENT_SYMBOL").token(),
+  OPTIONAL(ATOM("-").name("NEGATIVE_SYMBOL").token()),
+  NO_ZERO_PREFIX_INTEGER
+).name("EXPONENT_PART");
+
+export const FLOAT = CONCAT(
+  NO_ZERO_PREFIX_INTEGER,
+  ATOM(".").name("DECIMAL_POINT"),
+  PLUS(DIGIT).name("FLOAT_FRACTIONAL_PART"),
+  OPTIONAL(EXPONENT_PART)
+)
+  .name("FLOAT_LITERAL")
+  .token();
+
+export const INTEGER = CONCAT(NO_ZERO_PREFIX_INTEGER, OPTIONAL(EXPONENT_PART))
+  .name("INTEGER_LITERAL")
+  .token();
+
+export const NUMBER = OR(FLOAT, INTEGER).name("NUMBER_LITERAL");

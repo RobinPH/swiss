@@ -5,6 +5,7 @@ import { CHARACTER } from "../../BNF/terminal/character";
 import { MULTI_LINE_COMMENT } from "../../BNF/terminal/comment";
 import { DIGIT } from "../../BNF/terminal/digit";
 import { IDENTIFIER } from "../../BNF/terminal/identifier";
+import { NUMBER } from "../../BNF/terminal/literal/number";
 import { UNDERSCORE } from "../../BNF/terminal/specialCharacter";
 import {
   CODE_BLOCK,
@@ -371,4 +372,23 @@ test("Expression", async () => {
       )
     )?.status
   ).toBe(TestResultStatus.SUCCESS);
+});
+
+test("Scientific Notation", async () => {
+  expect((await NUMBER.test("2e31"))?.status).toBe(TestResultStatus.SUCCESS);
+  expect((await NUMBER.test("1.618e-2"))?.status).toBe(
+    TestResultStatus.SUCCESS
+  );
+  expect((await NUMBER.test("3.1415E10"))?.status).toBe(
+    TestResultStatus.SUCCESS
+  );
+  expect((await NUMBER.test("0E-100"))?.status).toBe(TestResultStatus.SUCCESS);
+  expect((await NUMBER.test("3.1415E0"))?.status).toBe(
+    TestResultStatus.SUCCESS
+  );
+
+  expect((await NUMBER.test("2e+31"))?.status).toBe(TestResultStatus.FAILED);
+  expect((await NUMBER.test("1.618e-02"))?.status).toBe(
+    TestResultStatus.FAILED
+  );
 });
