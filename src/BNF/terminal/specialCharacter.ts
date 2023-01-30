@@ -37,7 +37,7 @@ const specialCharacter = [
 
 export const UNDERSCORE = ATOM("_").name("UNDERSCORE");
 
-export const SEMICOLON = ATOM(";").name("SEMICOLON");
+export const SEMICOLON = ATOM(";").name("SEMICOLON_DELIMITER");
 
 export const COLON = ATOM(":").name("COLON");
 
