@@ -33,7 +33,7 @@ const main = async () => {
   const symbolTableFileName = `symbolTable.txt`;
 
   if (result.status === TestResultStatus.SUCCESS) {
-    console.log("[?] SUCCESS");
+    console.log("The program ran succesfully without lexical and syntax errors.");
   } else if (result.status === TestResultStatus.FAILED) {
     console.log(`[!] FAILED`);
 
