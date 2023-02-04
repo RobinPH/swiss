@@ -1,22 +1,23 @@
 import { ATOM, CONCAT, MINUS, OR, STAR } from "../..";
 import { CHARACTER } from "../character";
+import { Token } from "../tokenType";
 
 const STRING_SINGLE_QUOTE = CONCAT(
-  ATOM(`'`).name("STRING_OPENING_QUOTE").token(),
+  ATOM(`'`).name(Token.STRING_OPENING_QUOTE).token(),
   STAR(MINUS(CHARACTER, ATOM("\n"), ATOM(`'`)))
-    .name("STRING_CONTENT")
+    .name(Token.STRING_CONTENT)
     .token(),
-  ATOM(`'`).name("STRING_CLOSING_QUOTE").token()
-).name("STRING_SINGLE_QUOTE");
+  ATOM(`'`).name(Token.STRING_CLOSING_QUOTE).token()
+).name(Token.STRING_SINGLE_QUOTE);
 
 const STRING_DOUBLE_QUOTE = CONCAT(
-  ATOM(`"`).name("STRING_OPENING_QUOTE").token(),
+  ATOM(`"`).name(Token.STRING_OPENING_QUOTE).token(),
   STAR(MINUS(CHARACTER, ATOM("\n"), ATOM(`"`)))
-    .name("STRING_CONTENT")
+    .name(Token.STRING_CONTENT)
     .token(),
-  ATOM(`"`).name("STRING_CLOSING_QUOTE").token()
-).name("STRING_DOUBLE_QUOTE");
+  ATOM(`"`).name(Token.STRING_CLOSING_QUOTE).token()
+).name(Token.STRING_DOUBLE_QUOTE);
 
 export const STRING = OR(STRING_SINGLE_QUOTE, STRING_DOUBLE_QUOTE)
-  .name("STRING_LITERAL")
+  .name(Token.STRING_LITERAL)
   .token();

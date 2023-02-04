@@ -1,24 +1,29 @@
 import { ATOM, OR, WORD } from "../..";
+import { Token } from "../tokenType";
 
 //RELATIONAL BOOLEAN (==, !=, >, <, >=, <=)
-export const EQUAL_TO_OPERATOR = WORD("==").name("EQUAL_TO_OPERATOR").token();
+export const EQUAL_TO_OPERATOR = WORD("==")
+  .name(Token.EQUAL_TO_OPERATOR)
+  .token();
 
 export const NOT_EQUAL_TO_OPERATOR = WORD("!=")
-  .name("NOT_EQUAL_TO_OPERATOR")
+  .name(Token.NOT_EQUAL_TO_OPERATOR)
   .token();
 
 export const GREATER_THAN_OPERATOR = ATOM(">")
-  .name("GREATER_THAN_OPERATOR")
+  .name(Token.GREATER_THAN_OPERATOR)
   .token();
 
 export const GREATER_THAN_OR_EQUAL_TO_OPERATOR = WORD(">=")
-  .name("GREATER_THAN_OR_EQUAL_TO_OPERATOR")
+  .name(Token.GREATER_THAN_OR_EQUAL_TO_OPERATOR)
   .token();
 
-export const LESS_THAN_OPERATOR = ATOM("<").name("LESS_THAN_OPERATOR").token();
+export const LESS_THAN_OPERATOR = ATOM("<")
+  .name(Token.LESS_THAN_OPERATOR)
+  .token();
 
 export const LESS_THAN_OR_EQUAL_TO_OPERATOR = WORD("<=")
-  .name("LESS_THAN_OR_EQUAL_TO_OPERATOR")
+  .name(Token.LESS_THAN_OR_EQUAL_TO_OPERATOR)
   .token();
 
 export const RELATIONAL_BOOLEAN_OPERATORS = OR(
@@ -28,4 +33,4 @@ export const RELATIONAL_BOOLEAN_OPERATORS = OR(
   GREATER_THAN_OPERATOR,
   LESS_THAN_OR_EQUAL_TO_OPERATOR,
   LESS_THAN_OPERATOR
-).name("RELATIONAL_BOOLEAN_OPERATORS");
+).name(Token.RELATIONAL_BOOLEAN_OPERATORS);

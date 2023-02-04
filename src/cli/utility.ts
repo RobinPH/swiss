@@ -39,9 +39,9 @@ export const testInput = async (
   const symbolTableFileName = `${filename}.symbol`;
 
   if (result.status === TestResultStatus.SUCCESS) {
-    console.log("[?] SUCCESS");
+    console.log("[✓] Lexical Analyzer SUCCESS");
   } else if (result.status === TestResultStatus.FAILED) {
-    console.log(`[!] FAILED`);
+    console.log(`[!] Lexical Analyzer FAILED`);
 
     // const startOffest = 20;
     // const start = Math.max(0, result.range.to - startOffest);

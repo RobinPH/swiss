@@ -1,0 +1,7 @@
+export enum DATA_TYPES {
+  INTEGER = "INTEGER",
+  FLOAT = "FLOAT",
+  STRING = "STRING",
+  FUNCTION = "FUNCTION",
+  CLASS = "CLASS",
+}

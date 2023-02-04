@@ -12,6 +12,8 @@ import {
   UNARY_PREFIX_OPERATOR,
   UNARY_SUFFIX_OPERATOR,
 } from "../../operator/unary";
+import { SEMICOLON } from "../../specialCharacter";
+import { Token } from "../../tokenType";
 import { VALUE } from "../../value";
 import {
   EMPTY_SPACE,
@@ -19,20 +21,24 @@ import {
   WHITESPACE,
 } from "../../whitespace";
 
-export const EXPRESSION3 = OR().name("EXPRESSION");
+export const EXPRESSION3 = OR().name(Token.EXPRESSION);
 export let EXPRESSION = OR();
 let VALUE3 = OR();
 
-export const OPENING_PARENTHESIS = ATOM("(").name("OPENING_PARENTHESIS");
-export const CLOSING_PARENTHESIS = ATOM(")").name("CLOSING_PARENTHESIS");
+export const OPENING_PARENTHESIS = ATOM("(").name(Token.OPENING_PARENTHESIS);
+export const CLOSING_PARENTHESIS = ATOM(")").name(Token.CLOSING_PARENTHESIS);
 
-export const OPENING_CURLY = ATOM("{").name("OPENING_CURLY");
-export const CLOSING_CURLY = ATOM("}").name("CLOSING_CURLY");
+export const OPENING_CURLY = ATOM("{").name(Token.OPENING_CURLY);
+export const CLOSING_CURLY = ATOM("}").name(Token.CLOSING_CURLY);
 
-export const OPENING_SQUARE_BRACKET = ATOM("[").name("OPENING_SQUARE_BRACKET");
-export const CLOSING_SQUARE_BRACKET = ATOM("]").name("CLOSING_SQUARE_BRACKET");
+export const OPENING_SQUARE_BRACKET = ATOM("[").name(
+  Token.OPENING_SQUARE_BRACKET
+);
+export const CLOSING_SQUARE_BRACKET = ATOM("]").name(
+  Token.CLOSING_SQUARE_BRACKET
+);
 
-export let VALUE2 = OR().name("VALUE");
+export let VALUE2 = OR().name(Token.VALUE);
 
 // export const ARITHMETIC_EXPRESSION = CONCAT(
 //   VALUE2,
@@ -40,7 +46,7 @@ export let VALUE2 = OR().name("VALUE");
 //   ARITHMETIC_OPERATORS,
 //   WHITESPACE,
 //   EXPRESSION
-// ).name("ARITHMETIC_EXPRESSION");
+// ).name(TOKEN.ARITHMETIC_EXPRESSION);
 
 // export const BITWISE_EXPRESSION = CONCAT(
 //   VALUE2,
@@ -48,7 +54,7 @@ export let VALUE2 = OR().name("VALUE");
 //   BITWISE_OPERATORS,
 //   WHITESPACE,
 //   EXPRESSION
-// ).name("BITWISE_EXPRESSION");
+// ).name(TOKEN.BITWISE_EXPRESSION);
 
 // export const LOGICAL_EXPRESSION = CONCAT(
 //   VALUE2,
@@ -56,7 +62,7 @@ export let VALUE2 = OR().name("VALUE");
 //   LOGICAL_BOOLEAN_OPERATORS,
 //   WHITESPACE,
 //   EXPRESSION
-// ).name("LOGICAL_EXPRESSION");
+// ).name(TOKEN.LOGICAL_EXPRESSION);
 
 // export const RELATIONAL_EXPRESSION = CONCAT(
 //   VALUE2,
@@ -64,24 +70,24 @@ export let VALUE2 = OR().name("VALUE");
 //   RELATIONAL_BOOLEAN_OPERATORS,
 //   WHITESPACE,
 //   EXPRESSION
-// ).name("RELATIONAL_EXPRESSION");
+// ).name(TOKEN.RELATIONAL_EXPRESSION);
 
 export const UNARY_EXPRESSION = OR(
   CONCAT(UNARY_PREFIX_OPERATOR, WHITESPACE, VALUE2),
   CONCAT(VALUE2, WHITESPACE, UNARY_SUFFIX_OPERATOR)
-).name("UNARY_EXPRESSION");
+).name(Token.UNARY_EXPRESSION);
 
 export const UNARY_PREFIX_EXPRESSION = CONCAT(
   UNARY_PREFIX_OPERATOR,
   WHITESPACE,
   VALUE2
-).name("UNARY_PREFIX_EXPRESSION");
+).name(Token.UNARY_PREFIX_EXPRESSION);
 
 export const UNARY_SUFFIX_EXPRESSION = CONCAT(
   VALUE2,
   WHITESPACE,
   UNARY_SUFFIX_OPERATOR
-).name("UNARY_SUFFIX_EXPRESSION");
+).name(Token.UNARY_SUFFIX_EXPRESSION);
 
 export const FUNCTION_CALL_EXPRESSION = CONCAT(
   VALUE,
@@ -91,11 +97,11 @@ export const FUNCTION_CALL_EXPRESSION = CONCAT(
     CONCAT(
       EXPRESSION,
       WHITESPACE,
-      ATOM(",").name("ARGUMENT_SEPARATOR"),
+      ATOM(",").name(Token.ARGUMENT_SEPARATOR),
       WHITESPACE
     )
-  ).name("REST_ARGUMENT"),
-  OPTIONAL(EXPRESSION).name("PARAMETER"),
+  ).name(Token.REST_ARGUMENT),
+  OPTIONAL(EXPRESSION).name(Token.PARAMETER),
   CLOSING_PARENTHESIS
 );
 
@@ -116,11 +122,11 @@ export const OBJECT_INSTANTIATION = CONCAT(
     CONCAT(
       EXPRESSION,
       WHITESPACE,
-      ATOM(",").name("ARGUMENT_SEPARATOR"),
+      ATOM(",").name(Token.ARGUMENT_SEPARATOR),
       WHITESPACE
     )
-  ).name("REST_ARGUMENT"),
-  OPTIONAL(EXPRESSION).name("PARAMETER"),
+  ).name(Token.REST_ARGUMENT),
+  OPTIONAL(EXPRESSION).name(Token.PARAMETER),
   CLOSING_PARENTHESIS
 );
 

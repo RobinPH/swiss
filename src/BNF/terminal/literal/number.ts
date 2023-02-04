@@ -1,5 +1,6 @@
 import { ATOM, CONCAT, OPTIONAL, OR, PLUS, STAR } from "../..";
 import { DIGIT, DIGIT_NONZERO } from "../digit";
+import { Token } from "../tokenType";
 
 export const NO_ZERO_PREFIX_INTEGER = OR(
   ATOM("0"),
@@ -7,22 +8,22 @@ export const NO_ZERO_PREFIX_INTEGER = OR(
 );
 
 export const EXPONENT_PART = CONCAT(
-  OR(ATOM("e"), ATOM("E")).name("SCIENTIFIC_EXPONENT_SYMBOL").token(),
-  OPTIONAL(ATOM("-").name("NEGATIVE_SYMBOL").token()),
+  OR(ATOM("e"), ATOM("E")).name(Token.SCIENTIFIC_EXPONENT_SYMBOL).token(),
+  OPTIONAL(ATOM("-").name(Token.NEGATIVE_SYMBOL).token()),
   NO_ZERO_PREFIX_INTEGER
-).name("EXPONENT_PART");
+).name(Token.EXPONENT_PART);
 
 export const FLOAT = CONCAT(
   NO_ZERO_PREFIX_INTEGER,
-  ATOM(".").name("DECIMAL_POINT"),
-  PLUS(DIGIT).name("FLOAT_FRACTIONAL_PART"),
+  ATOM(".").name(Token.DECIMAL_POINT),
+  PLUS(DIGIT).name(Token.FLOAT_FRACTIONAL_PART),
   OPTIONAL(EXPONENT_PART)
 )
-  .name("FLOAT_LITERAL")
+  .name(Token.FLOAT_LITERAL)
   .token();
 
 export const INTEGER = CONCAT(NO_ZERO_PREFIX_INTEGER, OPTIONAL(EXPONENT_PART))
-  .name("INTEGER_LITERAL")
+  .name(Token.INTEGER_LITERAL)
   .token();
 
-export const NUMBER = OR(FLOAT, INTEGER).name("NUMBER_LITERAL");
+export const NUMBER = OR(FLOAT, INTEGER).name(Token.NUMBER_LITERAL);

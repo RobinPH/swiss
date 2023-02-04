@@ -1,4 +1,5 @@
 import { ATOM, OR } from "..";
+import { Token } from "./tokenType";
 
 const specialCharacter = [
   "`",
@@ -35,16 +36,16 @@ const specialCharacter = [
   "?",
 ] as const;
 
-export const UNDERSCORE = ATOM("_").name("UNDERSCORE");
+export const UNDERSCORE = ATOM("_").name(Token.UNDERSCORE);
 
-export const SEMICOLON = ATOM(";").name("SEMICOLON");
+export const SEMICOLON = ATOM(";").name(Token.SEMICOLON);
 
-export const COLON = ATOM(":").name("COLON");
+export const COLON = ATOM(":").name(Token.COLON);
 
-export const COMMA = ATOM(",").name("COMMA");
+export const COMMA = ATOM(",").name(Token.COMMA);
 
 export const SPECIAL_CHARACTER = OR(
   ...specialCharacter.map((ch) => ATOM(ch).name(ch).hide())
 )
-  .name("SPECIAL_CHARACTER")
+  .name(Token.SPECIAL_CHARACTER)
   .token();

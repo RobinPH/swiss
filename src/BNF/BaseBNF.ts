@@ -1,3 +1,4 @@
+import { Memory } from "../SyntaxAnalyzer/Memory";
 import { Queue, Task } from "./Queue";
 
 export enum BNFType {
@@ -40,6 +41,7 @@ export type TestResult<
   status: TestResultStatus;
   isToken: boolean;
   isHidden: boolean;
+  memory?: Memory;
 };
 
 abstract class BaseBNF<

@@ -1,4 +1,5 @@
 import { ATOM, OR } from "..";
+import { Token } from "./tokenType";
 
 const lowercaseAlphabet = [
   "a",
@@ -59,11 +60,11 @@ const uppercaseAlphabet = [
 
 export const LOWERCASE_ALPHABET = OR(
   ...lowercaseAlphabet.map((ch) => ATOM(ch).name(ch).hide())
-).name("LOWERCASE_ALPHABET");
+).name(Token.LOWERCASE_ALPHABET);
 
 export const UPPERCASE_ALPHABET = OR(
   ...uppercaseAlphabet.map((ch) => ATOM(ch).name(ch).hide())
-).name("UPPERCASE_ALPHABET");
+).name(Token.UPPERCASE_ALPHABET);
 
 export const ALPHABET = OR(LOWERCASE_ALPHABET, UPPERCASE_ALPHABET).name(
   "ALPHABET"

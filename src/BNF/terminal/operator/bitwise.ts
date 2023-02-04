@@ -1,28 +1,29 @@
 import { ATOM, OR, WORD } from "../..";
+import { Token } from "../tokenType";
 
 //Bitwise Operators (&, |, ~, ^, <<, >>)
 export const AND_BITWISE_OPERATOR = ATOM("&")
-  .name("AND_BITWISE_OPERATOR")
+  .name(Token.AND_BITWISE_OPERATOR)
   .token();
 
 export const OR_BITWISE_OPERATOR = ATOM("|")
-  .name("OR_BITWISE_OPERATOR")
+  .name(Token.OR_BITWISE_OPERATOR)
   .token();
 
 export const NOT_BITWISE_OPERATOR = ATOM("~")
-  .name("NOT_BITWISE_OPERATOR")
+  .name(Token.NOT_BITWISE_OPERATOR)
   .token();
 
 export const XOR_BITWISE_OPERATOR = ATOM("^")
-  .name("XOR_BITWISE_OPERATOR")
+  .name(Token.XOR_BITWISE_OPERATOR)
   .token();
 
 export const LEFT_SHIFT_BITWISE_OPERATOR = WORD("<<")
-  .name("LEFT_SHIFT_BITWISE_OPERATOR")
+  .name(Token.LEFT_SHIFT_BITWISE_OPERATOR)
   .token();
 
 export const RIGHT_SHIFT_BITWISE_OPERATOR = WORD(">>")
-  .name("RIGHT_SHIFT_BITWISE_OPERATOR")
+  .name(Token.RIGHT_SHIFT_BITWISE_OPERATOR)
   .token();
 
 export const BITWISE_OPERATORS = OR(
@@ -32,4 +33,4 @@ export const BITWISE_OPERATORS = OR(
   XOR_BITWISE_OPERATOR,
   LEFT_SHIFT_BITWISE_OPERATOR,
   RIGHT_SHIFT_BITWISE_OPERATOR
-).name("BITWISE_OPERATORS");
+).name(Token.BITWISE_OPERATORS);

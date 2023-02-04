@@ -1,26 +1,33 @@
 import { ATOM, OR, WORD } from "../..";
+import { Token } from "../tokenType";
 import { ASSIGNMENT_OPERATOR } from "./assignment";
 
 //Arithmetic Operators (+, -, *, /, %, //, **)
-export const ADDITION_OPERATOR = ATOM("+").name("ADDITION_OPERATOR").token();
+export const ADDITION_OPERATOR = ATOM("+")
+  .name(Token.ADDITION_OPERATOR)
+  .token();
 
 export const SUBTRACTION_OPERATOR = ATOM("-")
-  .name("SUBTRACTION_OPERATOR")
+  .name(Token.SUBTRACTION_OPERATOR)
   .token();
 
 export const MULTIPLICATION_OPERATOR = ATOM("*")
-  .name("MULTIPLICATION_OPERATOR")
+  .name(Token.MULTIPLICATION_OPERATOR)
   .token();
 
-export const DIVISION_OPERATOR = ATOM("/").name("DIVISION_OPERATOR").token();
+export const DIVISION_OPERATOR = ATOM("/")
+  .name(Token.DIVISION_OPERATOR)
+  .token();
 
-export const MODULO_OPERATOR = ATOM("%").name("MODULO_OPERATOR").token();
+export const MODULO_OPERATOR = ATOM("%").name(Token.MODULO_OPERATOR).token();
 
 export const INTEGER_DIVISION_OPERATOR = WORD("//")
-  .name("INTEGER_DIVISION_OPERATOR")
+  .name(Token.INTEGER_DIVISION_OPERATOR)
   .token();
 
-export const EXPONENT_OPERATOR = WORD("**").name("EXPONENT_OPERATOR").token();
+export const EXPONENT_OPERATOR = WORD("**")
+  .name(Token.EXPONENT_OPERATOR)
+  .token();
 
 export const ARITHMETIC_OPERATORS = OR(
   ASSIGNMENT_OPERATOR,
@@ -31,4 +38,4 @@ export const ARITHMETIC_OPERATORS = OR(
   INTEGER_DIVISION_OPERATOR,
   DIVISION_OPERATOR,
   MODULO_OPERATOR
-).name("ARITHEMTIC_OPERATORS");
+).name(Token.ARITHEMTIC_OPERATORS);
