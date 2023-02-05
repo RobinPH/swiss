@@ -59,7 +59,11 @@ export class SyntaxAnalyzer {
         this.handleDeclarations(result);
         this.handleAssignments(result);
       } catch (e: any) {
-        errors.push(e);
+        if (Array.isArray(e)) {
+          errors.push(...e);
+        } else {
+          errors.push(e);
+        }
       }
 
       for (const child of result.children) {
@@ -277,18 +281,24 @@ export class SyntaxAnalyzer {
   }
 
   private handleExpression(result: TestResult<any, any[]>) {
+    const errors = new Array<MemoryError>();
+
     // @ts-ignore
     if (result.name === Token.EXPRESSION && !result.childExpression) {
       const identifiers = this.findTokens(result, Token.IDENTIFIER);
       for (const identifier of identifiers) {
         if (!result.memory?.hasData(identifier.input)) {
-          throw new MemoryError(
-            identifier.range,
-            `Variable "${identifier.input}" is not defined`
+          errors.push(
+            new MemoryError(
+              identifier.range,
+              `Variable "${identifier.input}" is not defined`
+            )
           );
         }
       }
     }
+
+    throw errors;
   }
 
   private getPrimitiveDataTypeClass(result: TestResult<any, any[]>) {
