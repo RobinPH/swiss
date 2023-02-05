@@ -1,3 +1,4 @@
+import { TestResult } from "../BNF/BaseBNF";
 import { BaseData } from "./data/BaseData";
 
 type MemoryJson = {
@@ -10,6 +11,13 @@ type MemoryJson = {
   >;
   children: MemoryJson[];
 };
+
+export class MemoryError {
+  constructor(
+    public readonly range: { from: number; to: number },
+    public readonly message: string
+  ) {}
+}
 
 export class Memory {
   parent?: Memory;
@@ -25,9 +33,12 @@ export class Memory {
     return child;
   }
 
-  registerData(data: BaseData<any>) {
+  registerData(data: BaseData<any>, testResult?: TestResult<any, any[]>) {
     if (this.data.has(data.identifier)) {
-      throw new Error(`Identifier "${data.identifier}" is already defined`);
+      throw new MemoryError(
+        testResult?.range ?? { from: 0, to: 0 },
+        `Identifier "${data.identifier}" is already defined`
+      );
     }
 
     this.data.set(data.identifier, data);

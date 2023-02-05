@@ -14,7 +14,7 @@ import { FloatData } from "./data/FloatData";
 import { IntegerData } from "./data/IntegerData";
 import { PrimitiveData } from "./data/PrimitiveData";
 import { StringData } from "./data/StringData";
-import { Memory } from "./Memory";
+import { Memory, MemoryError } from "./Memory";
 import { VariableData } from "./data/VariableData";
 import { FunctionParameterData } from "./data/FunctionParameterData";
 import { ClassTypeData } from "./data/ClassTypeData";
@@ -51,28 +51,19 @@ export class SyntaxAnalyzer {
 
     const scopedResult = this.modifyResult(this.#result!, memory);
 
-    const errors = new Array<{
-      range: {
-        from: number;
-        to: number;
-      };
-      message: string;
-    }>();
+    const errors = new Array<MemoryError>();
 
     const registerVariables = (result: TestResult<any, any[]>) => {
-      this.handleExpression(result);
-      this.handleDeclarations(result);
-      this.handleAssignments(result);
+      try {
+        this.handleExpression(result);
+        this.handleDeclarations(result);
+        this.handleAssignments(result);
+      } catch (e: any) {
+        errors.push(e);
+      }
 
       for (const child of result.children) {
-        try {
-          registerVariables(child);
-        } catch (e: any) {
-          errors.push({
-            range: result.range,
-            message: e.message,
-          });
-        }
+        registerVariables(child);
       }
     };
 
@@ -84,7 +75,14 @@ export class SyntaxAnalyzer {
         const line = this.getLineOfRange(error.range);
 
         console.log(`Error at Line ${lineNumber}: ${error.message}`);
-        console.log(`${lineNumber} |     ${line}`);
+        const prefix = `${lineNumber} |    `;
+        console.log(`${prefix}${line}`);
+        const length = error.range.to - error.range.from;
+        const offset = this.getLeftmostNewLineOffset(error.range);
+        const caret = "".padStart(length, "^");
+        const space = "".padStart(offset + prefix.length, " ");
+
+        console.log(`${space}${caret}`);
       }
 
       console.log("[!] Syntax Analyzer FAILED");
@@ -127,17 +125,22 @@ export class SyntaxAnalyzer {
         !expression &&
         result.name === Token.CONST_DECLARATION_STATEMENT
       ) {
-        throw new Error("Constant Variable declarations must be initialized");
+        throw new MemoryError(
+          result.range,
+          "Constant Variable declarations must be initialized"
+        );
       }
 
       if (isExpression || !value) {
-        result.memory?.registerData(
-          new AnyData({
-            identifier: identifier!.input,
-            rawValue: expression?.input,
-            nullable,
-          })
-        );
+        this.catchError(() => {
+          result.memory?.registerData(
+            new AnyData({
+              identifier: identifier!.input,
+              rawValue: expression?.input,
+              nullable,
+            })
+          );
+        }, expression!);
       } else {
         if (primitiveDataType) {
           // if (
@@ -157,15 +160,18 @@ export class SyntaxAnalyzer {
             this.getPrimitiveDataTypeClass(primitiveDataType);
 
           if (PrimitiveDataType) {
-            result.memory?.registerData(
-              new PrimitiveDataType({
-                identifier: identifier!.input,
-                rawValue: value?.input,
-                nullable,
-              })
-            );
+            this.catchError(() => {
+              result.memory?.registerData(
+                new PrimitiveDataType({
+                  identifier: identifier!.input,
+                  rawValue: value?.input,
+                  nullable,
+                })
+              );
+            }, value);
           } else {
-            throw new Error(
+            throw new MemoryError(
+              primitiveDataType.range,
               `Unknown Primitive Type "${primitiveDataType.input}"`
             );
           }
@@ -175,31 +181,41 @@ export class SyntaxAnalyzer {
           const clazz = result.memory?.getData(className);
 
           if (!clazz) {
-            throw new Error(`Class "${className}" is not defined`);
+            throw new MemoryError(
+              classDataType.range,
+              `Class "${className}" is not defined`
+            );
           } else {
             if (clazz.type !== DataType.CLASS) {
-              throw new Error(`Variable "${className}" is not a class`);
+              throw new MemoryError(
+                classDataType.range,
+                `Variable "${className}" is not a class`
+              );
             }
           }
 
-          result.memory?.registerData(
-            new ClassTypeData({
-              identifier: identifier!.input,
-              rawValue: "",
-              nullable,
-            })
-          );
+          this.catchError(() => {
+            result.memory?.registerData(
+              new ClassTypeData({
+                identifier: identifier!.input,
+                rawValue: "",
+                nullable,
+              })
+            );
+          }, identifier!);
         } else {
           const DataType =
             this.getPossiblePrimitiveType(value!.input) ?? AnyData;
 
-          result.memory?.registerData(
-            new DataType({
-              identifier: identifier!.input,
-              rawValue: value?.input ?? "",
-              nullable,
-            })
-          );
+          this.catchError(() => {
+            result.memory?.registerData(
+              new DataType({
+                identifier: identifier!.input,
+                rawValue: value?.input ?? "",
+                nullable,
+              })
+            );
+          }, identifier!);
         }
       }
     } else if (result.name === Token.FUNCTION_STATEMENT) {
@@ -209,39 +225,51 @@ export class SyntaxAnalyzer {
       const pRest = this.findTokens(restParameters, Token.IDENTIFIER);
       const params = [...pRest, ...p1].map((param) => {
         const id = this.findToken(param, Token.IDENTIFIER);
-        return new FunctionParameterData({
-          identifier: id!.input,
-        });
+        return {
+          data: new FunctionParameterData({
+            identifier: id!.input,
+          }),
+          id,
+        };
       });
 
-      result.memory?.registerData(
-        new FunctionData({
-          identifier: identifier!.input,
-          parameters: params,
-        })
-      );
+      this.catchError(() => {
+        result.memory?.registerData(
+          new FunctionData({
+            identifier: identifier!.input,
+            parameters: params.map(({ data }) => data),
+          })
+        );
+      }, identifier!);
 
       const codeBlock = this.findToken(result, Token.CODE_BLOCK)!;
 
-      for (const param of params) {
-        codeBlock.memory!.registerData(param);
+      for (const { data, id } of params) {
+        this.catchError(() => {
+          codeBlock.memory!.registerData(data);
+        }, id!);
       }
     } else if (result.name === Token.CLASS_DECLARATION) {
-      result.memory?.registerData(
-        new ClassData({
-          identifier: identifier!.input,
-        })
-      );
+      this.catchError(() => {
+        result.memory?.registerData(
+          new ClassData({
+            identifier: identifier!.input,
+          })
+        );
+      }, identifier!);
     }
   }
 
   private handleAssignments(result: TestResult<any, any[]>) {
     switch (result.name) {
       case Token.ASSIGNMENT_STATEMENT:
-        const identifier = this.findToken(result, Token.IDENTIFIER)!.input;
+        const identifier = this.findToken(result, Token.IDENTIFIER)!;
 
-        if (!result.memory!.hasData(identifier, true)) {
-          throw new Error(`Identifier "${identifier}" is not defined`);
+        if (!result.memory!.hasData(identifier.input, true)) {
+          throw new MemoryError(
+            identifier.range,
+            `Identifier "${identifier.input}" is not defined`
+          );
         }
 
         break;
@@ -254,7 +282,10 @@ export class SyntaxAnalyzer {
       const identifiers = this.findTokens(result, Token.IDENTIFIER);
       for (const identifier of identifiers) {
         if (!result.memory?.hasData(identifier.input)) {
-          throw new Error(`Variable "${identifier.input}" is not defined`);
+          throw new MemoryError(
+            identifier.range,
+            `Variable "${identifier.input}" is not defined`
+          );
         }
       }
     }
@@ -437,5 +468,29 @@ export class SyntaxAnalyzer {
     }
 
     return this.#input.slice(lineStart, lineEnd);
+  }
+
+  private getLeftmostNewLineOffset(range: { from: number; to: number }) {
+    if (!this.#input) {
+      return 0;
+    }
+
+    let lineStart = 0;
+
+    for (let i = 0; i < range.from && i < this.#input.length; i++) {
+      if (this.#input[i] === "\n") {
+        lineStart = i + 1;
+      }
+    }
+
+    return range.from - lineStart;
+  }
+
+  private catchError(func: () => void, result: TestResult<any, any[]>) {
+    try {
+      func();
+    } catch (e: any) {
+      throw new MemoryError(result.range, e.message);
+    }
   }
 }
