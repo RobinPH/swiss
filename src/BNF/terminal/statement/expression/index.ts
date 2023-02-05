@@ -22,7 +22,7 @@ import {
 } from "../../whitespace";
 
 export const EXPRESSION3 = OR().name(Token.EXPRESSION);
-export let EXPRESSION = OR();
+export let EXPRESSION = OR().name(Token.EXPRESSION);
 let VALUE3 = OR();
 
 export const OPENING_PARENTHESIS = ATOM("(").name(Token.OPENING_PARENTHESIS);
@@ -156,6 +156,7 @@ VALUE3 = VALUE3.OR(
   )
 );
 
+// @ts-ignore
 EXPRESSION = EXPRESSION.OR(
   CONCAT(VALUE3, STAR(CONCAT(WHITESPACE, OPERATORS, WHITESPACE, EXPRESSION))),
   CONCAT(

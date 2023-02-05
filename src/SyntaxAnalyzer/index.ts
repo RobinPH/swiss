@@ -49,7 +49,7 @@ export class SyntaxAnalyzer {
 
     const memory = new Memory();
 
-    const scopedResult = this.scopify(this.#result!, memory);
+    const scopedResult = this.modifyResult(this.#result!, memory);
 
     const errors = new Array<{
       range: {
@@ -60,6 +60,7 @@ export class SyntaxAnalyzer {
     }>();
 
     const registerVariables = (result: TestResult<any, any[]>) => {
+      this.handleExpression(result);
       this.handleDeclarations(result);
       this.handleAssignments(result);
 
@@ -114,72 +115,89 @@ export class SyntaxAnalyzer {
         Token.DATATYPE_SPECIFIER
       );
 
-      var value = this.findToken(result, Token.VALUE);
+      const value = this.findToken(result, Token.VALUE);
 
-      if (!value && result.name === Token.CONST_DECLARATION_STATEMENT) {
+      const expression = this.findToken(result, Token.EXPRESSION);
+
+      if (
+        !value &&
+        !expression &&
+        result.name === Token.CONST_DECLARATION_STATEMENT
+      ) {
         throw new Error("Constant Variable declarations must be initialized");
       }
 
-      if (primitiveDataType) {
-        // if (
-        //   this.findToken(primitiveDataType, Token.STRING_DATA_TYPE_KEYWORD) ||
-        //   this.findToken(primitiveDataType, Token.CHARACTER_DATA_TYPE_KEYWORD)
-        // ) {
-        //   if (value) {
-        //     const stringContent = this.findToken(value, Token.STRING_CONTENT);
-
-        //     if (stringContent) {
-        //       value = stringContent;
-        //     }
-        //   }
-        // }
-
-        const PrimitiveDataType =
-          this.getPrimitiveDataTypeClass(primitiveDataType);
-
-        if (PrimitiveDataType) {
-          result.memory?.registerData(
-            new PrimitiveDataType({
-              identifier: identifier!.input,
-              rawValue: value?.input,
-              nullable,
-            })
-          );
-        } else {
-          throw new Error(
-            `Unknown Primitive Type "${primitiveDataType.input}"`
-          );
-        }
-      } else if (classDataType) {
-        const className = classDataType!.input;
-
-        const clazz = result.memory?.getData(className);
-
-        if (!clazz) {
-          throw new Error(`Class "${className}" is not defined`);
-        } else {
-          if (clazz.type !== DataType.CLASS) {
-            throw new Error(`Variable "${className}" is not a class`);
-          }
-        }
-
+      if (expression) {
         result.memory?.registerData(
-          new ClassTypeData({
+          new AnyData({
             identifier: identifier!.input,
-            rawValue: "",
+            rawValue: expression.input,
             nullable,
           })
         );
       } else {
-        const DataType = this.getPossiblePrimitiveType(value!.input) ?? AnyData;
+        if (primitiveDataType) {
+          // if (
+          //   this.findToken(primitiveDataType, Token.STRING_DATA_TYPE_KEYWORD) ||
+          //   this.findToken(primitiveDataType, Token.CHARACTER_DATA_TYPE_KEYWORD)
+          // ) {
+          //   if (value) {
+          //     const stringContent = this.findToken(value, Token.STRING_CONTENT);
 
-        result.memory?.registerData(
-          new DataType({
-            identifier: identifier!.input,
-            rawValue: value?.input ?? "",
-            nullable,
-          })
-        );
+          //     if (stringContent) {
+          //       value = stringContent;
+          //     }
+          //   }
+          // }
+
+          const PrimitiveDataType =
+            this.getPrimitiveDataTypeClass(primitiveDataType);
+
+          if (PrimitiveDataType) {
+            result.memory?.registerData(
+              new PrimitiveDataType({
+                identifier: identifier!.input,
+                rawValue: value?.input,
+                nullable,
+              })
+            );
+          } else {
+            throw new Error(
+              `Unknown Primitive Type "${primitiveDataType.input}"`
+            );
+          }
+        } else if (classDataType) {
+          const className = classDataType!.input;
+
+          const clazz = result.memory?.getData(className);
+
+          if (!clazz) {
+            throw new Error(`Class "${className}" is not defined`);
+          } else {
+            if (clazz.type !== DataType.CLASS) {
+              throw new Error(`Variable "${className}" is not a class`);
+            }
+          }
+
+          result.memory?.registerData(
+            new ClassTypeData({
+              identifier: identifier!.input,
+              rawValue: "",
+              nullable,
+            })
+          );
+        } else {
+          const DataType =
+            this.getPossiblePrimitiveType(value!.input) ?? AnyData;
+
+          result.memory?.registerData(
+            new DataType({
+              identifier: identifier!.input,
+              rawValue: value?.input ?? "",
+              nullable,
+            })
+          );
+        }
       }
     } else if (result.name === Token.FUNCTION_STATEMENT) {
       const parameter = this.findToken(result, Token.PARAMETER)!;
@@ -227,6 +245,18 @@ export class SyntaxAnalyzer {
     }
   }
 
+  private handleExpression(result: TestResult<any, any[]>) {
+    // @ts-ignore
+    if (result.name === Token.EXPRESSION && !result.childExpression) {
+      const identifiers = this.findTokens(result, Token.IDENTIFIER);
+      for (const identifier of identifiers) {
+        if (!result.memory?.hasData(identifier.input)) {
+          throw new Error(`Variable "${identifier.input}" is not defined`);
+        }
+      }
+    }
+  }
+
   private getPrimitiveDataTypeClass(result: TestResult<any, any[]>) {
     if (this.findToken(result, Token.INTEGER_DATA_TYPE_KEYWORD)) {
       return IntegerData;
@@ -257,15 +287,28 @@ export class SyntaxAnalyzer {
     }
   }
 
-  private scopify(result: TestResult<any, any[]>, memory: Memory) {
+  private modifyResult(result: TestResult<any, any[]>, memory: Memory) {
     result.memory = memory;
+    // @ts-ignore
+    result.childExpression ??= false;
+
+    // if (result.name === Token.EXPRESSION) {
+    //   console.log(this.findToken(result, Token.IDENTIFIER));
+    // }
 
     for (const child of result.children) {
-      if (child.name === Token.CODE_BLOCK) {
-        this.scopify(child, memory.newChild());
+      if (result.name === Token.EXPRESSION) {
+        // @ts-ignore
+        child.childExpression = true;
       } else {
-        this.scopify(child, memory);
+        // @ts-ignore
+        child.childExpression = result.childExpression;
       }
+
+      if (child.name === Token.CODE_BLOCK) {
+        this.modifyResult(child, memory.newChild());
+      }
+      this.modifyResult(child, memory);
     }
 
     return result;
