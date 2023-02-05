@@ -18,7 +18,7 @@ const main = async () => {
     return;
   }
 
-  await testInput(SWISS, filepath);
+  await testInput(filepath);
 };
 
 main();

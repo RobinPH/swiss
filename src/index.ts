@@ -8,22 +8,7 @@ import { SyntaxAnalyzer } from "./SyntaxAnalyzer";
 const main = async () => {
   const filepath = "./code/syntax_analyzer.sw";
 
-  // const bnf = SWISS;
-  // const res = await testInput(bnf, filepath);
-
-  // console.log(res);
-
-  const syntaxAnalyzer = new SyntaxAnalyzer(filepath);
-  await syntaxAnalyzer.run();
-
-  // toText("index.txt", res);
-
-  // vizualizeParseTree(res.task.children[0]);
-
-  // for (const b of [bnf]) {
-  //   console.log(b.toDeclaration());
-  // }
-  // vizualize("res", bnf);
+  const res = await testInput(filepath);
 };
 
 main();

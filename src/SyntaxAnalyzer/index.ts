@@ -1,10 +1,7 @@
 import { TestResult } from "../BNF/BaseBNF";
 import { toText } from "../BNF/formatter";
 import { getTextFromInput } from "../BNF/formatter/utility";
-import { FUNCTION_STATEMENT, SWISS } from "../BNF/terminal/statement";
 import { Token } from "../BNF/terminal/tokenType";
-import { testInput } from "../cli/utility";
-import { BaseData } from "./data/BaseData";
 import { ClassData } from "./data/ClassData";
 import { FunctionData } from "./data/FunctionData";
 import { AnyData } from "./data/AnyData";
@@ -12,13 +9,12 @@ import { BooleanData } from "./data/BooleanData";
 import { CharacterData } from "./data/CharacterData";
 import { FloatData } from "./data/FloatData";
 import { IntegerData } from "./data/IntegerData";
-import { PrimitiveData } from "./data/PrimitiveData";
 import { StringData } from "./data/StringData";
 import { Memory, MemoryError } from "./Memory";
-import { VariableData } from "./data/VariableData";
 import { FunctionParameterData } from "./data/FunctionParameterData";
 import { ClassTypeData } from "./data/ClassTypeData";
 import { DataType } from "./data/types";
+import { LexicalAnalyzer } from "../LexicalAnalyzer";
 
 export class SyntaxAnalyzer {
   readonly filepath: string;
@@ -31,7 +27,8 @@ export class SyntaxAnalyzer {
   }
 
   private async runLexicalAnalyzer() {
-    const rawResult = await testInput(SWISS, this.filepath);
+    const lexicalAnalyer = new LexicalAnalyzer(this.filepath);
+    const rawResult = await lexicalAnalyer.run();
 
     this.#rawResult = rawResult;
 
@@ -95,7 +92,7 @@ export class SyntaxAnalyzer {
       console.log("[✓] Syntax Analyzer SUCCESS");
     }
 
-    // console.log(JSON.stringify(memory.toJSON(), null, 2));
+    return memory;
   }
 
   private handleDeclarations(result: TestResult<any, any[]>) {
