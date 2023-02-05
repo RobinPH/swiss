@@ -15,7 +15,7 @@ export class FloatData extends PrimitiveData<PrimitiveDataType.FLOAT, number> {
   }
 
   static isValidValue(rawValue: string) {
-    return Number.isInteger(rawValue);
+    return parseFloat(rawValue) % 1 !== 0;
   }
 
   _parseValue(rawValue: string): number {

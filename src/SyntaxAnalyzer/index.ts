@@ -186,29 +186,24 @@ export class SyntaxAnalyzer {
       const restParameters = this.findToken(result, Token.REST_PARAMETER)!;
       const p1 = this.findTokens(parameter, Token.IDENTIFIER);
       const pRest = this.findTokens(restParameters, Token.IDENTIFIER);
-      const params = [...pRest, ...p1];
+      const params = [...pRest, ...p1].map((param) => {
+        const id = this.findToken(param, Token.IDENTIFIER);
+        return new FunctionParameterData({
+          identifier: id!.input,
+        });
+      });
 
       result.memory?.registerData(
         new FunctionData({
           identifier: identifier!.input,
-          parameters: params.map((param) => {
-            const id = this.findToken(param, Token.IDENTIFIER);
-            return new FunctionParameterData({
-              identifier: id!.input,
-            });
-          }),
+          parameters: params,
         })
       );
 
       const codeBlock = this.findToken(result, Token.CODE_BLOCK)!;
 
       for (const param of params) {
-        codeBlock.memory!.registerData(
-          new StringData({
-            identifier: param.input,
-            rawValue: "",
-          })
-        );
+        codeBlock.memory!.registerData(param);
       }
     } else if (result.name === Token.CLASS_DECLARATION) {
       result.memory?.registerData(
