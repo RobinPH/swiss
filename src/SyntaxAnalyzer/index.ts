@@ -127,11 +127,11 @@ export class SyntaxAnalyzer {
         throw new Error("Constant Variable declarations must be initialized");
       }
 
-      if (expression) {
+      if (!value) {
         result.memory?.registerData(
           new AnyData({
             identifier: identifier!.input,
-            rawValue: expression.input,
+            rawValue: expression?.input,
             nullable,
           })
         );
