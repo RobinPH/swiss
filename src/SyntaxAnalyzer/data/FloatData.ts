@@ -1,12 +1,24 @@
-import { BaseData } from "./BaseData";
-import { DATA_TYPES } from "./types";
+import { PrimitiveData } from "./PrimitiveData";
+import { PrimitiveDataType } from "./types";
 
-export class FlaotData extends BaseData<number> {
-  constructor(identifier: string, rawValue: string) {
-    super(DATA_TYPES.FLOAT, identifier, rawValue);
+export class FloatData extends PrimitiveData<PrimitiveDataType.FLOAT, number> {
+  constructor(
+    metadata: ConstructorParameters<
+      typeof PrimitiveData<PrimitiveDataType.FLOAT, number>
+    >[1]
+  ) {
+    super(PrimitiveDataType.FLOAT, metadata);
   }
 
-  parseValue(rawValue: string): number {
+  isValidValue(rawValue: string): boolean {
+    return FloatData.isValidValue(rawValue);
+  }
+
+  static isValidValue(rawValue: string) {
+    return Number.isInteger(rawValue);
+  }
+
+  _parseValue(rawValue: string): number {
     return parseFloat(rawValue);
   }
 }

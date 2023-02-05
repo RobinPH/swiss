@@ -1,31 +1,32 @@
-export abstract class BaseData<Value> {
-  readonly type: string;
-  readonly rawValue: string;
-  readonly identifier: string;
-  #value?: Value;
+export type DataMetadata = {
+  type: string;
+  identifier: string;
+};
 
-  abstract parseValue(rawValue: string): Value;
+export abstract class BaseData<Metadata extends {} = {}> {
+  #metadata: DataMetadata & Metadata;
 
-  constructor(type: string, identifier: string, rawValue: string) {
-    this.type = type;
-    this.identifier = identifier;
-    this.rawValue = rawValue;
+  constructor(metadata: DataMetadata & Metadata) {
+    this.#metadata = metadata;
   }
 
-  get value() {
-    if (this.#value) {
-      return this.#value;
-    }
+  get metadata() {
+    return this.#metadata;
+  }
 
-    const value = this.parseValue(this.rawValue);
+  get type() {
+    return this.metadata.type;
+  }
 
-    return (this.#value = value);
+  get identifier() {
+    return this.metadata.identifier;
   }
 
   toJSON() {
     return {
       type: this.type,
       identifier: this.identifier,
+      metadata: this.#metadata,
     };
   }
 }

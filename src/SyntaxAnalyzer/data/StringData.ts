@@ -1,12 +1,29 @@
-import { BaseData } from "./BaseData";
-import { DATA_TYPES } from "./types";
+import { PrimitiveData } from "./PrimitiveData";
+import { PrimitiveDataType } from "./types";
 
-export class StringData extends BaseData<string> {
-  constructor(identifier: string, rawValue: string) {
-    super(DATA_TYPES.STRING, identifier, rawValue);
+export class StringData extends PrimitiveData<
+  PrimitiveDataType.STRING,
+  string
+> {
+  constructor(
+    metadata: ConstructorParameters<
+      typeof PrimitiveData<PrimitiveDataType.STRING, string>
+    >[1]
+  ) {
+    super(PrimitiveDataType.STRING, metadata);
   }
 
-  parseValue(rawValue: string): string {
-    return rawValue;
+  isValidValue(rawValue: string): boolean {
+    return StringData.isValidValue(rawValue);
+  }
+
+  static isValidValue(rawValue: string) {
+    return (
+      /".*"/.test(rawValue) || /'.*'/.test(rawValue) || /`.*`/.test(rawValue)
+    );
+  }
+
+  _parseValue(rawValue: string): string {
+    return rawValue.slice(1, rawValue.length);
   }
 }

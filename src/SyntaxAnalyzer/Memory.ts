@@ -54,6 +54,18 @@ export class Memory {
     return has;
   }
 
+  getData(identifier: string): BaseData<any> | undefined {
+    let cur: Memory | undefined = this;
+
+    while (cur) {
+      if (cur.data.has(identifier)) {
+        return cur.data.get(identifier);
+      }
+
+      cur = cur.parent;
+    }
+  }
+
   toJSON(): MemoryJson {
     const data = {} as Record<
       string,

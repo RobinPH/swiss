@@ -1,18 +1,16 @@
-import { BaseData } from "./BaseData";
-import { DATA_TYPES } from "./types";
+import { BaseData, DataMetadata } from "./BaseData";
+import { FunctionParameterData } from "./FunctionParameterData";
+import { DataType } from "./types";
 
-type FunctionValue = {
-  parameters: string[];
+type FunctionMetadata = {
+  parameters: FunctionParameterData[];
 };
 
-export class FunctionData extends BaseData<FunctionValue> {
-  constructor(identifier: string, rawValue: string) {
-    super(DATA_TYPES.FUNCTION, identifier, rawValue);
-  }
-
-  parseValue(rawValue: string): FunctionValue {
-    return {
-      parameters: [],
-    };
+export class FunctionData extends BaseData<FunctionMetadata> {
+  constructor(metadata: Omit<DataMetadata & FunctionMetadata, "type">) {
+    super({
+      ...metadata,
+      type: DataType.FUNCTION,
+    });
   }
 }

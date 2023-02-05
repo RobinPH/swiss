@@ -4,10 +4,21 @@ import { getTextFromInput } from "../BNF/formatter/utility";
 import { FUNCTION_STATEMENT, SWISS } from "../BNF/terminal/statement";
 import { Token } from "../BNF/terminal/tokenType";
 import { testInput } from "../cli/utility";
+import { BaseData } from "./data/BaseData";
 import { ClassData } from "./data/ClassData";
 import { FunctionData } from "./data/FunctionData";
+import { AnyData } from "./data/AnyData";
+import { BooleanData } from "./data/BooleanData";
+import { CharacterData } from "./data/CharacterData";
+import { FloatData } from "./data/FloatData";
+import { IntegerData } from "./data/IntegerData";
+import { PrimitiveData } from "./data/PrimitiveData";
 import { StringData } from "./data/StringData";
 import { Memory } from "./Memory";
+import { VariableData } from "./data/VariableData";
+import { FunctionParameterData } from "./data/FunctionParameterData";
+import { ClassTypeData } from "./data/ClassTypeData";
+import { DataType } from "./data/types";
 
 export class SyntaxAnalyzer {
   readonly filepath: string;
@@ -85,45 +96,126 @@ export class SyntaxAnalyzer {
   }
 
   private handleDeclarations(result: TestResult<any, any[]>) {
-    switch (result.name) {
-      case Token.LET_DECLARATION_STATEMENT:
-        result.memory?.registerData(
-          new StringData(
-            this.findToken(result, Token.IDENTIFIER)!.input,
-            this.findToken(result, Token.VALUE)?.input ?? ""
-          )
-        );
-        break;
-      case Token.CONST_DECLARATION_STATEMENT:
-        result.memory?.registerData(
-          new StringData(
-            this.findToken(result, Token.CONST_IDENTIFIER)!.input,
-            this.findToken(result, Token.VALUE)!.input
-          )
-        );
-        break;
-      case Token.FUNCTION_STATEMENT:
-        const parameter = this.findToken(result, Token.PARAMETER)!;
-        const restParameters = this.findToken(result, Token.REST_PARAMETER)!;
-        const p1 = this.findTokens(parameter, Token.IDENTIFIER);
-        const pRest = this.findTokens(restParameters, Token.IDENTIFIER);
-        const params = [...pRest, ...p1];
+    var identifier = this.findToken(result, Token.IDENTIFIER);
 
-        result.memory?.registerData(
-          new FunctionData(this.findToken(result, Token.IDENTIFIER)!.input, "")
-        );
+    if (
+      result.name === Token.LET_DECLARATION_STATEMENT ||
+      result.name === Token.CONST_DECLARATION_STATEMENT
+    ) {
+      const nullable = result.name === Token.CONST_DECLARATION_STATEMENT;
 
-        const codeBlock = this.findToken(result, Token.CODE_BLOCK)!;
+      if (result.name === Token.CONST_DECLARATION_STATEMENT) {
+        var identifier = this.findToken(result, Token.CONST_IDENTIFIER);
+      }
 
-        for (const param of params) {
-          codeBlock.memory!.registerData(new StringData(param.input, ""));
+      const classDataType = this.findToken(result, Token.DATA_TYPE);
+      const primitiveDataType = this.findToken(
+        result,
+        Token.DATATYPE_SPECIFIER
+      );
+
+      var value = this.findToken(result, Token.VALUE);
+
+      if (!value && result.name === Token.CONST_DECLARATION_STATEMENT) {
+        throw new Error("Constant Variable declarations must be initialized");
+      }
+
+      if (primitiveDataType) {
+        // if (
+        //   this.findToken(primitiveDataType, Token.STRING_DATA_TYPE_KEYWORD) ||
+        //   this.findToken(primitiveDataType, Token.CHARACTER_DATA_TYPE_KEYWORD)
+        // ) {
+        //   if (value) {
+        //     const stringContent = this.findToken(value, Token.STRING_CONTENT);
+
+        //     if (stringContent) {
+        //       value = stringContent;
+        //     }
+        //   }
+        // }
+
+        const PrimitiveDataType =
+          this.getPrimitiveDataTypeClass(primitiveDataType);
+
+        if (PrimitiveDataType) {
+          result.memory?.registerData(
+            new PrimitiveDataType({
+              identifier: identifier!.input,
+              rawValue: value?.input,
+              nullable,
+            })
+          );
+        } else {
+          throw new Error(
+            `Unknown Primitive Type "${primitiveDataType.input}"`
+          );
         }
-        break;
-      case Token.CLASS_DECLARATION:
+      } else if (classDataType) {
+        const className = classDataType!.input;
+
+        const clazz = result.memory?.getData(className);
+
+        if (!clazz) {
+          throw new Error(`Class "${className}" is not defined`);
+        } else {
+          if (clazz.type !== DataType.CLASS) {
+            throw new Error(`Variable "${className}" is not a class`);
+          }
+        }
+
         result.memory?.registerData(
-          new ClassData(this.findToken(result, Token.IDENTIFIER)!.input, "")
+          new ClassTypeData({
+            identifier: identifier!.input,
+            rawValue: "",
+            nullable,
+          })
         );
-        break;
+      } else {
+        const DataType = this.getPossiblePrimitiveType(value!.input) ?? AnyData;
+
+        result.memory?.registerData(
+          new DataType({
+            identifier: identifier!.input,
+            rawValue: value?.input ?? "",
+            nullable,
+          })
+        );
+      }
+    } else if (result.name === Token.FUNCTION_STATEMENT) {
+      const parameter = this.findToken(result, Token.PARAMETER)!;
+      const restParameters = this.findToken(result, Token.REST_PARAMETER)!;
+      const p1 = this.findTokens(parameter, Token.IDENTIFIER);
+      const pRest = this.findTokens(restParameters, Token.IDENTIFIER);
+      const params = [...pRest, ...p1];
+
+      result.memory?.registerData(
+        new FunctionData({
+          identifier: identifier!.input,
+          parameters: params.map((param) => {
+            const id = this.findToken(param, Token.IDENTIFIER);
+            return new FunctionParameterData({
+              identifier: id!.input,
+            });
+          }),
+        })
+      );
+
+      const codeBlock = this.findToken(result, Token.CODE_BLOCK)!;
+
+      for (const param of params) {
+        codeBlock.memory!.registerData(
+          new StringData({
+            identifier: param.input,
+            rawValue: "",
+          })
+        );
+      }
+    } else if (result.name === Token.CLASS_DECLARATION) {
+      result.memory?.registerData(
+        new ClassData({
+          identifier: identifier!.input,
+        })
+      );
     }
   }
 
@@ -137,6 +229,36 @@ export class SyntaxAnalyzer {
         }
 
         break;
+    }
+  }
+
+  private getPrimitiveDataTypeClass(result: TestResult<any, any[]>) {
+    if (this.findToken(result, Token.INTEGER_DATA_TYPE_KEYWORD)) {
+      return IntegerData;
+    } else if (this.findToken(result, Token.FLOAT_DATA_TYPE_KEYWORD)) {
+      return FloatData;
+    } else if (this.findToken(result, Token.STRING_DATA_TYPE_KEYWORD)) {
+      return StringData;
+    } else if (this.findToken(result, Token.CHARACTER_DATA_TYPE_KEYWORD)) {
+      return CharacterData;
+    } else if (this.findToken(result, Token.BOOLEAN_DATA_TYPE_KEYWORD)) {
+      return BooleanData;
+    }
+  }
+
+  private getPossiblePrimitiveType(rawValue: string) {
+    const primitiveDataTypes = [
+      IntegerData,
+      FloatData,
+      StringData,
+      CharacterData,
+      BooleanData,
+    ];
+
+    for (const primitiveDataType of primitiveDataTypes) {
+      if (primitiveDataType.isValidValue(rawValue)) {
+        return primitiveDataType;
+      }
     }
   }
 
@@ -231,7 +353,7 @@ export class SyntaxAnalyzer {
 
     let lineNumber = 0;
 
-    for (let i = 0; i < range.to && i < this.#input.length; i++) {
+    for (let i = 0; i < range.from && i < this.#input.length; i++) {
       if (this.#input[i] === "\n") {
         lineNumber++;
       }
@@ -248,13 +370,13 @@ export class SyntaxAnalyzer {
     let lineStart = 0;
     let lineEnd = 0;
 
-    for (let i = 0; i < range.to && i < this.#input.length; i++) {
+    for (let i = 0; i < range.from && i < this.#input.length; i++) {
       if (this.#input[i] === "\n") {
         lineStart = i + 1;
       }
     }
 
-    for (let i = range.to; i < this.#input.length; i++) {
+    for (let i = lineStart; i < this.#input.length; i++) {
       lineEnd = i;
 
       if (this.#input[i] === "\n") {

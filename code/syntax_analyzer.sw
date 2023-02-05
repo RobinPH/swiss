@@ -1,16 +1,12 @@
-let x = 1;
-x += 1;
-let d = 1;
+const a;                # ERROR
+let c = 1;
+const c = 2;            # ERROR
+let int d = 3;        
+let string e = 4;       # ERROR
+let char f = 'ab';      # ERROR
+let bool g = true;
+h += 1;                 # ERROR
 
-function a(x, y, z) {
-  x++;
-  y += 1;
-  let c = 1;
-  c += 1;
-  d += 1;
-
-  function a() {
-    y += 1;
-  }
-}
-
+class MyClass {}
+let MyClass i;
+let YourClass j;        # ERROR
