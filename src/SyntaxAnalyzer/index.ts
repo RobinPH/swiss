@@ -103,7 +103,7 @@ export class SyntaxAnalyzer {
       result.name === Token.LET_DECLARATION_STATEMENT ||
       result.name === Token.CONST_DECLARATION_STATEMENT
     ) {
-      const nullable = result.name === Token.CONST_DECLARATION_STATEMENT;
+      const nullable = result.name !== Token.CONST_DECLARATION_STATEMENT;
 
       if (result.name === Token.CONST_DECLARATION_STATEMENT) {
         var identifier = this.findToken(result, Token.CONST_IDENTIFIER);
@@ -118,6 +118,9 @@ export class SyntaxAnalyzer {
       const value = this.findToken(result, Token.VALUE);
 
       const expression = this.findToken(result, Token.EXPRESSION);
+      const isExpression =
+        expression &&
+        this.findTokens(result, Token.EXPRESSION, true).length > 1;
 
       if (
         !value &&
@@ -127,7 +130,7 @@ export class SyntaxAnalyzer {
         throw new Error("Constant Variable declarations must be initialized");
       }
 
-      if (!value) {
+      if (isExpression || !value) {
         result.memory?.registerData(
           new AnyData({
             identifier: identifier!.input,
@@ -338,22 +341,33 @@ export class SyntaxAnalyzer {
 
   private findTokens<T extends TestResult<any, any[]> & { input: string }>(
     result: TestResult<any, any[]>,
-    token: Token
+    token: Token,
+    deep = false
   ): Array<T> {
     const results = new Array<T>();
 
     if (result.name === token) {
-      return [
-        {
-          ...result,
-          input: getTextFromInput(this.#input!, result.range),
-        } as T,
-      ];
+      if (deep) {
+        // @ts-ignore
+        results.push([
+          {
+            ...result,
+            input: getTextFromInput(this.#input!, result.range),
+          } as T,
+        ]);
+      } else {
+        return [
+          {
+            ...result,
+            input: getTextFromInput(this.#input!, result.range),
+          } as T,
+        ];
+      }
     }
 
     for (const child of result.children) {
       // @ts-ignore
-      results.push(...this.findTokens(child, token));
+      results.push(...this.findTokens(child, token, deep));
     }
 
     return results;
