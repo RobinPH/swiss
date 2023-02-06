@@ -37,7 +37,7 @@ export class Memory {
     if (this.data.has(data.identifier)) {
       throw new MemoryError(
         testResult?.range ?? { from: 0, to: 0 },
-        `Identifier "${data.identifier}" is already defined`
+        `Variable "${data.identifier}" is already defined`
       );
     }
 

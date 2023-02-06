@@ -39,22 +39,24 @@ export class SyntaxAnalyzer {
       // this.#result = SyntaxAnalyzer.cleanResult(rawResult);
       this.#result = rawResult;
     }
+
+    return !!rawResult;
   }
 
   async run() {
-    await this.runLexicalAnalyzer();
+    const isLexicalSuccess = await this.runLexicalAnalyzer();
 
     const memory = new Memory();
+
+    if (!isLexicalSuccess) {
+      return memory;
+    }
 
     const scopedResult = this.modifyResult(this.#result!, memory);
 
     const errors = new Array<MemoryError>();
 
     const registerVariables = (result: TestResult<any, any[]>) => {
-      for (const child of result.children) {
-        registerVariables(child);
-      }
-
       try {
         this.handleExpression(result);
         this.handleAssignments(result);
@@ -65,6 +67,10 @@ export class SyntaxAnalyzer {
         } else {
           errors.push(e);
         }
+      }
+
+      for (const child of result.children) {
+        registerVariables(child);
       }
     };
 
@@ -110,6 +116,8 @@ export class SyntaxAnalyzer {
     } else {
       console.log("[✓] Syntax Analyzer SUCCESS");
     }
+
+    // console.log(JSON.stringify(memory.toJSON(), null, 2));
 
     return memory;
   }
@@ -264,6 +272,8 @@ export class SyntaxAnalyzer {
 
       const codeBlock = this.findToken(result, Token.CODE_BLOCK)!;
 
+      // console.log(codeBlock, result);
+
       for (const { data, id } of params) {
         this.catchError(() => {
           codeBlock.memory!.registerData(data);
@@ -303,7 +313,7 @@ export class SyntaxAnalyzer {
     if (result.name === Token.EXPRESSION && !result.childExpression) {
       const identifiers = this.findTokens(result, Token.IDENTIFIER);
       for (const identifier of identifiers) {
-        if (!result.memory?.hasData(identifier.input)) {
+        if (!result.memory?.hasData(identifier.input, true)) {
           errors.push(
             new MemoryError(
               identifier.range,
@@ -369,8 +379,9 @@ export class SyntaxAnalyzer {
 
       if (child.name === Token.CODE_BLOCK) {
         this.modifyResult(child, memory.newChild());
+      } else {
+        this.modifyResult(child, memory);
       }
-      this.modifyResult(child, memory);
     }
 
     return result;
