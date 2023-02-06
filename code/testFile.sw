@@ -1,7 +1,6 @@
 # IDENTIFIERS
-let a = 12;
+let a = 2.26e31;
 let ave = 1.15;
-# INVALID LINE: let 2pi = 3.14;
 
 # KEYWORDS AND RESERVED WORDS
 let isWorking = true;
@@ -105,8 +104,6 @@ function arithmeticSymbolToString(symbol) {
     }
   }
 }
-# INVALID LINE: let true = 25;
-# INVALID LINE: const string for = 'This fight is for you!';
 
 # CONSTANT VALUES
 const int GLOBAL_VARIABLE = 42;
@@ -125,3 +122,7 @@ let result = (((7 + 3 - 1) * (8 ** 2)) // 4) % 5;
 
 # OPERATORS: BOOLEAN
 const boolean BOOLEAN_OPERATORS = NOT a > b AND (c < d OR e >= f) AND g <= h OR i == j AND k != l;
+
+# INVALID LINE: let 2pi = 3.14;
+# INVALID LINE: let int = 25;
+# INVALID LINE: const string for = 'This fight is for you!';

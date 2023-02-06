@@ -12,9 +12,9 @@ export const FALSE_VALUE_KEYWORD = WORD("false")
   .name(Token.BOOLEAN_FALSE_KEYWORD)
   .token();
 
-export const BOOLEAN_LITERAL = OR(TRUE_VALUE_KEYWORD, FALSE_VALUE_KEYWORD).name(
-  "BOOLEAN_LITERAL"
-);
+export const BOOLEAN_LITERAL = OR(TRUE_VALUE_KEYWORD, FALSE_VALUE_KEYWORD)
+  .name("BOOLEAN_LITERAL")
+  .token();
 
 // Null Keyword
 export const NULL_KEYWORD = WORD("null").name(Token.NULL_KEYWORD).token();
