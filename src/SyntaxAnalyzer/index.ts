@@ -71,6 +71,10 @@ export class SyntaxAnalyzer {
     registerVariables(scopedResult);
 
     if (errors.length > 0) {
+      console.log("[!] Syntax Analyzer FAILED");
+      console.log(`[!] ${errors.length} Errors Found`);
+      console.log();
+
       for (const error of errors) {
         let { line: lineNumber, column } = this.getLineColumnOfRange(
           error.range
@@ -79,9 +83,6 @@ export class SyntaxAnalyzer {
 
         const line = this.getLineOfRange(error.range);
 
-        console.log(
-          `Error at Line ${lineNumber}, Column ${column.from}:${column.to} \x1b[1m[${error.message}]\x1b[0m`
-        );
         const prefix = `${lineNumber} | `;
         const length = error.range.to - error.range.from;
         const offset = this.getLeftmostNewLineOffset(error.range);
@@ -92,14 +93,20 @@ export class SyntaxAnalyzer {
         const lineColored = line.slice(offset, length + offset);
         const lineSuffix = line.slice(length + offset);
 
+        const header = `Error at Line ${lineNumber}, Column ${column.from}:${column.to} \x1b[1m[${error.message}]\x1b[0m`;
+        const footer = "".padStart(
+          header.length - "\x1b[1m\x1b[0m".length,
+          " "
+        );
+
+        console.log(header);
         console.log(
           `${prefix}${linePrefix}\x1b[1m\x1b[31m${lineColored}\x1b[0m${lineSuffix}`
         );
         console.log(`${space}\x1b[1m\x1b[33m${caret}\x1b[0m`);
+        console.log(`\x1b[4m${footer}\x1b[0m`);
+        console.log();
       }
-
-      console.log("[!] Syntax Analyzer FAILED");
-      console.log(`[!] ${errors.length} Errors Found`);
     } else {
       console.log("[✓] Syntax Analyzer SUCCESS");
     }
