@@ -160,7 +160,7 @@ export class SyntaxAnalyzer {
               nullable,
             })
           );
-        }, expression!);
+        }, expression);
       } else {
         if (primitiveDataType) {
           // if (
@@ -528,11 +528,13 @@ export class SyntaxAnalyzer {
     return range.from - lineStart;
   }
 
-  private catchError(func: () => void, result: TestResult<any, any[]>) {
+  private catchError(func: () => void, result?: TestResult<any, any[]>) {
     try {
       func();
     } catch (e: any) {
-      throw new MemoryError(result.range, e.message);
+      if (result) {
+        throw new MemoryError(result.range, e.message);
+      }
     }
   }
 }

@@ -6,7 +6,7 @@ import { getCode, testInput } from "./cli/utility";
 import { SyntaxAnalyzer } from "./SyntaxAnalyzer";
 
 const main = async () => {
-  const filepath = "./code/syntax_analyzer.sw";
+  const filepath = "./code/testFile.sw";
 
   const res = await testInput(filepath);
 };
