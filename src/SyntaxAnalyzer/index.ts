@@ -80,16 +80,22 @@ export class SyntaxAnalyzer {
         const line = this.getLineOfRange(error.range);
 
         console.log(
-          `Error at Line ${lineNumber}, Column ${column.from}:${column.to} [${error.message}]`
+          `Error at Line ${lineNumber}, Column ${column.from}:${column.to} \x1b[1m[${error.message}]\x1b[0m`
         );
         const prefix = `${lineNumber} | `;
-        console.log(`${prefix}${line}`);
         const length = error.range.to - error.range.from;
         const offset = this.getLeftmostNewLineOffset(error.range);
         const caret = "".padStart(length, "^");
         const space = "".padStart(offset + prefix.length, " ");
 
-        console.log(`${space}${caret}`);
+        const linePrefix = line.slice(0, offset);
+        const lineColored = line.slice(offset, length + offset);
+        const lineSuffix = line.slice(length + offset);
+
+        console.log(
+          `${prefix}${linePrefix}\x1b[1m\x1b[31m${lineColored}\x1b[0m${lineSuffix}`
+        );
+        console.log(`${space}\x1b[1m\x1b[33m${caret}\x1b[0m`);
       }
 
       console.log("[!] Syntax Analyzer FAILED");
