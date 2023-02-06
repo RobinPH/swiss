@@ -51,10 +51,14 @@ export class SyntaxAnalyzer {
     const errors = new Array<MemoryError>();
 
     const registerVariables = (result: TestResult<any, any[]>) => {
+      for (const child of result.children) {
+        registerVariables(child);
+      }
+
       try {
         this.handleExpression(result);
-        this.handleDeclarations(result);
         this.handleAssignments(result);
+        this.handleDeclarations(result);
       } catch (e: any) {
         if (Array.isArray(e)) {
           errors.push(...e);
@@ -62,21 +66,23 @@ export class SyntaxAnalyzer {
           errors.push(e);
         }
       }
-
-      for (const child of result.children) {
-        registerVariables(child);
-      }
     };
 
     registerVariables(scopedResult);
 
     if (errors.length > 0) {
       for (const error of errors) {
-        const lineNumber = this.getLineNumberOfRange(error.range) + 1;
+        let { line: lineNumber, column } = this.getLineColumnOfRange(
+          error.range
+        );
+        lineNumber += 1;
+
         const line = this.getLineOfRange(error.range);
 
-        console.log(`Error at Line ${lineNumber}: ${error.message}`);
-        const prefix = `${lineNumber} |    `;
+        console.log(
+          `Error at Line ${lineNumber}, Column ${column.from}:${column.to} [${error.message}]`
+        );
+        const prefix = `${lineNumber} | `;
         console.log(`${prefix}${line}`);
         const length = error.range.to - error.range.from;
         const offset = this.getLeftmostNewLineOffset(error.range);
@@ -295,7 +301,9 @@ export class SyntaxAnalyzer {
       }
     }
 
-    throw errors;
+    if (errors.length > 0) {
+      throw errors;
+    }
   }
 
   private getPrimitiveDataTypeClass(result: TestResult<any, any[]>) {
@@ -436,20 +444,34 @@ export class SyntaxAnalyzer {
     };
   }
 
-  private getLineNumberOfRange(range: { from: number; to: number }) {
+  private getLineColumnOfRange(range: { from: number; to: number }) {
     if (!this.#input) {
-      return -1;
+      return {
+        line: -1,
+        column: {
+          from: -1,
+          to: -1,
+        },
+      };
     }
 
     let lineNumber = 0;
+    let indexOfNewLine = 0;
 
     for (let i = 0; i < range.from && i < this.#input.length; i++) {
       if (this.#input[i] === "\n") {
         lineNumber++;
+        indexOfNewLine = i;
       }
     }
 
-    return lineNumber;
+    return {
+      line: lineNumber,
+      column: {
+        from: range.from - indexOfNewLine,
+        to: range.to - indexOfNewLine,
+      },
+    };
   }
 
   private getLineOfRange(range: { from: number; to: number }) {
