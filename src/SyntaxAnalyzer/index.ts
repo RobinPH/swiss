@@ -324,7 +324,6 @@ export class SyntaxAnalyzer {
           const data = result.memory!.getData(identifier.input)!;
 
           if (data instanceof VariableValueData<any, {}, any>) {
-            console.log(identifier.input, data.metadata);
             if (data.metadata.constant) {
               throw new MemoryError(
                 identifier.range,
