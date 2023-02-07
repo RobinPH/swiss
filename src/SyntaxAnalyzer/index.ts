@@ -1,4 +1,4 @@
-import { TestResult } from "../BNF/BaseBNF";
+import { TestResult, TestResultStatus } from "../BNF/BaseBNF";
 import { toText } from "../BNF/formatter";
 import { getTextFromInput } from "../BNF/formatter/utility";
 import { Token } from "../BNF/terminal/tokenType";
@@ -40,7 +40,7 @@ export class SyntaxAnalyzer {
       this.#result = rawResult;
     }
 
-    return !!rawResult;
+    return !!rawResult && rawResult.status === TestResultStatus.SUCCESS;
   }
 
   async run() {
@@ -159,92 +159,105 @@ export class SyntaxAnalyzer {
         );
       }
 
-      if (isExpression || !value) {
+      if (primitiveDataType) {
+        // if (
+        //   this.findToken(primitiveDataType, Token.STRING_DATA_TYPE_KEYWORD) ||
+        //   this.findToken(primitiveDataType, Token.CHARACTER_DATA_TYPE_KEYWORD)
+        // ) {
+        //   if (value) {
+        //     const stringContent = this.findToken(value, Token.STRING_CONTENT);
+
+        //     if (stringContent) {
+        //       value = stringContent;
+        //     }
+        //   }
+        // }
+
+        if (isExpression || !value) {
+          this.catchError(() => {
+            result.memory?.registerData(
+              new AnyData({
+                identifier: identifier!.input,
+                rawValue: expression?.input,
+                nullable,
+              })
+            );
+          }, expression);
+          return;
+        }
+
+        const PrimitiveDataType =
+          this.getPrimitiveDataTypeClass(primitiveDataType);
+
+        if (PrimitiveDataType) {
+          this.catchError(() => {
+            result.memory?.registerData(
+              new PrimitiveDataType({
+                identifier: identifier!.input,
+                rawValue: value?.input,
+                nullable,
+              })
+            );
+          }, value);
+        } else {
+          throw new MemoryError(
+            primitiveDataType.range,
+            `Unknown Primitive Type "${primitiveDataType.input}"`
+          );
+        }
+      } else if (classDataType) {
+        const className = classDataType!.input;
+
+        const clazz = result.memory?.getData(className);
+
+        if (!clazz) {
+          throw new MemoryError(
+            classDataType.range,
+            `Class "${className}" is not defined`
+          );
+        } else {
+          if (clazz.type !== DataType.CLASS) {
+            throw new MemoryError(
+              classDataType.range,
+              `Variable "${className}" is not a class`
+            );
+          }
+        }
+
+        if (isExpression || !value) {
+          this.catchError(() => {
+            result.memory?.registerData(
+              new AnyData({
+                identifier: identifier!.input,
+                rawValue: expression?.input,
+                nullable,
+              })
+            );
+          }, expression);
+          return;
+        }
+
         this.catchError(() => {
           result.memory?.registerData(
-            new AnyData({
+            new ClassTypeData({
               identifier: identifier!.input,
-              rawValue: expression?.input,
+              rawValue: "",
               nullable,
             })
           );
-        }, expression);
+        }, identifier!);
       } else {
-        if (primitiveDataType) {
-          // if (
-          //   this.findToken(primitiveDataType, Token.STRING_DATA_TYPE_KEYWORD) ||
-          //   this.findToken(primitiveDataType, Token.CHARACTER_DATA_TYPE_KEYWORD)
-          // ) {
-          //   if (value) {
-          //     const stringContent = this.findToken(value, Token.STRING_CONTENT);
+        const DataType = this.getPossiblePrimitiveType(value!.input) ?? AnyData;
 
-          //     if (stringContent) {
-          //       value = stringContent;
-          //     }
-          //   }
-          // }
-
-          const PrimitiveDataType =
-            this.getPrimitiveDataTypeClass(primitiveDataType);
-
-          if (PrimitiveDataType) {
-            this.catchError(() => {
-              result.memory?.registerData(
-                new PrimitiveDataType({
-                  identifier: identifier!.input,
-                  rawValue: value?.input,
-                  nullable,
-                })
-              );
-            }, value);
-          } else {
-            throw new MemoryError(
-              primitiveDataType.range,
-              `Unknown Primitive Type "${primitiveDataType.input}"`
-            );
-          }
-        } else if (classDataType) {
-          const className = classDataType!.input;
-
-          const clazz = result.memory?.getData(className);
-
-          if (!clazz) {
-            throw new MemoryError(
-              classDataType.range,
-              `Class "${className}" is not defined`
-            );
-          } else {
-            if (clazz.type !== DataType.CLASS) {
-              throw new MemoryError(
-                classDataType.range,
-                `Variable "${className}" is not a class`
-              );
-            }
-          }
-
-          this.catchError(() => {
-            result.memory?.registerData(
-              new ClassTypeData({
-                identifier: identifier!.input,
-                rawValue: "",
-                nullable,
-              })
-            );
-          }, identifier!);
-        } else {
-          const DataType =
-            this.getPossiblePrimitiveType(value!.input) ?? AnyData;
-
-          this.catchError(() => {
-            result.memory?.registerData(
-              new DataType({
-                identifier: identifier!.input,
-                rawValue: value?.input ?? "",
-                nullable,
-              })
-            );
-          }, identifier!);
-        }
+        this.catchError(() => {
+          result.memory?.registerData(
+            new DataType({
+              identifier: identifier!.input,
+              rawValue: value?.input ?? "",
+              nullable,
+            })
+          );
+        }, identifier!);
       }
     } else if (result.name === Token.FUNCTION_STATEMENT) {
       const parameter = this.findToken(result, Token.PARAMETER)!;

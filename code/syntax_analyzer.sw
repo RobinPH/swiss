@@ -1,42 +1,37 @@
-class Test {}
-const int a = 1;
-const float b = 3.14159;
-const int v = ax * 2 + 137 / xasd;
-const int foo = "sdfs";
 
+const float PI = 3.14159;
+constant GOLDEN_RATIO = 1.618;
+const int z;                    # ERROR
+let a = 1.43;
+const a = 1;                    # ERROR
+let int b = 2.41;               # ERROR
+let char c = "Hello World";     # ERROR
+constant string d = "Hello World";
+let boolean e = true;
+const bool g = 1;
+let int f = true;               # ERROR
 
-asda += 1;
+let int x = 0;
+x++;
 
-do {
+y++;                            # ERROR
 
-} while (x == true);
+let z = x * a + PI + 2 * GOLDEN_RATIO;
+z += y;                         # ERROR
 
-b **= new Test() - v;
+function fibonacci(num) {
+  x += var_not_defined;         # ERROR
 
-function fastExponent(base, exponent) {
-  let result = 1;
-  let b = base;
-
-  while (exponent > 0) {
-    if (exponent & 1) {
-      result *= b;
-    }
-
-    b *= b;
-    exponent >>= 1;
+  if (num == 0 OR num == 1) {
+    x *= 10;
+    return 0;
   }
 
-  return result;
+  return fibonacci(num - 1) + fibonacci(num - 2);
 }
 
-class MyCustomClass {}
-let MyCustomClass something1 = new MyCustomClass();   # DATA_TYPE
-let int something2 = 1;                               # DATATYPE_SPECIFIER
+class Entity {}
 
-
-
-let something = 1;
-
-for (let a = 1; a < 10; a++) {
-
-}
+const Entity entity1 = new Entity(x, z);
+const entity2 = new Entity(x, z);
+let HumanEntitiy human = new HumanEntity(x, z);     # ERROR
