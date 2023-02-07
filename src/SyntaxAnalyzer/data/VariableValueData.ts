@@ -3,6 +3,7 @@ import { BaseData, DataMetadata } from "./BaseData";
 type VariableValueMetadata = {
   rawValue?: string;
   nullable: boolean;
+  constant: boolean;
 };
 
 export abstract class VariableValueData<
@@ -17,12 +18,14 @@ export abstract class VariableValueData<
     type: Type,
     metadata: Omit<
       DataMetadata & Metadata & VariableValueMetadata,
-      "type" | "nullable"
+      "type" | "nullable" | "constant"
     > & {
       nullable?: boolean;
+      constant?: boolean;
     }
   ) {
     metadata.nullable ??= false;
+    metadata.constant ??= false;
     // @ts-ignore
     super({
       type,

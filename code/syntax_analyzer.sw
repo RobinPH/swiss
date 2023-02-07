@@ -11,6 +11,8 @@ let boolean e = true;
 const bool g = 1;
 let int f = true;               # ERROR
 
+PI += 1;
+
 let int x = 0;
 x++;
 
@@ -35,3 +37,13 @@ class Entity {}
 const Entity entity1 = new Entity(x, z);
 const entity2 = new Entity(x, z);
 let HumanEntitiy human = new HumanEntity(x, z);     # ERROR
+
+
+
+
+
+
+
+
+
+

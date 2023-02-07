@@ -15,6 +15,7 @@ import { FunctionParameterData } from "./data/FunctionParameterData";
 import { ClassTypeData } from "./data/ClassTypeData";
 import { DataType } from "./data/types";
 import { LexicalAnalyzer } from "../LexicalAnalyzer";
+import { VariableValueData } from "./data/VariableValueData";
 
 export class SyntaxAnalyzer {
   readonly filepath: string;
@@ -130,6 +131,7 @@ export class SyntaxAnalyzer {
       result.name === Token.CONST_DECLARATION_STATEMENT
     ) {
       const nullable = result.name !== Token.CONST_DECLARATION_STATEMENT;
+      const constant = result.name === Token.CONST_DECLARATION_STATEMENT;
 
       if (result.name === Token.CONST_DECLARATION_STATEMENT) {
         var identifier = this.findToken(result, Token.CONST_IDENTIFIER);
@@ -180,6 +182,7 @@ export class SyntaxAnalyzer {
                 identifier: identifier!.input,
                 rawValue: expression?.input,
                 nullable,
+                constant,
               })
             );
           }, expression);
@@ -196,6 +199,7 @@ export class SyntaxAnalyzer {
                 identifier: identifier!.input,
                 rawValue: value?.input,
                 nullable,
+                constant,
               })
             );
           }, value);
@@ -231,6 +235,7 @@ export class SyntaxAnalyzer {
                 identifier: identifier!.input,
                 rawValue: expression?.input,
                 nullable,
+                constant,
               })
             );
           }, expression);
@@ -243,6 +248,7 @@ export class SyntaxAnalyzer {
               identifier: identifier!.input,
               rawValue: "",
               nullable,
+              constant,
             })
           );
         }, identifier!);
@@ -255,6 +261,7 @@ export class SyntaxAnalyzer {
               identifier: identifier!.input,
               rawValue: value?.input ?? "",
               nullable,
+              constant,
             })
           );
         }, identifier!);
@@ -313,6 +320,18 @@ export class SyntaxAnalyzer {
             identifier.range,
             `Identifier "${identifier.input}" is not defined`
           );
+        } else {
+          const data = result.memory!.getData(identifier.input)!;
+
+          if (data instanceof VariableValueData<any, {}, any>) {
+            console.log(identifier.input, data.metadata);
+            if (data.metadata.constant) {
+              throw new MemoryError(
+                identifier.range,
+                `Constant variable "${identifier.input}" cannot be reassigned`
+              );
+            }
+          }
         }
 
         break;
