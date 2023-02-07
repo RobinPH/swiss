@@ -326,7 +326,7 @@ export class SyntaxAnalyzer {
 
     const classMethods = this.findTokens(result, Token.CLASS_METHOD);
 
-    const codeBlock = this.findToken(result, Token.CODE_BLOCK)!;
+    const codeBlock = this.findToken(result, Token.CLASS_CODE_BLOCK)!;
 
     for (const classMethod of classMethods) {
       const methodName = this.findToken(classMethod, Token.IDENTIFIER)!;
@@ -587,7 +587,10 @@ export class SyntaxAnalyzer {
         child.childExpression = result.childExpression;
       }
 
-      if (child.name === Token.CODE_BLOCK) {
+      if (
+        child.name === Token.CODE_BLOCK ||
+        child.name === Token.CLASS_CODE_BLOCK
+      ) {
         this.modifyResult(child, memory.newChild());
       } else {
         this.modifyResult(child, memory);
