@@ -11,7 +11,7 @@ let boolean e = true;
 const bool g = 1;
 let int f = true;               # ERROR
 
-PI += 1;
+PI += 1;                        # ERROR
 
 let int x = 0;
 x++;
@@ -32,12 +32,22 @@ function fibonacci(num) {
   return fibonacci(num - 1) + fibonacci(num - 2);
 }
 
-class Entity {}
+class Entity {
+  int foo = 1;              
+  int foo;                                    # ERROR
 
-const Entity entity1 = new Entity(x, z);
-const entity2 = new Entity(x, z);
-let HumanEntitiy human = new HumanEntity(x, z);     # ERROR
+  method(a) {
+    let x = 1;
+    let a = 1;                                # ERROR
+  }
+}
 
+class HumanEntity extends Entity {}
+class MonsterEntity extends x {}              # ERROR
+
+const Entity entity = new Entity(x, z);
+const human = new HumanEntity(x, z);
+let PetEntity pet = new PetEntity(x, z);      # ERROR
 
 
 

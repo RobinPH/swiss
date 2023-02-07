@@ -16,6 +16,8 @@ import { ClassTypeData } from "./data/ClassTypeData";
 import { DataType } from "./data/types";
 import { LexicalAnalyzer } from "../LexicalAnalyzer";
 import { VariableValueData } from "./data/VariableValueData";
+import { MethodData } from "./data/MethodData";
+import { MethodParameterData } from "./data/MethodParameterData";
 
 export class SyntaxAnalyzer {
   readonly filepath: string;
@@ -162,30 +164,17 @@ export class SyntaxAnalyzer {
       }
 
       if (primitiveDataType) {
-        // if (
-        //   this.findToken(primitiveDataType, Token.STRING_DATA_TYPE_KEYWORD) ||
-        //   this.findToken(primitiveDataType, Token.CHARACTER_DATA_TYPE_KEYWORD)
-        // ) {
-        //   if (value) {
-        //     const stringContent = this.findToken(value, Token.STRING_CONTENT);
-
-        //     if (stringContent) {
-        //       value = stringContent;
-        //     }
-        //   }
-        // }
-
         if (isExpression || !value) {
           this.catchError(() => {
             result.memory?.registerData(
               new AnyData({
-                identifier: identifier!.input,
-                rawValue: expression?.input,
+                identifier: identifier?.input ?? "",
+                rawValue: expression?.input ?? "",
                 nullable,
                 constant,
               })
             );
-          }, expression);
+          }, identifier);
           return;
         }
 
@@ -196,13 +185,13 @@ export class SyntaxAnalyzer {
           this.catchError(() => {
             result.memory?.registerData(
               new PrimitiveDataType({
-                identifier: identifier!.input,
-                rawValue: value?.input,
+                identifier: identifier?.input ?? "",
+                rawValue: value?.input ?? "",
                 nullable,
                 constant,
               })
             );
-          }, value);
+          }, identifier);
         } else {
           throw new MemoryError(
             primitiveDataType.range,
@@ -210,7 +199,7 @@ export class SyntaxAnalyzer {
           );
         }
       } else if (classDataType) {
-        const className = classDataType!.input;
+        const className = classDataType?.input ?? "";
 
         const clazz = result.memory?.getData(className);
 
@@ -232,20 +221,20 @@ export class SyntaxAnalyzer {
           this.catchError(() => {
             result.memory?.registerData(
               new AnyData({
-                identifier: identifier!.input,
-                rawValue: expression?.input,
+                identifier: identifier?.input ?? "",
+                rawValue: expression?.input ?? "",
                 nullable,
                 constant,
               })
             );
-          }, expression);
+          }, identifier);
           return;
         }
 
         this.catchError(() => {
           result.memory?.registerData(
             new ClassTypeData({
-              identifier: identifier!.input,
+              identifier: identifier?.input ?? "",
               rawValue: "",
               nullable,
               constant,
@@ -253,18 +242,18 @@ export class SyntaxAnalyzer {
           );
         }, identifier!);
       } else {
-        const DataType = this.getPossiblePrimitiveType(value!.input) ?? AnyData;
+        const DataType =
+          this.getPossiblePrimitiveType(value?.input ?? "") ?? AnyData;
 
         this.catchError(() => {
           result.memory?.registerData(
             new DataType({
-              identifier: identifier!.input,
+              identifier: identifier?.input ?? "",
               rawValue: value?.input ?? "",
               nullable,
-              constant,
             })
           );
-        }, identifier!);
+        }, identifier);
       }
     } else if (result.name === Token.FUNCTION_STATEMENT) {
       const parameter = this.findToken(result, Token.PARAMETER)!;
@@ -275,7 +264,7 @@ export class SyntaxAnalyzer {
         const id = this.findToken(param, Token.IDENTIFIER);
         return {
           data: new FunctionParameterData({
-            identifier: id!.input,
+            identifier: id?.input ?? "",
           }),
           id,
         };
@@ -284,7 +273,7 @@ export class SyntaxAnalyzer {
       this.catchError(() => {
         result.memory?.registerData(
           new FunctionData({
-            identifier: identifier!.input,
+            identifier: identifier?.input ?? "",
             parameters: params.map(({ data }) => data),
           })
         );
@@ -292,21 +281,211 @@ export class SyntaxAnalyzer {
 
       const codeBlock = this.findToken(result, Token.CODE_BLOCK)!;
 
-      // console.log(codeBlock, result);
-
       for (const { data, id } of params) {
         this.catchError(() => {
           codeBlock.memory!.registerData(data);
         }, id!);
       }
     } else if (result.name === Token.CLASS_DECLARATION) {
+      this.handleClassDeclaration(result);
+    }
+  }
+
+  private handleClassDeclaration(result: TestResult<any, any[]>) {
+    var identifier = this.findToken(result, Token.IDENTIFIER);
+
+    this.catchError(() => {
+      result.memory?.registerData(
+        new ClassData({
+          identifier: identifier?.input ?? "",
+        })
+      );
+    }, identifier!);
+
+    const extendStatement = this.findToken(result, Token.CLASS_EXTEND);
+
+    if (extendStatement) {
+      const extendClass = this.findToken(extendStatement, Token.IDENTIFIER)!;
+
+      const clazz = result.memory?.getData(extendClass.input);
+
+      if (!clazz) {
+        throw new MemoryError(
+          extendClass.range,
+          `Class "${extendClass.input}" is not defined`
+        );
+      } else {
+        if (clazz.type !== DataType.CLASS) {
+          throw new MemoryError(
+            extendClass.range,
+            `Variable "${extendClass.input}" is not a class`
+          );
+        }
+      }
+    }
+
+    const classMethods = this.findTokens(result, Token.CLASS_METHOD);
+
+    const codeBlock = this.findToken(result, Token.CODE_BLOCK)!;
+
+    for (const classMethod of classMethods) {
+      const methodName = this.findToken(classMethod, Token.IDENTIFIER)!;
+
+      if (codeBlock.memory?.hasData(methodName.input)) {
+        throw new MemoryError(
+          methodName.range,
+          `Class Method "${methodName.input}" is already defined`
+        );
+      }
+
+      const parameter = this.findToken(classMethod, Token.PARAMETER)!;
+      const restParameters = this.findToken(classMethod, Token.REST_PARAMETER)!;
+      const p1 = this.findTokens(parameter, Token.IDENTIFIER);
+      const pRest = this.findTokens(restParameters, Token.IDENTIFIER);
+      const params = [...pRest, ...p1].map((param) => {
+        const id = this.findToken(param, Token.IDENTIFIER);
+        return {
+          data: new MethodParameterData({
+            identifier: id?.input ?? "",
+          }),
+          id,
+        };
+      });
+
+      for (const { data, id } of params) {
+        this.catchError(() => {
+          codeBlock.memory!.registerData(data);
+        }, id!);
+      }
+
       this.catchError(() => {
-        result.memory?.registerData(
-          new ClassData({
-            identifier: identifier!.input,
+        codeBlock.memory?.registerData(
+          new MethodData({
+            identifier: methodName?.input ?? "",
+            parameters: params.map(({ data }) => data),
+          })
+        );
+      }, methodName!);
+    }
+
+    const classVariables = this.findTokens(
+      result,
+      Token.CLASS_INSTANCE_VARIABLE
+    );
+
+    for (const classVariable of classVariables) {
+      this.handleClassVariableDeclaration(codeBlock, classVariable);
+    }
+  }
+
+  private handleClassVariableDeclaration(
+    codeBlock: TestResult<any, any[]>,
+    classVariable: TestResult<any, any[]>
+  ) {
+    const nullable = true;
+
+    const identifier = this.findToken(classVariable, Token.IDENTIFIER);
+
+    const classDataType = this.findToken(classVariable, Token.DATA_TYPE);
+    const primitiveDataType = this.findToken(
+      classVariable,
+      Token.DATATYPE_SPECIFIER
+    );
+
+    const value = this.findToken(classVariable, Token.VALUE);
+
+    const expression = this.findToken(classVariable, Token.EXPRESSION);
+    const isExpression =
+      expression &&
+      this.findTokens(classVariable, Token.EXPRESSION, true).length > 1;
+
+    if (primitiveDataType) {
+      if (isExpression || !value) {
+        this.catchError(() => {
+          codeBlock.memory?.registerData(
+            new AnyData({
+              identifier: identifier?.input ?? "",
+              rawValue: expression?.input ?? "",
+              nullable,
+            })
+          );
+        }, identifier);
+        return;
+      }
+
+      const PrimitiveDataType =
+        this.getPrimitiveDataTypeClass(primitiveDataType);
+
+      if (PrimitiveDataType) {
+        this.catchError(() => {
+          codeBlock.memory?.registerData(
+            new PrimitiveDataType({
+              identifier: identifier?.input ?? "",
+              rawValue: value?.input ?? "",
+              nullable,
+            })
+          );
+        }, identifier);
+      } else {
+        throw new MemoryError(
+          primitiveDataType.range,
+          `Unknown Primitive Type "${primitiveDataType.input}"`
+        );
+      }
+    } else if (classDataType) {
+      const className = classDataType?.input ?? "";
+
+      const clazz = codeBlock.memory?.getData(className);
+
+      if (!clazz) {
+        throw new MemoryError(
+          classDataType.range,
+          `Class "${className}" is not defined`
+        );
+      } else {
+        if (clazz.type !== DataType.CLASS) {
+          throw new MemoryError(
+            classDataType.range,
+            `Variable "${className}" is not a class`
+          );
+        }
+      }
+
+      if (isExpression || !value) {
+        this.catchError(() => {
+          codeBlock.memory?.registerData(
+            new AnyData({
+              identifier: identifier?.input ?? "",
+              rawValue: expression?.input ?? "",
+              nullable,
+            })
+          );
+        }, identifier);
+        return;
+      }
+
+      this.catchError(() => {
+        codeBlock.memory?.registerData(
+          new ClassTypeData({
+            identifier: identifier?.input ?? "",
+            rawValue: "",
+            nullable,
           })
         );
       }, identifier!);
+    } else {
+      const DataType =
+        this.getPossiblePrimitiveType(value?.input ?? "") ?? AnyData;
+
+      this.catchError(() => {
+        codeBlock.memory?.registerData(
+          new DataType({
+            identifier: identifier?.input ?? "",
+            rawValue: value?.input ?? "",
+            nullable,
+          })
+        );
+      }, identifier);
     }
   }
 
@@ -510,8 +689,8 @@ export class SyntaxAnalyzer {
       };
     }
 
-    let lineNumber = 0;
     let indexOfNewLine = 0;
+    let lineNumber = 0;
 
     for (let i = 0; i < range.from && i < this.#input.length; i++) {
       if (this.#input[i] === "\n") {
