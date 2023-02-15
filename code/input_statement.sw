@@ -1,0 +1,1 @@
+const string username = input("Enter username:");

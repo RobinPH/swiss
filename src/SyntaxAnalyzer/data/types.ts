@@ -4,6 +4,7 @@ export enum PrimitiveDataType {
   STRING = "STRING",
   BOOLEAN = "BOOLEAN",
   CHARACTER = "CHARACTER",
+  ARRAY = "ARRAY",
 }
 
 export enum DataType {

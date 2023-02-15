@@ -1,5 +1,7 @@
 
 const float PI = 3.14159;
+PI += 1;                        # ERROR
+
 constant GOLDEN_RATIO = 1.618;
 const int z;                    # ERROR
 let a = 1.43;
@@ -10,8 +12,9 @@ constant string d = "Hello World";
 let boolean e = true;
 const bool g = 1;
 let int f = true;               # ERROR
+let array arr = [1, 2, PI];
+let array arr2 = 1;             # ERROR
 
-PI += 1;                        # ERROR
 
 let int x = 0;
 x++;
@@ -48,7 +51,6 @@ class MonsterEntity extends x {}              # ERROR
 const Entity entity = new Entity(x, z);
 const human = new HumanEntity(x, z);
 let PetEntity pet = new PetEntity(x, z);      # ERROR
-
 
 
 

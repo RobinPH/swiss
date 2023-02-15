@@ -4,8 +4,10 @@ import { Token } from "../tokenType";
 
 export const NO_ZERO_PREFIX_INTEGER = OR(
   ATOM("0"),
-  CONCAT(DIGIT_NONZERO, OPTIONAL(STAR(DIGIT)))
-);
+  CONCAT(DIGIT_NONZERO, OPTIONAL(STAR(DIGIT))).name(
+    Token.INTEGER_NON_SCIENTIFIC
+  )
+).name(Token.NO_ZERO_PREFIX_INTEGER);
 
 export const EXPONENT_PART = CONCAT(
   OR(ATOM("e"), ATOM("E")).name(Token.SCIENTIFIC_EXPONENT_SYMBOL).token(),

@@ -16,7 +16,7 @@ export const EMPTY_SPACE = ATOM("").name(Token.EPSILON).hide();
 
 export const WHITESPACE = CONCAT(
   EMPTY_SPACE,
-  STAR(NON_EMPTY_WHITESPACE_CHARACTER).name(Token.WHITESPACE)
+  STAR(NON_EMPTY_WHITESPACE_CHARACTER)
 )
   .name(Token.WHITESPACE)
   .token()

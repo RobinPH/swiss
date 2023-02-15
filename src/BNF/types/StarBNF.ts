@@ -105,9 +105,9 @@ export default class StarBNF<
     return task;
   }
 
-  toVariable(): string {
-    return `${this.#bnf.toTerminal()}*`;
-  }
+  // toVariable(): string {
+  //   return `${this.#bnf.toTerminal()}*`;
+  // }
 
   toDefinition(): string {
     const definition =

@@ -1,5 +1,5 @@
 import { TestResult, TestResultStatus } from "../BNF/BaseBNF";
-import { toText } from "../BNF/formatter";
+import { toTable, toText } from "../BNF/formatter";
 import { getTextFromInput } from "../BNF/formatter/utility";
 import { Token } from "../BNF/terminal/tokenType";
 import { ClassData } from "./data/ClassData";
@@ -18,6 +18,8 @@ import { LexicalAnalyzer } from "../LexicalAnalyzer";
 import { VariableValueData } from "./data/VariableValueData";
 import { MethodData } from "./data/MethodData";
 import { MethodParameterData } from "./data/MethodParameterData";
+import { ArrayData } from "./data/ArrayData";
+import { BaseData } from "./data/BaseData";
 
 export class SyntaxAnalyzer {
   readonly filepath: string;
@@ -38,6 +40,7 @@ export class SyntaxAnalyzer {
     if (rawResult) {
       this.#input = rawResult.input;
       toText("index.txt", rawResult);
+      toTable("symbol table", rawResult);
 
       // this.#result = SyntaxAnalyzer.cleanResult(rawResult);
       this.#result = rawResult;
@@ -58,6 +61,20 @@ export class SyntaxAnalyzer {
     const scopedResult = this.modifyResult(this.#result!, memory);
 
     const errors = new Array<MemoryError>();
+
+    this.registerGlobalVariable(
+      new FunctionData({
+        identifier: "print",
+        parameters: [],
+      })
+    );
+
+    this.registerGlobalVariable(
+      new FunctionData({
+        identifier: "input",
+        parameters: [],
+      })
+    );
 
     const registerVariables = (result: TestResult<any, any[]>) => {
       try {
@@ -125,6 +142,10 @@ export class SyntaxAnalyzer {
     return memory;
   }
 
+  private registerGlobalVariable(data: BaseData<any>) {
+    this.#result?.memory?.registerData(data);
+  }
+
   private handleDeclarations(result: TestResult<any, any[]>) {
     var identifier = this.findToken(result, Token.IDENTIFIER);
 
@@ -189,6 +210,7 @@ export class SyntaxAnalyzer {
                 rawValue: value?.input ?? "",
                 nullable,
                 constant,
+                result,
               })
             );
           }, identifier);
@@ -423,6 +445,7 @@ export class SyntaxAnalyzer {
               identifier: identifier?.input ?? "",
               rawValue: value?.input ?? "",
               nullable,
+              result: classVariable,
             })
           );
         }, identifier);
@@ -550,6 +573,8 @@ export class SyntaxAnalyzer {
       return CharacterData;
     } else if (this.findToken(result, Token.BOOLEAN_DATA_TYPE_KEYWORD)) {
       return BooleanData;
+    } else if (this.findToken(result, Token.ARRAY_DATA_TYPE_KEYWORD)) {
+      return ArrayData;
     }
   }
 

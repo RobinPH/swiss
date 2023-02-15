@@ -1,9 +1,11 @@
+import { TestResult } from "../../BNF/BaseBNF";
 import { BaseData, DataMetadata } from "./BaseData";
 
 type VariableValueMetadata = {
   rawValue?: string;
   nullable: boolean;
   constant: boolean;
+  result?: TestResult<any, any[]>;
 };
 
 export abstract class VariableValueData<

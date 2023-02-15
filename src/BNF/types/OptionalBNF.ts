@@ -17,9 +17,9 @@ export default class OptionalBNF<
     this.#bnf = bnf;
   }
 
-  toVariable(): string {
-    return `${this.#bnf.toTerminal()}?`;
-  }
+  // toVariable(): string {
+  //   return `${this.#bnf.toTerminal()}?`;
+  // }
 
   toDefinition(): string {
     const definition =

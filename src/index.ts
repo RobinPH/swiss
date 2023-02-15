@@ -1,14 +1,15 @@
-import { TestResultStatus } from "./BNF/BaseBNF";
-import { toTable, toText } from "./BNF/formatter";
-import { SWISS } from "./BNF/terminal/statement";
-import { vizualize, vizualizeParseTree } from "./BNF/viz";
-import { getCode, testInput } from "./cli/utility";
-import { SyntaxAnalyzer } from "./SyntaxAnalyzer";
+import { testInput } from "./cli/utility";
 
 const main = async () => {
-  const filepath = "./code/syntax_analyzer.sw";
+  const filepath = "./code/with_error.sw";
 
   const res = await testInput(filepath);
+
+  // const declarations = FINALLY_STATEMENT.getAllDeclaration();
+
+  // for (const declaration of declarations) {
+  //   console.log(declaration);
+  // }
 };
 
 main();

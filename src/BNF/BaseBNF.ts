@@ -160,7 +160,52 @@ abstract class BaseBNF<
   }
 
   toVariable() {
+    if (this.isNameUUID()) {
+      return "(" + this.toDefinition() + ")";
+    }
+
     return this.toTerminal();
+  }
+
+  isNameUUID() {
+    const regex =
+      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+
+    return regex.test(this.getName());
+  }
+
+  getAllDeclaration() {
+    const children = new Array<BaseBNF<any, any[], any>>();
+    const has = new Set<BaseBNF<any, any[], any>>();
+
+    const getChildren = (bnf: BaseBNF<any, any[], any>) => {
+      if (has.has(bnf)) {
+        return;
+      }
+
+      has.add(bnf);
+      if (!bnf.isNameUUID() && bnf.type !== BNFType.ATOM) {
+        children.push(bnf);
+      }
+
+      for (const child of bnf.#children) {
+        getChildren(child);
+      }
+    };
+
+    getChildren(this);
+
+    children.reverse();
+
+    const declarations = new Array<string>();
+
+    for (const bnf of children) {
+      const declaration = bnf.toDeclaration();
+
+      declarations.push(declaration.replace("\r", "\\r").replace("\n", "\\n"));
+    }
+
+    return declarations;
   }
 
   getName() {

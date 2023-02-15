@@ -3,9 +3,7 @@ import { Token } from "./tokenType";
 
 export const CONST_DECLARATOR = CONCAT(
   WORD("const").name(Token.CONST_DECLARATOR),
-  OPTIONAL(WORD("ant").name(Token.CONST_NOISE_WORD)).name(
-    Token.CONST_NOISE_WORD
-  )
+  OPTIONAL(WORD("ant")).name(Token.CONST_NOISE_WORD)
 )
   .name(Token.CONST_DECLARATOR)
   .token();
