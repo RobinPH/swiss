@@ -16,7 +16,7 @@ import {
 } from "../operator/assignment";
 import { SEMICOLON, UNDERSCORE } from "../specialCharacter";
 import { VALUE } from "../value";
-import { NON_EMPTY_WHITESPACE, WHITESPACE } from "../whitespace";
+import { EMPTY_SPACE, NON_EMPTY_WHITESPACE, WHITESPACE } from "../whitespace";
 import {
   CATCH_KEYWORD,
   CLASS_EXTENDS_KEYWORD,
@@ -168,7 +168,7 @@ export const DO_WHILE_STATEMENT = CONCAT(
 const TRUE_STATEMENTS = OR(
   DECLARATION_STATEMENT,
   ASSIGNMENT_STATEMENT,
-  EXPRESSION
+  OR(EXPRESSION, EMPTY_SPACE)
 );
 
 export const FOR_STATEMENT = CONCAT(

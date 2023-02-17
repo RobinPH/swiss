@@ -1,7 +1,7 @@
 import { testInput } from "./cli/utility";
 
 const main = async () => {
-  const filepath = "./code/with_error.sw";
+  const filepath = "./code/conditional_statement.sw";
 
   const res = await testInput(filepath);
 
