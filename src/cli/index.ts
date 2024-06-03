@@ -1,9 +1,5 @@
 import fs from "node:fs";
-import path from "node:path";
-import { TestResultStatus } from "../BNF/BaseBNF";
-import { toTable } from "../BNF/formatter";
-import { SWISS } from "../BNF/terminal/statement";
-import { getCode, testInput } from "./utility";
+import { testInput } from "./utility";
 
 const main = async () => {
   if (process.argv.length < 3) {

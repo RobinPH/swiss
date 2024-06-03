@@ -2,38 +2,42 @@ import { TestResult, TestResultStatus } from "../BNF/BaseBNF";
 import { toTable, toText } from "../BNF/formatter";
 import { getTextFromInput } from "../BNF/formatter/utility";
 import { Token } from "../BNF/terminal/tokenType";
-import { ClassData } from "./data/ClassData";
-import { FunctionData } from "./data/FunctionData";
-import { AnyData } from "./data/AnyData";
-import { BooleanData } from "./data/BooleanData";
-import { CharacterData } from "./data/CharacterData";
-import { FloatData } from "./data/FloatData";
-import { IntegerData } from "./data/IntegerData";
-import { StringData } from "./data/StringData";
-import { Memory, MemoryError } from "./Memory";
-import { FunctionParameterData } from "./data/FunctionParameterData";
-import { ClassTypeData } from "./data/ClassTypeData";
-import { DataType } from "./data/types";
 import { LexicalAnalyzer } from "../LexicalAnalyzer";
-import { VariableValueData } from "./data/VariableValueData";
-import { MethodData } from "./data/MethodData";
-import { MethodParameterData } from "./data/MethodParameterData";
+import { Memory, MemoryError } from "./Memory";
+import { AnyData } from "./data/AnyData";
 import { ArrayData } from "./data/ArrayData";
 import { BaseData } from "./data/BaseData";
+import { BooleanData } from "./data/BooleanData";
+import { CharacterData } from "./data/CharacterData";
+import { ClassData } from "./data/ClassData";
+import { ClassTypeData } from "./data/ClassTypeData";
+import { FloatData } from "./data/FloatData";
+import { FunctionData } from "./data/FunctionData";
+import { FunctionParameterData } from "./data/FunctionParameterData";
+import { IntegerData } from "./data/IntegerData";
+import { MethodData } from "./data/MethodData";
+import { MethodParameterData } from "./data/MethodParameterData";
+import { StringData } from "./data/StringData";
+import { VariableValueData } from "./data/VariableValueData";
+import { DataType } from "./data/types";
 
 export class SyntaxAnalyzer {
   readonly filepath: string;
   #rawResult?: TestResult<any, any[]>;
   #result?: TestResult<any, any[]>;
   #input?: string;
+  lexicalAnalyer: LexicalAnalyzer;
+
+  logs = new Array<string>();
 
   constructor(filepath: string) {
     this.filepath = filepath;
+
+    this.lexicalAnalyer = new LexicalAnalyzer(this.filepath);
   }
 
   private async runLexicalAnalyzer() {
-    const lexicalAnalyer = new LexicalAnalyzer(this.filepath);
-    const rawResult = await lexicalAnalyer.run();
+    const rawResult = await this.lexicalAnalyer.run();
 
     this.#rawResult = rawResult;
 
@@ -97,9 +101,9 @@ export class SyntaxAnalyzer {
     registerVariables(scopedResult);
 
     if (errors.length > 0) {
-      console.log("[!] Syntax Analyzer FAILED");
-      console.log(`[!] ${errors.length} Errors Found`);
-      console.log();
+      this.log("[!] Syntax Analyzer FAILED");
+      this.log(`[!] ${errors.length} Errors Found`);
+      this.log();
 
       for (const error of errors) {
         let { line: lineNumber, column } = this.getLineColumnOfRange(
@@ -125,19 +129,19 @@ export class SyntaxAnalyzer {
           " "
         );
 
-        console.log(header);
-        console.log(
+        this.log(header);
+        this.log(
           `${prefix}${linePrefix}\x1b[1m\x1b[31m${lineColored}\x1b[0m${lineSuffix}`
         );
-        console.log(`${space}\x1b[1m\x1b[33m${caret}\x1b[0m`);
-        console.log(`\x1b[4m${footer}\x1b[0m`);
-        console.log();
+        this.log(`${space}\x1b[1m\x1b[33m${caret}\x1b[0m`);
+        this.log(`\x1b[4m${footer}\x1b[0m`);
+        this.log();
       }
     } else {
-      console.log("[✓] Syntax Analyzer SUCCESS");
+      this.log("[✓] Syntax Analyzer SUCCESS");
     }
 
-    // console.log(JSON.stringify(memory.toJSON(), null, 2));
+    // this.log(JSON.stringify(memory.toJSON(), null, 2));
 
     return memory;
   }
@@ -600,7 +604,7 @@ export class SyntaxAnalyzer {
     result.childExpression ??= false;
 
     // if (result.name === Token.EXPRESSION) {
-    //   console.log(this.findToken(result, Token.IDENTIFIER));
+    //   this.log(this.findToken(result, Token.IDENTIFIER));
     // }
 
     for (const child of result.children) {
@@ -785,5 +789,11 @@ export class SyntaxAnalyzer {
         throw new MemoryError(result.range, e.message);
       }
     }
+  }
+
+  log(...data: string[]) {
+    this.logs.push(...data);
+
+    console.log(...data);
   }
 }

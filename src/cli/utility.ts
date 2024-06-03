@@ -23,5 +23,13 @@ export const getCode = (filepath: string) => {
 export const testInput = async (filepath: string) => {
   const syntaxAnalyzer = new SyntaxAnalyzer(filepath);
 
-  return await syntaxAnalyzer.run();
+  const memory = await syntaxAnalyzer.run();
+
+  return {
+    memory,
+    logs: {
+      lexicalAnalyzer: syntaxAnalyzer.lexicalAnalyer.logs,
+      syntaxAnalyzer: syntaxAnalyzer.logs,
+    },
+  };
 };
